@@ -1,9 +1,9 @@
 all: clean test.bin
 
 clean:
-	rm *.bin | true
+	-rm *.bin
 
 test.bin:
-	docker run --rm -v $(PWD):/data -w /data nguillaumin/vasm vasmm68k_mot -Fbin -o test.bin test.asm
+	docker run --rm -v $(PWD):/src rhargreaves/asm68k /p test.asm,test.bin
 
 .PHONY: all clean
