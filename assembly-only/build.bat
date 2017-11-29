@@ -1,0 +1,1 @@
+asm68k.exe /p test.asm,test.bin
