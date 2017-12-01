@@ -82,20 +82,22 @@ MakeSound:
 ; F = frequency of the tone
 ; C = clock frequency (NTSC or PAL)
 ; R = register value
-; So:
-; For 660 Hz: R = 
 
-
-Ch0:	; FE
+Ch0:	; FE (440 Hz = A)
 	move.b #%10001110, PSGCtrlPort ; Latch ON, channel 0, counter data type, lower 4 bits of data
 	move.b #%00001111, PSGCtrlPort ; Latch OFF, upper 6 bits of data
-Ch1:	; A9
+Ch1:	; C9 (554 Hz = C#)
 	move.b #%10101001, PSGCtrlPort ; Latch ON, channel 1, counter data type, lower 4 bits of data
-	move.b #%00001010, PSGCtrlPort ; Latch OFF, upper 6 bits of data	
+	move.b #%00001100, PSGCtrlPort ; Latch OFF, upper 6 bits of data
+Ch2:	; A9 (659 Hz = E)
+	move.b #%11001001, PSGCtrlPort ; Latch ON, channel 2, counter data type, lower 4 bits of data
+	move.b #%00001010, PSGCtrlPort ; Latch OFF, upper 6 bits of data
 Ch0Vol:
 	move.b #%10010000, PSGCtrlPort ; Latch OFF, channel 0, attenuation data type, 4 bits of data
 Ch1Vol:
-	move.b #%10110000, PSGCtrlPort ; Latch OFF, channel 0, attenuation data type, 4 bits of data	
+	move.b #%10110000, PSGCtrlPort ; Latch OFF, channel 1, attenuation data type, 4 bits of data
+Ch2Vol:
+	move.b #%11010000, PSGCtrlPort ; Latch OFF, channel 2, attenuation data type, 4 bits of data	
 
 	Loop:
 	move.l #0xF, d0 ; Move 15 into register d0
