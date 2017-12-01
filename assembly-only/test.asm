@@ -40,7 +40,7 @@ CharacterH:
    dc.l 0x00000000
 
 __main:
-SetupVDP:
+SetPurpleBackground:
 	move.l #0x40000003, 0x00C00004	; we’re about to write data to VRAM address 0xC000
 	move.w #0x8F02, 0x00C00004  	; Set autoincrement to 2 bytes
 	move.l #0xC0000003, 0x00C00004 	; Set up VDP to write to CRAM address 0x0000
@@ -49,7 +49,12 @@ SetupVDP:
 	@Loop:
 	move.l (a0)+, 0x00C00000 	; Move data to VDP data port, and increment source address
 	dbra d0, @Loop
-	move.w #0x8708, 0x00C00004  	; Set background colour to palette 0, colour 8
+	move.w #0x8707, 0x00C00004  	; Set background colour to palette 0, colour 8
+
+MakeSound:
+	move.b #%10001110, 0x00C00011 ; Latch ON, channel 0, counter data type, lower 4 bits of data
+	move.b #%00001111, 0x00C00011 ; Latch OFF, upper 6 bits of data
+	move.b #%10010000, 0x00C00011 ; Latch OFF, channel 0, attenuation data type, 4 bits of data
 
 	Loop:
 	move.l #0xF, d0 ; Move 15 into register d0
