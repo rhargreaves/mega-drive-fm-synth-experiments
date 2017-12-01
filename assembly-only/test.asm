@@ -92,12 +92,23 @@ Ch1:	; C9 (554 Hz = C#)
 Ch2:	; A9 (659 Hz = E)
 	move.b #%11001001, PSGCtrlPort ; Latch ON, channel 2, counter data type, lower 4 bits of data
 	move.b #%00001010, PSGCtrlPort ; Latch OFF, upper 6 bits of data
+Ch3:	; Noise
+	; 1 1 1 0 0 FB NF0 NF1
+	; FB = When set, the noise will be white noise, periodic noise if clear.
+	; NF = Clock Source:
+	;   00 = Clock/2 (high pitch, less coarse)
+	;   01 = Clock/4
+	;   10 = Clock/8 (low pitch, more coarse)
+	;   11 = Chan 2's square wave
+	move.b #%11100100, PSGCtrlPort ; Latch ON, channel 3, 3 data bits
 Ch0Vol:
-	move.b #%10010000, PSGCtrlPort ; Latch OFF, channel 0, attenuation data type, 4 bits of data
+	move.b #%10010111, PSGCtrlPort ; Latch ON, channel 0, attenuation data type, 4 bits of data
 Ch1Vol:
-	move.b #%10110000, PSGCtrlPort ; Latch OFF, channel 1, attenuation data type, 4 bits of data
+	move.b #%10110011, PSGCtrlPort ; Latch ON, channel 1, attenuation data type, 4 bits of data
 Ch2Vol:
-	move.b #%11010000, PSGCtrlPort ; Latch OFF, channel 2, attenuation data type, 4 bits of data	
+	move.b #%11010001, PSGCtrlPort ; Latch ON, channel 2, attenuation data type, 4 bits of data
+Ch3Vol:
+	move.b #%11110000, PSGCtrlPort ; Latch ON, channel 3, attenuation data type, 4 bits of data		
 
 	Loop:
 	move.l #0xF, d0 ; Move 15 into register d0
