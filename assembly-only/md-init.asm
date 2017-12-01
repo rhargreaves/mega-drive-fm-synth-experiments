@@ -94,29 +94,29 @@ Z80Data:
 	dc.w 0x8f01
 
 VDPRegisters:
-	dc.b 0x20 ; 0: Horiz. interrupt on, plus bit 2 (unknown, but docs say it needs to be on)
+	dc.b 0x14 ; 0: Horiz. interrupt on, plus bit 2 (unknown, but docs say it needs to be on)
 	dc.b 0x74 ; 1: Vert. interrupt on, display on, DMA on, V28 mode (28 cells vertically), + bit 2
 	dc.b 0x30 ; 2: Pattern table for Scroll Plane A at 0xC000 (bits 3-5)
-	dc.b 0x40 ; 3: Pattern table for Window Plane at 0x10000 (bits 1-5)
+	dc.b 0x00 ; 3: Pattern table for Window Plane at 0x10000 (bits 1-5)
 	dc.b 0x05 ; 4: Pattern table for Scroll Plane B at 0xA000 (bits 0-2)
 	dc.b 0x70 ; 5: Sprite table at 0xE000 (bits 0-6)
 	dc.b 0x00 ; 6: Unused
 	dc.b 0x00 ; 7: Background colour - bits 0-3 = colour, bits 4-5 = palette
 	dc.b 0x00 ; 8: Unused
 	dc.b 0x00 ; 9: Unused
-	dc.b 0x00 ; 10: Frequency of Horiz. interrupt in Rasters (number of lines travelled by the beam)
-	dc.b 0x08 ; 11: External interrupts on, V/H scrolling on
+	dc.b 0x80 ; 10: Frequency of Horiz. interrupt in Rasters (number of lines travelled by the beam)
+	dc.b 0x00 ; 11: External interrupts off, V/H scrolling on
 	dc.b 0x81 ; 12: Shadows and highlights off, interlace off, H40 mode (40 cells horizontally)
-	dc.b 0x34 ; 13: Horiz. scroll table at 0xD000 (bits 0-5)
+	dc.b 0x3F ; 13: Horiz. scroll table at 0xD000 (bits 0-5)
 	dc.b 0x00 ; 14: Unused
 	dc.b 0x00 ; 15: Autoincrement off
 	dc.b 0x01 ; 16: Vert. scroll 32, Horiz. scroll 64
 	dc.b 0x00 ; 17: Window Plane X pos 0 left (pos in bits 0-4, left/right in bit 7)
 	dc.b 0x00 ; 18: Window Plane Y pos 0 up (pos in bits 0-4, up/down in bit 7)
-	dc.b 0x00 ; 19: DMA length lo byte
-	dc.b 0x00 ; 20: DMA length hi byte
+	dc.b 0xFF ; 19: DMA length lo byte
+	dc.b 0xFF ; 20: DMA length hi byte
 	dc.b 0x00 ; 21: DMA source address lo byte
 	dc.b 0x00 ; 22: DMA source address mid byte
-	dc.b 0x00 ; 23: DMA source address hi byte, memory-to-VRAM mode (bits 6-7)
+	dc.b 0x80 ; 23: DMA source address hi byte, memory-to-VRAM mode (bits 6-7)
 
 __init_done
