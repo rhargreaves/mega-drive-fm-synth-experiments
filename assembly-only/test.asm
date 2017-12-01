@@ -29,16 +29,6 @@ Palette:
    dc.w 0x0600 ; Colour E - Navy blue
    dc.w 0x0060 ; Colour F - Dark green
 
-CharacterH:
-   dc.l 0x11000110
-   dc.l 0x11000110
-   dc.l 0x11000110
-   dc.l 0x11111110
-   dc.l 0x11000110
-   dc.l 0x11000110
-   dc.l 0x11000110
-   dc.l 0x00000000
-
 __main:
 SetPurpleBackground:
 	move.l #0x40000003, 0x00C00004	; we’re about to write data to VRAM address 0xC000
