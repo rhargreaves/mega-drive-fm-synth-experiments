@@ -47,9 +47,55 @@ SetPurpleBackground:
 	move.w #0x8707, VDPCtrlPort  	; Set background colour to palette 0, colour 8
 
 MakeSound:
+; PSG Control Port Bits:
+; ----------------------
+; First byte:
+; 7 6 5 4 3 2 1 0
+; L C C T D D D D
+; Bit 7    : Latch. ON indicates this is the first (or only) byte being written
+; Bits 6-5 : Channel ID (0-3)
+; Bit 4    : Data type. ON if data bits contain attenuation value, OFF if they contain the square wave counter reset
+; Bits 3-0 : The data. Either all 4 bits of the attenuation value, or the lower 4 bits of counter reset value
+
+; Second byte:
+; 7 6 5 4 3 2 1 0
+; L X D D D D D D
+; Bit 7    : Latch. OFF indicates this is the second byte, and will only contain the remainder of data
+; Bit 6    : Unused
+; Bits 5-0 : Upper 6 bits of data
+
+; Counter reset value = effective frequency of sound:
+; The counter reset registers are 10 bits in size, and store the 
+; square wave’s time until the polarity of the output is flipped.
+; 
+; CRV = clock ticks / 16 (essentially the “wave width / 2”).
+;
+; NTSC clock frequency = 3579545 Hz:
+; 440 Hz = 3579545 ÷ (2 x 16 x reg value))
+; So:
+; F = C / (32 x R)
+; OR
+; F = C / 32R
+; F x R = C / 32
+; R = (C / 32) / F
+; where:
+; F = frequency of the tone
+; C = clock frequency (NTSC or PAL)
+; R = register value
+; So:
+; For 660 Hz: R = 
+
+
+Ch0:	; FE
 	move.b #%10001110, PSGCtrlPort ; Latch ON, channel 0, counter data type, lower 4 bits of data
 	move.b #%00001111, PSGCtrlPort ; Latch OFF, upper 6 bits of data
+Ch1:	; A9
+	move.b #%10101001, PSGCtrlPort ; Latch ON, channel 1, counter data type, lower 4 bits of data
+	move.b #%00001010, PSGCtrlPort ; Latch OFF, upper 6 bits of data	
+Ch0Vol:
 	move.b #%10010000, PSGCtrlPort ; Latch OFF, channel 0, attenuation data type, 4 bits of data
+Ch1Vol:
+	move.b #%10110000, PSGCtrlPort ; Latch OFF, channel 0, attenuation data type, 4 bits of data	
 
 	Loop:
 	move.l #0xF, d0 ; Move 15 into register d0
