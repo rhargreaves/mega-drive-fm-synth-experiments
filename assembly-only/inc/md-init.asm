@@ -3,9 +3,9 @@ EntryPoint:          ; Entry point address set in ROM header
 ; 1. CHECKING THE RESET BUTTON
 CheckReset:
 	tst.w 0x00A10008  ; Test mystery reset (expansion port reset?)
-	bne Main          ; Branch if Not Equal (to zero) - to Main
+	bne __init_done          ; Branch if Not Equal (to zero) - to Main
 	tst.w 0x00A1000C  ; Test reset button
-	bne Main          ; Branch if Not Equal (to zero) - to Main
+	bne __init_done          ; Branch if Not Equal (to zero) - to Main
 
 ; 2. CLEARING THE RAM (lol)
 ClearMem:
@@ -71,9 +71,10 @@ InitCtrl:
 
 ; 8. CLEARING THE REGISTERS AND TIDYING UP
 ClearReg:
-	move.l #0x00000000, a0    	; Move 0x0 to a0
+	move.l #0x00FF0000, a0    	; Move 0x0 to a0
 	movem.l (a0), d0-d7/a1-a7 	; Multiple move 0 to all registers
-	move #0x2700, sr	  	; Init status register (no trace, A7 is 
+	move.l #0x00000000, a0    	; Clear a0
+	move #0x2000, sr	  	; Init status register (no trace, A7 is 
 					; Interrupt Stack Pointer, no interrupts, clear condition code bits)
 	jmp __init_done
 
@@ -104,7 +105,7 @@ VDPRegisters:
 	dc.b 0x00 ; 7: Background colour - bits 0-3 = colour, bits 4-5 = palette
 	dc.b 0x00 ; 8: Unused
 	dc.b 0x00 ; 9: Unused
-	dc.b 0x80 ; 10: Frequency of Horiz. interrupt in Rasters (number of lines travelled by the beam)
+	dc.b 0x00 ; 10: Frequency of Horiz. interrupt in Rasters (number of lines travelled by the beam)
 	dc.b 0x00 ; 11: External interrupts off, V/H scrolling on
 	dc.b 0x81 ; 12: Shadows and highlights off, interlace off, H40 mode (40 cells horizontally)
 	dc.b 0x3F ; 13: Horiz. scroll table at 0xD000 (bits 0-5)
