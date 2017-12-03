@@ -6,7 +6,7 @@ if [ ! -d "$EVERDRIVE" ]; then
 	exit 1
 fi
 
-cp test.bin $EVERDRIVE/Sega\ Mega\ Drive/Personal/
+cp *.bin $EVERDRIVE/Sega\ Mega\ Drive/Personal/
 echo Sorting FAT...
 SD_DEVICE=$(mount | grep $EVERDRIVE | cut -d ' ' -f1)
 diskutil unmount $SD_DEVICE
