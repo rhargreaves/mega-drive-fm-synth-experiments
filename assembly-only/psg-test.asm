@@ -1,5 +1,5 @@
-	include rom-header.asm
-	include md-init.asm
+	include inc/rom-header.asm
+	include inc/md-init.asm
 
 Main:
 	jmp __main ; Jump to the game code!
