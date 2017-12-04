@@ -2,9 +2,24 @@
 
 Flipping bits the hard way
 
+## Dependencies
+
+* macOS or Linux
+* Docker
+
 ## Compiling Code
 
-Use `make`!
+Use `make` to build all .asm files into .bin files, ready to be ran on an emulator or Sega Mega Drive.
+
+## Running
+
+### Via Emulation
+
+Regen is an emulator that has support for 68k/Z80 debugging. Use the `run-regen.sh` script to load a ROM with the emulator using Wine. The script presumes a particular location for Regen which you may need to adjust to suit your needs.
+
+### Via Hardware
+
+Use the `copy-to-everdrive.sh` script (macOS only) to copy the .bin files to an everdrive SD card in preparation to run on a real Sega Mega Drive.
 
 ## Credits
 
