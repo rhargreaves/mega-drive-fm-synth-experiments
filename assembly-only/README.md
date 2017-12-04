@@ -9,7 +9,7 @@ Flipping bits the hard way
 
 ## Compiling Code
 
-Use `make` to build all .asm files into .bin files, ready to be ran on an emulator or Sega Mega Drive.
+Use `make` to build all .asm files into .bin ROM files, ready to be ran on an emulator or Sega Mega Drive. The ASM68k assembler is used (via Docker) to build the ROMs.
 
 ## Running
 
