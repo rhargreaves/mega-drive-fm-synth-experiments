@@ -9,7 +9,4 @@ clean:
 %.bin: %.asm
 	docker run --rm -v $(PWD):/src rhargreaves/asm68k /p $<,$@
 
-psgtest:
-	docker run --rm -v $(PWD)/MD_PSGTest:/src rhargreaves/asm68k /p soundtest.asm,soundtest.bin
-
 .PHONY: all clean
