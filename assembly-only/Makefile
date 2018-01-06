@@ -1,12 +1,12 @@
-ASMS = $(wildcard *.asm)
-BINS = $(patsubst %.asm,%.bin,$(wildcard *.asm))
+ASMS = $(wildcard src/*.asm)
+BINS = $(patsubst src/%.asm,bin/%.bin,$(wildcard src/*.asm))
 
 all: clean $(BINS)
 
 clean: 
-	-rm *.bin
+	-rm bin/*.bin
 
-%.bin: %.asm
-	docker run --rm -v $(PWD):/src rhargreaves/asm68k /p $<,$@
+bin/%.bin: src/%.asm
+	docker run --rm -v $(PWD):/work -w /work rhargreaves/asm68k /j src /p $<,$@
 
 .PHONY: all clean
