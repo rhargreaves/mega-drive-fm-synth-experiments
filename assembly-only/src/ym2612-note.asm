@@ -3,7 +3,11 @@
 
 VDPCtrlPort	equ	0x00C00004
 VDPDataPort	equ	0x00C00000
-PSGCtrlPort	equ	0x00C00011
+
+Fm1AddrPort	equ	0x00A04000
+Fm1DataPort	equ	0x00A04001
+Fm2AddrPort	equ	0x00A04002
+Fm2DataPort	equ	0x00A04003
 
 Main:
 	jmp __main ; Jump to the game code!
