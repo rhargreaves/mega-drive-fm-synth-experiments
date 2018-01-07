@@ -1,4 +1,4 @@
-# Sega Mega Drive Programming (Assembly Only)
+# Sega Mega Drive Assembly Programming
 
 Flipping bits the hard way
 
