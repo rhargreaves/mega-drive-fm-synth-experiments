@@ -2,7 +2,7 @@
 
 int main()
 {
-    VDP_drawText("Hello World!", 10, 13);
+    VDP_drawText("FM & PSG Test", 13, 0);
 
 	while(1)
     {
