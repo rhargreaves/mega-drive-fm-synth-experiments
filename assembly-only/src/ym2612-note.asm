@@ -9,10 +9,6 @@ Fm1DataPort	equ	0x00A04001
 Fm2AddrPort	equ	0x00A04002
 Fm2DataPort	equ	0x00A04003
 
-FmLFOReg	equ	0x22
-FmChModeReg	equ	0x27
-FmKeyReg	equ	0x28
-
 Main:
 	jmp __main ; Jump to the game code!
 
@@ -65,9 +61,9 @@ WaitFrames:
 	rts
 
 WaitFmReady:
-	move.b  Fm1AddrPort, d0	; Read FM status into d2
-	btst	#7, d0		; Test for bit 8 (FM busy)
-	bne     WaitFmReady 	; Loop if busy
+	move.b  Fm1AddrPort, d0		; Read FM status into d2
+	btst	#7, d0			; Test for bit 8 (FM busy)
+	bne     WaitFmReady 		; Loop if busy
 	rts
 
 WriteFm1	macro	Reg, Data
@@ -77,49 +73,48 @@ WriteFm1	macro	Reg, Data
 		endm
 
 PlayYm2612Note:
-	WriteFm1	FmLFOReg, #%00001000	; LFO On
-	WriteFm1	FmChModeReg, #%00000000	; Ch 3 Normal
-	WriteFm1	FmKeyReg, #0xF0		; Key On
-	WriteFm1	0x28, 0			; All channels off
-	WriteFm1	0x28, 1
-	WriteFm1	0x28, 2
-	WriteFm1	0x28, 4
-	WriteFm1	0x28, 5
-	WriteFm1	0x28, 6
-	WriteFm1	0x30, 0x71	; DT1/MUL
-	WriteFm1	0x34, 0x0D
-	WriteFm1	0x38, 0x33
-	WriteFm1	0x3C, 0x01
-	WriteFm1	0x40, 0x23	; Total Level
-	WriteFm1	0x44, 0x2D
-	WriteFm1	0x48, 0x26
-	WriteFm1	0x4C, 0x00
-	WriteFm1	0x50, 0x5F	; RS/AR
-	WriteFm1	0x54, 0x99
-	WriteFm1	0x58, 0x5F
-	WriteFm1	0x5C, 0x99
-	WriteFm1	0x60, 5		; AM/D1R
-	WriteFm1	0x64, 5
-	WriteFm1	0x68, 5
-	WriteFm1	0x6C, 7
-	WriteFm1	0x70, 2		; D2R
-	WriteFm1	0x74, 2
-	WriteFm1	0x78, 2
-	WriteFm1	0x7C, 2
-	WriteFm1	0x80, 0x11	; D1L/RR
-	WriteFm1	0x84, 0x11
-	WriteFm1	0x88, 0x11
-	WriteFm1	0x8C, 0xA6
-	WriteFm1	0x90, 0		; Proprietary
-	WriteFm1	0x94, 0
-	WriteFm1	0x98, 0
-	WriteFm1	0x9C, 0
-	WriteFm1	0xB0, 0x32	; Feedback/algorithm
-	WriteFm1	0xB4, 0xC0	; Both speakers on
-	WriteFm1	0x28, 0x00	; Key off
-	WriteFm1	0xA4, 0x22	; Set Freq
-	WriteFm1	0xA0, 0x69
-	WriteFm1	0x28, 0xF0	; Key On
+	WriteFm1	#0x22, #%00001000	; LFO On
+	WriteFm1	#0x27, #0		; Ch 3 Normal
+	WriteFm1	#0x28, #0		; All channels off
+	WriteFm1	#0x28, #1
+	WriteFm1	#0x28, #2
+	WriteFm1	#0x28, #4
+	WriteFm1	#0x28, #5
+	WriteFm1	#0x28, #6
+	WriteFm1	#0x30, #0x71	; DT1/MUL
+	WriteFm1	#0x34, #0x0D
+	WriteFm1	#0x38, #0x33
+	WriteFm1	#0x3C, #0x01
+	WriteFm1	#0x40, #0x23	; Total Level
+	WriteFm1	#0x44, #0x2D
+	WriteFm1	#0x48, #0x26
+	WriteFm1	#0x4C, #0x00
+	WriteFm1	#0x50, #0x5F	; RS/AR
+	WriteFm1	#0x54, #0x99
+	WriteFm1	#0x58, #0x5F
+	WriteFm1	#0x5C, #0x99
+	WriteFm1	#0x60, #5		; AM/D1R
+	WriteFm1	#0x64, #5
+	WriteFm1	#0x68, #5
+	WriteFm1	#0x6C, #7
+	WriteFm1	#0x70, #2		; D2R
+	WriteFm1	#0x74, #2
+	WriteFm1	#0x78, #2
+	WriteFm1	#0x7C, #2
+	WriteFm1	#0x80, #0x11	; D1L/RR
+	WriteFm1	#0x84, #0x11
+	WriteFm1	#0x88, #0x11
+	WriteFm1	#0x8C, #0xA6
+	WriteFm1	#0x90, #0		; Proprietary
+	WriteFm1	#0x94, #0
+	WriteFm1	#0x98, #0
+	WriteFm1	#0x9C, #0
+	WriteFm1	#0xB0, #0x32	; Feedback/algorithm
+	WriteFm1	#0xB4, #0xC0	; Both speakers on
+	WriteFm1	#0x28, #0x00	; Key off
+	WriteFm1	#0xA4, #0x22	; Set Freq
+	WriteFm1	#0xA0, #0x69
+	WriteFm1	#0x28, #0xF0	; Key On
 	rts
 
 __main:
