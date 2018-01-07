@@ -5,7 +5,7 @@ Various experiments mostly centred around the Yamaha YM2612 FM Synthesis & PSG c
 ## Table of Contents
 
 1. Experiments in [68000 Assembly](assembly-only)
-2. Experiments in C using SGDK (here).
+2. Experiments in C using SGDK (this directory).
 
 ## Getting Started
 
