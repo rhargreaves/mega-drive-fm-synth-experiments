@@ -2,6 +2,14 @@
 
 Flipping bits the hard way
 
+## What's here?
+
+Pure 68000 assembly examples of:
+
+1. [Play a chord with the PSG](src/psg-test.asm)
+2. [Playing a tune with the PSG](src/psg-sequencer.asm)
+3. [Playing a note with the YM2612 FM Synth Chip](src/ym2612-note.asm)
+
 ## Dependencies
 
 * macOS or Linux
