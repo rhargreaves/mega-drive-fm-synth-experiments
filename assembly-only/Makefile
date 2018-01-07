@@ -1,7 +1,7 @@
 ASMS = $(wildcard src/*.asm)
 BINS = $(patsubst src/%.asm,bin/%.bin,$(wildcard src/*.asm))
 
-all: clean $(BINS)
+all: $(BINS)
 
 clean: 
 	-rm bin/*.bin
