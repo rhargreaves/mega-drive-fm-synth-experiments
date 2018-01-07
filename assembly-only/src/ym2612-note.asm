@@ -78,16 +78,21 @@ WaitFrames:
 	@End:
 	rts
 
-SetPurpleBackground:
-	move.l #0x40000003, VDPCtrlPort	; we’re about to write data to VRAM address 0xC000
-	move.w #0x8F02, VDPCtrlPort  	; Set autoincrement to 2 bytes
-	move.l #0xC0000003, VDPCtrlPort 	; Set up VDP to write to CRAM address 0x0000
-	lea Palette, a0          	; Load address of Palette into a0
-	move.l #0x07, d0         	; 32 bytes of data (8 longwords, minus 1 for counter) in palette
+SetBackground:
+	move.l 	#0x40000003, VDPCtrlPort ; we’re about to write data to VRAM address 0xC000
+	move.w 	#0x8F02, VDPCtrlPort  	; Set autoincrement to 2 bytes
+	move.l 	#0xC0000003, VDPCtrlPort ; Set up VDP to write to CRAM address 0x0000
+	lea 	Palette, a0          	; Load address of Palette into a0
+	move.l 	#0x07, d0         	; 32 bytes of data (8 longwords, minus 1 for counter) in palette
 	@Loop:
-	move.l (a0)+, 0x00C00000 	; Move data to VDP data port, and increment source address
-	dbra d0, @Loop
-	move.w #0x8707, VDPCtrlPort  	; Set background colour to palette 0, colour 8
+	move.l 	(a0)+, 0x00C00000 	; Move data to VDP data port, and increment source address
+	dbra 	d0, @Loop
+	move.w 	#0x8707, VDPCtrlPort  	; Set background colour to palette 0, colour 8
+	rts
+
+SuspendZ80:
+	move.w 	#0x0100, 0x00A11100 ; Request access to the Z80 bus, by writing 0x0100 into the BUSREQ port
+	move.w 	#0x0100, 0x00A11200 ; Hold the Z80 in a reset state, by writing 0x0100 into the RESET port
 	rts
 
 WaitFmReady:
@@ -103,7 +108,8 @@ WriteFm1	macro	Reg, Data
 		endm
 
 PlayYm2612Note:
-	WriteFm1	#0x22, #%00001000	; LFO On
+	jsr	SuspendZ80
+	WriteFm1	#0x22, #%00000000	; LFO Off
 	WriteFm1	#0x27, #0		; Ch 3 Normal
 	WriteFm1	#0x28, #0		; All channels off
 	WriteFm1	#0x28, #1
@@ -150,7 +156,7 @@ PlayYm2612Note:
 __main:
 	move.w	#0x8F02, VDPCtrlPort     ; Set autoincrement to 2 bytes
 	move.w	#0x8708, VDPCtrlPort     ; Set background colour light blue (palette 0, colour 8)
-	jsr	SetPurpleBackground
+	jsr	SetBackground
 	jsr	PlayYm2612Note
 
 GameLoop:
