@@ -9,6 +9,10 @@ Fm1DataPort	equ	0x00A04001
 Fm2AddrPort	equ	0x00A04002
 Fm2DataPort	equ	0x00A04003
 
+FmLFOReg	equ	0x22
+FmChModeReg	equ	0x27
+FmKeyReg	equ	0x28
+
 Main:
 	jmp __main ; Jump to the game code!
 
@@ -60,10 +64,25 @@ WaitFrames:
 	@End:
 	rts
 
-PlayYm2612Note:
-	
+WaitFmReady:
+	move.b  Fm1AddrPort, d0	; Read FM status into d2
+	btst	#7, d0		; Test for bit 8 (FM busy)
+	bne     WaitFmReady 	; Loop if busy
 	rts
-	
+
+WriteFm1	macro	Reg, Data
+		jsr	WaitFmReady
+		move.b	\Reg, Fm1AddrPort
+		move.b	\Data, Fm1DataPort
+		endm
+
+PlayYm2612Note:
+	WriteFm1	FmLFOReg, #%00001000	; LFO On
+	WriteFm1	FmChModeReg, #%00000000	; Ch 3 Normal
+	WriteFm1	FmKeyReg, #0xF0		; Key On
+	rts
+
+
 __main:
 	move.w	#0x8F02, VDPCtrlPort     ; Set autoincrement to 2 bytes
 	move.w	#0x8708, VDPCtrlPort     ; Set background colour light blue (palette 0, colour 8)
