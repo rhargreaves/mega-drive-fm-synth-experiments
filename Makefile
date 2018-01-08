@@ -95,7 +95,7 @@ boot/sega.o: boot/rom_head.bin
 	$(AS) $(ASFLAGS) boot/sega.s -o $@
 
 bin/%.bin: %.elf
-	-mkdir bin
+	mkdir -p bin
 	$(OBJC) -O binary $< temp.bin
 	dd if=temp.bin of=$@ bs=8K conv=sync
 	rm temp.bin
