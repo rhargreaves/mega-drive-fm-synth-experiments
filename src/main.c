@@ -2,11 +2,16 @@
 
 int main()
 {
+    VDP_setTextPalette(PAL1);
     VDP_drawText("FM & PSG Test", 13, 0);
+
+    PSG_write(0b10001110);
+    PSG_write(0b00001111);
+    PSG_write(0b10010111);
 
 	while(1)
     {
-            VDP_waitVSync();
+        VDP_waitVSync();
     }
     return (0);
 }
