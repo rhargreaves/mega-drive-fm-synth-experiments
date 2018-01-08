@@ -6,8 +6,8 @@ if [ ! -d "$EVERDRIVE" ]; then
 fi
 
 ROM_DIR=$EVERDRIVE/Sega\ Mega\ Drive/Personal/
-cp bin/*.bin $ROM_DIR
-cp assembly-only/bin/*.bin $ROM_DIR
+cp bin/*.bin "$ROM_DIR"
+cp assembly-only/bin/*.bin "$ROM_DIR"
 echo Sorting FAT...
 SD_DEVICE=$(mount | grep $EVERDRIVE | cut -d ' ' -f1)
 diskutil unmount $SD_DEVICE
