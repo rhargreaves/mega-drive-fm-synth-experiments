@@ -7,7 +7,7 @@ int main()
 
     PSG_write(0b10001110);
     PSG_write(0b00001111);
-    PSG_write(0b10010111);
+    PSG_setEnvelope(0, 0);
 
 	while(1)
     {
