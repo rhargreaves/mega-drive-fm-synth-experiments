@@ -1,16 +1,25 @@
 #include <genesis.h>
 
+static void vintEvent();
+
 int main()
 {
     VDP_setTextPalette(PAL1);
     VDP_drawText("FM & PSG Test", 13, 0);
+    SYS_setVIntCallback(vintEvent);
 
     PlayFmNote();
     PlayChord();
 
+    char str[40];
+    int frame = 0;
 	while(1)
     {
         VDP_waitVSync();
+        frame++;
+        uintToStr(frame, str, 1);
+        strcat(str, "th Frame");
+        VDP_drawText(str, 14, 1);
     }
     return (0);
 }
@@ -73,4 +82,8 @@ void PlayChord()
     PSG_setEnvelope(1, 1);
     PSG_setFrequency(2, FREQ_E);
     PSG_setEnvelope(2, 1);
+}
+
+static void vintEvent()
+{
 }
