@@ -13,9 +13,7 @@ int main(void)
     VDP_drawText("YM2612 & PSG Test", 11, 0);
     SYS_setVIntCallback(vintEvent);
 
-    playFmNote();
-
-	while(1)
+	while(TRUE)
     {
         printFrame();
         VDP_waitVSync();
@@ -83,7 +81,7 @@ static void playChord(void)
     PSG_setEnvelope(2, 1);
 }
 
-static void printFrame()
+static void printFrame(void)
 {
     char text[9] = "Frame ";
     char str[3];
@@ -92,10 +90,9 @@ static void printFrame()
     VDP_drawText(text, 30, 0);
 }
 
-static void vintEvent()
+static void vintEvent(void)
 {
-    frame++;
-    if(frame == (IS_PALSYSTEM ? 50 : 60)) {
+    if(++frame == (IS_PALSYSTEM ? 50 : 60)) {
         frame = 0;
     }
 }
