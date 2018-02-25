@@ -8,7 +8,7 @@ static u32 frame = 0;
 
 int main(void)
 {
-    VDP_setTextPalette(PAL3);
+    VDP_setTextPalette(PAL0);
     VDP_drawText("YM2612 & PSG Test", 11, 0);
     SYS_setVIntCallback(vintEvent);
 

@@ -2,14 +2,29 @@
 #include <stdbool.h>
 
 static void checkPlayNoteButton(u16 joyState);
+static void checkFreqChangeButtons(u16 joyState);
+static void printFrequency(void);
 static void playChord();
 static void playFmNote();
 static void stopFmNote();
+
+static u8 frequency = 0x22;
 
 void playJoy(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
+    checkFreqChangeButtons(joyState);
+    printFrequency();
+}
+
+static void printFrequency(void)
+{
+    char text[50] = "Frequency = ";
+    char str[5];
+    uintToStr(frequency, str, 3);
+    strcat(text, str);
+    VDP_drawText(text, 0, 2);
 }
 
 static void checkPlayNoteButton(u16 joyState)
@@ -27,6 +42,35 @@ static void checkPlayNoteButton(u16 joyState)
     {
         playing = false;
         stopFmNote();
+    }
+}
+
+static void checkFreqChangeButtons(u16 joyState)
+{
+    static int changing = 0;
+    if(joyState & BUTTON_UP)
+    {
+        if(!changing)
+        {
+            frequency++;
+        }
+        changing++;
+    }
+    else if(joyState & BUTTON_DOWN)
+    {
+        if(!changing)
+        {
+            frequency--;
+        }
+        changing++;
+    }
+    else
+    {
+        changing = 0;
+    }
+    if(changing > 5)
+    {
+        changing = 0;
     }
 }
 
@@ -71,7 +115,7 @@ static void playFmNote(void)
 	YM2612_writeReg(0, 0xB0, 0x32); // Feedback/algorithm
 	YM2612_writeReg(0, 0xB4, 0xC0); // Both speakers on
 	YM2612_writeReg(0, 0x28, 0x00); // Key off
-	YM2612_writeReg(0, 0xA4, 0x22); // Set Freq
+	YM2612_writeReg(0, 0xA4, frequency); // Set Freq
 	YM2612_writeReg(0, 0xA0, 0x69);
 	YM2612_writeReg(0, 0x28, 0xF0); // Key On
 }
