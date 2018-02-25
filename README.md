@@ -11,10 +11,10 @@ Various experiments mostly centred around the Yamaha YM2612 FM Synthesis & PSG c
 
 Compiling from source:
 
-### Docker (macOS or Linux)
+### Docker (macOS/Linux)
 
 ```
-$ docker run -w /app -v $(pwd):/app -it rhargreaves/gendev make
+$ ./docker-make.sh
 ```
 
 ### Linux
@@ -22,3 +22,16 @@ $ docker run -w /app -v $(pwd):/app -it rhargreaves/gendev make
 1. Clone and make [gendev](https://github.com/kubilus1/gendev).
 2. Run `make`
 
+## Run
+
+### Emulated (Regen via Wine)
+
+```
+$ ./run-regen.sh bin/out.bin
+```
+
+### Actual Mega Drive (via Everdrive USB link)
+
+```
+$ ./run-everdrive.sh bin/out.bin
+```
