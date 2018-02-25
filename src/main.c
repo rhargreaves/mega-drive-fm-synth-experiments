@@ -1,14 +1,15 @@
 #include <genesis.h>
 
+static void PlayFmNote();
 static void printHSync();
 static void printVSync();
 static void vintEvent();
 static void hintEvent();
 
-u32 line = 0;
-u32 frame = 0;
+static u32 line = 0;
+static u32 frame = 0;
 
-int main()
+int main(void)
 {
     VDP_setTextPalette(PAL3);
     VDP_drawText("FM & PSG Test", 13, 0);
@@ -28,7 +29,7 @@ int main()
     return (0);
 }
 
-void PlayFmNote()
+static void PlayFmNote(void)
 {
     YM2612_writeReg(0, 0x22, 0);    // LFO Off
 	YM2612_writeReg(0, 0x27, 0);    // Ch 3 Normal
@@ -74,7 +75,7 @@ void PlayFmNote()
 	YM2612_writeReg(0, 0x28, 0xF0); // Key On
 }
 
-void PlayChord()
+static void PlayChord(void)
 {
     u16 FREQ_A = 440;
     u16 FREQ_C_SHARP = 554;
@@ -88,7 +89,7 @@ void PlayChord()
     PSG_setEnvelope(2, 1);
 }
 
-static void hintEvent()
+static void hintEvent(void)
 {
     line++;
 }
