@@ -32,6 +32,13 @@ $ ./run-regen.sh bin/out.bin
 
 ### Actual Mega Drive (via Everdrive USB link)
 
+First install the `megaedx7-run` tool (requires Golang):
+
+1. `git clone git@github.com:rhargreaves/devkit-mega-everdrive-x7.git`
+2. `make install`
+
+Upload and execute the ROM on the Mega Drive:
+
 ```
 $ ./run-everdrive.sh bin/out.bin
 ```
