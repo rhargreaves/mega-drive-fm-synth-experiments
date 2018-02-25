@@ -1,9 +1,14 @@
 #include <genesis.h>
 #include <stdbool.h>
+#include <util.h>
 
 typedef bool _debouncedFunc(u16 joyState);
 
-static void debounce(_debouncedFunc func, u16 joyState, u8 rate, u16* changing);
+struct DebounceState {
+    u16 counter;
+};
+
+static void debounce(_debouncedFunc func, u16 joyState, u8 rate, struct DebounceState *changing);
 
 static void YM2612_setFrequency(u16 freq, u8 octave);
 static void checkPlayNoteButton(u16 joyState);
@@ -16,20 +21,22 @@ static void playFmNote(void);
 static void stopFmNote(void);
 
 static u8 octave = 2;
-static u16 frequency = 1024;
+static u16 frequency = 440;
 
 void playJoy(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
-
-    static u16 c = 0;
-    debounce(checkFreqChangeButtons, joyState, 1, &c);
-    static u16 c2 = 0;
-    debounce(checkOctaveChangeButtons, joyState, 10, &c2);
-
-    printFrequency();
-    printOctave();
+    {
+        static struct DebounceState debounceState;
+        debounce(checkFreqChangeButtons, joyState, 1, &debounceState);
+        printFrequency();
+    }
+    {
+        static struct DebounceState debounceState;
+        debounce(checkOctaveChangeButtons, joyState, 10, &debounceState);
+        printOctave();
+    }
 }
 
 static void printOctave(void)
@@ -82,7 +89,7 @@ static bool checkFreqChangeButtons(u16 joyState)
     {
         return false;
     }
-    frequency &= (1 << 11) - 1;
+    TRUNCATE(frequency, 11);
     return true;
 }
 
@@ -100,24 +107,20 @@ static bool checkOctaveChangeButtons(u16 joyState)
     {
         return false;
     }
-    octave &= (1 << 3) - 1;
+    TRUNCATE(octave, 3);
     return true;
 }
 
-static void debounce(_debouncedFunc func, u16 joyState, u8 rate, u16* changing)
+static void debounce(_debouncedFunc func, u16 joyState, u8 rate, struct DebounceState *state)
 {
-    if(*changing == 0)
+    if(state->counter == 0 && !func(joyState))
     {
-        bool handled = func(joyState);
-        if(!handled)
-        {
-            *changing = 0;
-        }
+        state->counter = 0;
     }
-    (*changing)++;
-    if(*changing > rate)
+    state->counter++;
+    if(state->counter > rate)
     {
-        *changing = 0;
+        state->counter = 0;
     }
 }
 
@@ -179,18 +182,4 @@ static void YM2612_setFrequency(u16 freq, u8 octave)
 static void stopFmNote(void)
 {
     YM2612_writeReg(0, 0x28, 0x00); // Key Off
-}
-
-static void playChord(void)
-{
-    u16 FREQ_A = 440;
-    u16 FREQ_C_SHARP = 554;
-    u16 FREQ_E = 659;
-
-    PSG_setFrequency(0, FREQ_A);
-    PSG_setEnvelope(0, 1);
-    PSG_setFrequency(1, FREQ_C_SHARP);
-    PSG_setEnvelope(1, 1);
-    PSG_setFrequency(2, FREQ_E);
-    PSG_setEnvelope(2, 1);
 }
