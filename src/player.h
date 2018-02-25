@@ -1,3 +1,4 @@
 #include <genesis.h>
 
-void playJoy();
+void player_init();
+void player_checkInput();
