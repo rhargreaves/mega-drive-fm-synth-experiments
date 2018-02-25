@@ -13,8 +13,8 @@ Compiling from source:
 
 ### Docker (macOS/Linux)
 
-```
-$ ./docker-make.sh
+```sh
+./docker-make.sh
 ```
 
 ### Linux
@@ -26,8 +26,8 @@ $ ./docker-make.sh
 
 ### Emulated (Regen via Wine)
 
-```
-$ ./run-regen.sh bin/out.bin
+```sh
+./run-regen.sh bin/out.bin
 ```
 
 ### Actual Mega Drive (via Everdrive USB link)
@@ -39,6 +39,6 @@ First install the `megaedx7-run` tool (requires Golang):
 
 Upload and execute the ROM on the Mega Drive:
 
-```
-$ ./run-everdrive.sh bin/out.bin
+```sh
+./run-everdrive.sh bin/out.bin
 ```
