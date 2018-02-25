@@ -3,31 +3,49 @@
 
 typedef bool _debouncedFunc(u16 joyState);
 
-static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
+static void debounce(_debouncedFunc func, u16 joyState, u8 rate, u16* changing);
 
+static void YM2612_setFrequency(u16 freq, u8 octave);
 static void checkPlayNoteButton(u16 joyState);
-static void checkFreqChangeButtons(u16 joyState, u8 rate);
-static bool checkFreqChangeButtonsInt(u16 joyState);
+static bool checkFreqChangeButtons(u16 joyState);
+static bool checkOctaveChangeButtons(u16 joyState);
 static void printFrequency(void);
-static void playChord();
-static void playFmNote();
-static void stopFmNote();
+static void printOctave(void);
+static void playChord(void);
+static void playFmNote(void);
+static void stopFmNote(void);
 
-static u8 frequency = 0x22;
+static u8 octave = 2;
+static u16 frequency = 1024;
 
 void playJoy(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
-    debounce(checkFreqChangeButtonsInt, joyState, 5);
+
+    static u16 c = 0;
+    debounce(checkFreqChangeButtons, joyState, 1, &c);
+    static u16 c2 = 0;
+    debounce(checkOctaveChangeButtons, joyState, 10, &c2);
+
     printFrequency();
+    printOctave();
+}
+
+static void printOctave(void)
+{
+    char text[50] = "Octave = ";
+    char str[5];
+    uintToStr(octave, str, 1);
+    strcat(text, str);
+    VDP_drawText(text, 0, 3);
 }
 
 static void printFrequency(void)
 {
     char text[50] = "Frequency = ";
     char str[5];
-    uintToStr(frequency, str, 3);
+    uintToStr(frequency, str, 4);
     strcat(text, str);
     VDP_drawText(text, 0, 2);
 }
@@ -50,38 +68,56 @@ static void checkPlayNoteButton(u16 joyState)
     }
 }
 
-static bool checkFreqChangeButtonsInt(u16 joyState)
+static bool checkFreqChangeButtons(u16 joyState)
 {
     if(joyState & BUTTON_UP)
     {
-        frequency++;
+        frequency += 4;
     }
     else if(joyState & BUTTON_DOWN)
     {
-        frequency--;
+        frequency -= 4;
     }
     else
     {
         return false;
     }
+    frequency &= (1 << 11) - 1;
     return true;
 }
 
-static void debounce(_debouncedFunc func, u16 joyState, u8 rate)
+static bool checkOctaveChangeButtons(u16 joyState)
 {
-    static int changing = 0;
-    if(changing == 0)
+    if(joyState & BUTTON_RIGHT)
+    {
+        octave++;
+    }
+    else if(joyState & BUTTON_LEFT)
+    {
+        octave--;
+    }
+    else
+    {
+        return false;
+    }
+    octave &= (1 << 3) - 1;
+    return true;
+}
+
+static void debounce(_debouncedFunc func, u16 joyState, u8 rate, u16* changing)
+{
+    if(*changing == 0)
     {
         bool handled = func(joyState);
         if(!handled)
         {
-            changing = 0;
+            *changing = 0;
         }
     }
-    changing++;
-    if(changing > rate)
+    (*changing)++;
+    if(*changing > rate)
     {
-        changing = 0;
+        *changing = 0;
     }
 }
 
@@ -126,9 +162,18 @@ static void playFmNote(void)
 	YM2612_writeReg(0, 0xB0, 0x32); // Feedback/algorithm
 	YM2612_writeReg(0, 0xB4, 0xC0); // Both speakers on
 	YM2612_writeReg(0, 0x28, 0x00); // Key off
-	YM2612_writeReg(0, 0xA4, frequency); // Set Freq
-	YM2612_writeReg(0, 0xA0, 0x69);
+    YM2612_setFrequency(frequency, octave);
 	YM2612_writeReg(0, 0x28, 0xF0); // Key On
+}
+
+/*
+octave = 0 - 7
+freq = 0 - 2047
+*/
+static void YM2612_setFrequency(u16 freq, u8 octave)
+{
+	YM2612_writeReg(0, 0xA4, (u8)((u16)(freq >> 8) + (u16)(octave << 3)));
+	YM2612_writeReg(0, 0xA0, (u8)freq);
 }
 
 static void stopFmNote(void)
