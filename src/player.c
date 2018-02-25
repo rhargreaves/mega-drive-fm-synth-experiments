@@ -8,15 +8,13 @@ struct DebounceState {
     u16 counter;
 };
 
-static void debounce(_debouncedFunc func, u16 joyState, u8 rate, struct DebounceState *changing);
-
+static void debounce(_debouncedFunc func, u16 joyState, u8 rate, struct DebounceState *state);
 static void YM2612_setFrequency(u16 freq, u8 octave);
 static void checkPlayNoteButton(u16 joyState);
 static bool checkFreqChangeButtons(u16 joyState);
 static bool checkOctaveChangeButtons(u16 joyState);
-static void printFrequency(void);
+static void printValue(const char* header, u16 minSize, u32 value, u16 row);
 static void printOctave(void);
-static void playChord(void);
 static void playFmNote(void);
 static void stopFmNote(void);
 
@@ -30,31 +28,24 @@ void playJoy(void)
     {
         static struct DebounceState debounceState;
         debounce(checkFreqChangeButtons, joyState, 1, &debounceState);
-        printFrequency();
+        printValue("Frequency", 4, frequency, 3);
     }
     {
         static struct DebounceState debounceState;
         debounce(checkOctaveChangeButtons, joyState, 10, &debounceState);
-        printOctave();
+        printValue("Octave", 1, octave, 4);
     }
 }
 
-static void printOctave(void)
+static void printValue(const char* header, u16 minSize, u32 value, u16 row)
 {
-    char text[50] = "Octave = ";
+    char text[50];
     char str[5];
-    uintToStr(octave, str, 1);
+    uintToStr(value, str, minSize);
+    strcpy(text, header);
+    strcat(text, " = ");
     strcat(text, str);
-    VDP_drawText(text, 0, 3);
-}
-
-static void printFrequency(void)
-{
-    char text[50] = "Frequency = ";
-    char str[5];
-    uintToStr(frequency, str, 4);
-    strcat(text, str);
-    VDP_drawText(text, 0, 2);
+    VDP_drawText(text, 0, row);
 }
 
 static void checkPlayNoteButton(u16 joyState)
