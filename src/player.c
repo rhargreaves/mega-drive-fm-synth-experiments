@@ -1,8 +1,13 @@
 #include <genesis.h>
 #include <stdbool.h>
 
+typedef bool _debouncedFunc(u16 joyState);
+
+static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
+
 static void checkPlayNoteButton(u16 joyState);
-static void checkFreqChangeButtons(u16 joyState);
+static void checkFreqChangeButtons(u16 joyState, u8 rate);
+static bool checkFreqChangeButtonsInt(u16 joyState);
 static void printFrequency(void);
 static void playChord();
 static void playFmNote();
@@ -14,7 +19,7 @@ void playJoy(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
-    checkFreqChangeButtons(joyState);
+    debounce(checkFreqChangeButtonsInt, joyState, 5);
     printFrequency();
 }
 
@@ -45,30 +50,36 @@ static void checkPlayNoteButton(u16 joyState)
     }
 }
 
-static void checkFreqChangeButtons(u16 joyState)
+static bool checkFreqChangeButtonsInt(u16 joyState)
 {
-    static int changing = 0;
     if(joyState & BUTTON_UP)
     {
-        if(!changing)
-        {
-            frequency++;
-        }
-        changing++;
+        frequency++;
     }
     else if(joyState & BUTTON_DOWN)
     {
-        if(!changing)
-        {
-            frequency--;
-        }
-        changing++;
+        frequency--;
     }
     else
     {
-        changing = 0;
+        return false;
     }
-    if(changing > 5)
+    return true;
+}
+
+static void debounce(_debouncedFunc func, u16 joyState, u8 rate)
+{
+    static int changing = 0;
+    if(changing == 0)
+    {
+        bool handled = func(joyState);
+        if(!handled)
+        {
+            changing = 0;
+        }
+    }
+    changing++;
+    if(changing > rate)
     {
         changing = 0;
     }
