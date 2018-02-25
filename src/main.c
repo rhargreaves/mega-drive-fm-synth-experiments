@@ -1,35 +1,29 @@
 #include <genesis.h>
 
-static void PlayFmNote();
-static void printHSync();
-static void printVSync();
+static void playFmNote();
+static void playFmNote();
+static void printFrame();
 static void vintEvent();
-static void hintEvent();
 
-static u32 line = 0;
 static u32 frame = 0;
 
 int main(void)
 {
     VDP_setTextPalette(PAL3);
-    VDP_drawText("FM & PSG Test", 13, 0);
+    VDP_drawText("YM2612 & PSG Test", 11, 0);
     SYS_setVIntCallback(vintEvent);
-    SYS_setHIntCallback(hintEvent);
-    VDP_setHInterrupt(1);
 
-    PlayFmNote();
-    //PlayChord();
+    playFmNote();
 
 	while(1)
     {
-        printVSync();
-        printHSync();
+        printFrame();
         VDP_waitVSync();
     }
     return (0);
 }
 
-static void PlayFmNote(void)
+static void playFmNote(void)
 {
     YM2612_writeReg(0, 0x22, 0);    // LFO Off
 	YM2612_writeReg(0, 0x27, 0);    // Ch 3 Normal
@@ -75,7 +69,7 @@ static void PlayFmNote(void)
 	YM2612_writeReg(0, 0x28, 0xF0); // Key On
 }
 
-static void PlayChord(void)
+static void playChord(void)
 {
     u16 FREQ_A = 440;
     u16 FREQ_C_SHARP = 554;
@@ -89,30 +83,19 @@ static void PlayChord(void)
     PSG_setEnvelope(2, 1);
 }
 
-static void hintEvent(void)
+static void printFrame()
 {
-    line++;
-}
-
-static void printVSync()
-{
-    char text[32] = "VSync=";
-    char str[6];
-    uintToStr(frame, str, 1);
+    char text[9] = "Frame ";
+    char str[3];
+    uintToStr(frame, str, 2);
     strcat(text, str);
-    VDP_drawText(text, 28, 0);
-}
-
-static void printHSync()
-{
-    char text[32] = "HSync=";
-    char str[6];
-    uintToStr(line, str, 1);
-    strcat(text, str);
-    VDP_drawText(text, 28, 1);
+    VDP_drawText(text, 30, 0);
 }
 
 static void vintEvent()
 {
     frame++;
+    if(frame == (IS_PALSYSTEM ? 50 : 60)) {
+        frame = 0;
+    }
 }
