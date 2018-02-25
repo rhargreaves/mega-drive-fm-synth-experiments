@@ -1,7 +1,9 @@
 #include <genesis.h>
+#include <stdbool.h>
 
+static void playChord();
 static void playFmNote();
-static void playFmNote();
+static void stopFmNote();
 static void printFrame();
 static void vintEvent();
 
@@ -16,6 +18,24 @@ int main(void)
 	while(TRUE)
     {
         printFrame();
+
+        static bool playing = false;
+        u16 joyState = JOY_readJoypad(JOY_1);
+
+        if(joyState & BUTTON_A)
+        {
+            if(!playing)
+            {
+                playFmNote();
+            }
+            playing = true;
+        }
+        else
+        {
+            playing = false;
+            stopFmNote();
+        }
+
         VDP_waitVSync();
     }
     return (0);
@@ -67,6 +87,11 @@ static void playFmNote(void)
 	YM2612_writeReg(0, 0x28, 0xF0); // Key On
 }
 
+static void stopFmNote(void)
+{
+    YM2612_writeReg(0, 0x28, 0x00); // Key Off
+}
+
 static void playChord(void)
 {
     u16 FREQ_A = 440;
@@ -92,7 +117,8 @@ static void printFrame(void)
 
 static void vintEvent(void)
 {
-    if(++frame == (IS_PALSYSTEM ? 50 : 60)) {
+    if(++frame == (IS_PALSYSTEM ? 50 : 60))
+    {
         frame = 0;
     }
 }
