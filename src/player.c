@@ -11,15 +11,16 @@ static struct DebounceState {
 static struct FmChannel {
     u8 octave;
     u16 frequency;
+    u8 algorithm;
 } channel;
 
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate, struct DebounceState *state);
 static void YM2612_setFrequency(u16 freq, u8 octave);
+static void YM2612_setAlgorithm(u8 algorithm);
 static void checkPlayNoteButton(u16 joyState);
 static bool checkFreqChangeButtons(u16 joyState);
 static bool checkOctaveChangeButtons(u16 joyState);
 static void printValue(const char* header, u16 minSize, u32 value, u16 row);
-static void printOctave(void);
 static void playFmNote(void);
 static void stopFmNote(void);
 
@@ -27,6 +28,7 @@ void player_init(void)
 {
     channel.octave = 3;
     channel.frequency = 440;
+    channel.algorithm = 1;
 }
 
 void player_checkInput(void)
@@ -161,7 +163,7 @@ static void playFmNote(void)
 	YM2612_writeReg(0, 0x94, 0);
 	YM2612_writeReg(0, 0x98, 0);
 	YM2612_writeReg(0, 0x9C, 0);
-	YM2612_writeReg(0, 0xB0, 0x32); // Feedback/algorithm
+	YM2612_setAlgorithm(channel.algorithm); // Feedback/algorithm
 	YM2612_writeReg(0, 0xB4, 0xC0); // Both speakers on
 	YM2612_writeReg(0, 0x28, 0x00); // Key off
     YM2612_setFrequency(channel.frequency, channel.octave);
@@ -172,6 +174,12 @@ static void YM2612_setFrequency(u16 freq /* 11-bit */, u8 octave /* 3-bit */)
 {
 	YM2612_writeReg(0, 0xA4, (u8)((u16)(freq >> 8) + (u16)(octave << 3)));
 	YM2612_writeReg(0, 0xA0, (u8)freq);
+}
+
+static void YM2612_setAlgorithm(u8 algorithm /* 3-bit */)
+{
+    const u8 feedback = 48;
+	YM2612_writeReg(0, 0xB0, algorithm + feedback);
 }
 
 static void stopFmNote(void)
