@@ -12,13 +12,14 @@ static struct FmChannel {
     u8 octave;
     u16 frequency;
     u8 algorithm;
+    u8 feedback;
 } channel;
 
 static u8 selection = 0;
 
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate, struct DebounceState *state);
 static void YM2612_setFrequency(u16 freq, u8 octave);
-static void YM2612_setAlgorithm(u8 algorithm);
+static void YM2612_setAlgorithm(u8 algorithm, u8 feedback);
 static void checkPlayNoteButton(u16 joyState);
 static bool checkSelectionChangeButtons(u16 joyState);
 static bool checkValueChangeButtons(u16 joyState);
@@ -31,6 +32,7 @@ void player_init(void)
     channel.octave = 3;
     channel.frequency = 440;
     channel.algorithm = 1;
+    channel.feedback = 0;
 }
 
 void player_checkInput(void)
@@ -51,6 +53,8 @@ void player_checkInput(void)
         printValue("Octave   ", 1, channel.octave, 4);
         VDP_setTextPalette(selection == 2 ? PAL3 : PAL0);
         printValue("Algorithm", 1, channel.algorithm, 5);
+        VDP_setTextPalette(selection == 3 ? PAL3 : PAL0);
+        printValue("Feedback ", 1, channel.feedback, 6);        
         VDP_setTextPalette(PAL0);
     }
 }
@@ -98,7 +102,7 @@ static bool checkSelectionChangeButtons(u16 joyState)
     {
         return false;
     }
-    if(selection > 2) {
+    if(selection > 3) {
         selection = 0;
     }
     return true;
@@ -118,7 +122,10 @@ static bool checkValueChangeButtons(u16 joyState)
                 break;
             case 2:
                 channel.algorithm++;
-                break;                
+                break;  
+            case 3:
+                channel.feedback++;
+                break;                               
         }
     }
     else if(joyState & BUTTON_LEFT)
@@ -133,13 +140,17 @@ static bool checkValueChangeButtons(u16 joyState)
                 break;
             case 2:
                 channel.algorithm--;
-                break;                  
+                break;
+            case 3:
+                channel.feedback--;
+                break;                                
         }
     }
     else
     {
         return false;
     }
+    TRUNCATE(channel.feedback, 3);    
     TRUNCATE(channel.algorithm, 3);
     TRUNCATE(channel.octave, 3);
     TRUNCATE(channel.frequency, 11);
@@ -197,7 +208,7 @@ static void playFmNote(void)
 	YM2612_writeReg(0, 0x94, 0);
 	YM2612_writeReg(0, 0x98, 0);
 	YM2612_writeReg(0, 0x9C, 0);
-	YM2612_setAlgorithm(channel.algorithm); // Feedback/algorithm
+	YM2612_setAlgorithm(channel.algorithm, channel.feedback); // Feedback/algorithm
 	YM2612_writeReg(0, 0xB4, 0xC0); // Both speakers on
 	YM2612_writeReg(0, 0x28, 0x00); // Key off
     YM2612_setFrequency(channel.frequency, channel.octave);
@@ -210,10 +221,9 @@ static void YM2612_setFrequency(u16 freq /* 11-bit */, u8 octave /* 3-bit */)
 	YM2612_writeReg(0, 0xA0, (u8)freq);
 }
 
-static void YM2612_setAlgorithm(u8 algorithm /* 3-bit */)
+static void YM2612_setAlgorithm(u8 algorithm /* 3-bit */, u8 feedback /* 3-bit */)
 {
-    const u8 feedback = 48;
-	YM2612_writeReg(0, 0xB0, algorithm + feedback);
+	YM2612_writeReg(0, 0xB0, algorithm + (feedback << 3));
 }
 
 static void stopFmNote(void)
