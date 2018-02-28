@@ -45,10 +45,12 @@ void player_checkInput(void)
         static struct DebounceState debounceState;
         debounce(checkValueChangeButtons, joyState, 5, &debounceState);
 
-        VDP_setTextPalette(selection == 0 ? PAL0 : PAL3);
+        VDP_setTextPalette(selection == 0 ? PAL3 : PAL0);
         printValue("Frequency", 4, channel.frequency, 3);
-        VDP_setTextPalette(selection == 1 ? PAL0 : PAL3);
+        VDP_setTextPalette(selection == 1 ? PAL3 : PAL0);
         printValue("Octave   ", 1, channel.octave, 4);
+        VDP_setTextPalette(selection == 2 ? PAL3 : PAL0);
+        printValue("Algorithm", 1, channel.algorithm, 5);
         VDP_setTextPalette(PAL0);
     }
 }
@@ -84,19 +86,19 @@ static void checkPlayNoteButton(u16 joyState)
 
 static bool checkSelectionChangeButtons(u16 joyState)
 {
-    if(joyState & BUTTON_UP)
+    if(joyState & BUTTON_DOWN)
     {
         selection += 1;
     }
-    else if(joyState & BUTTON_DOWN)
+    else if(joyState & BUTTON_UP)
     {
-        selection -= 4;
+        selection -= 1;
     }
     else
     {
         return false;
     }
-    if(selection > 1) {
+    if(selection > 2) {
         selection = 0;
     }
     return true;
@@ -108,30 +110,37 @@ static bool checkValueChangeButtons(u16 joyState)
     {
         switch(selection) 
         {
-            case 0:
+            case 1:
                 channel.octave++;
                 break;
-            case 1:
+            case 0:
                 channel.frequency += 4;
                 break;
+            case 2:
+                channel.algorithm++;
+                break;                
         }
     }
     else if(joyState & BUTTON_LEFT)
     {
         switch(selection) 
         {
-            case 0:
+            case 1:
                 channel.octave--;
                 break;
-            case 1:
+            case 0:
                 channel.frequency -= 4;
                 break;
+            case 2:
+                channel.algorithm--;
+                break;                  
         }
     }
     else
     {
         return false;
     }
+    TRUNCATE(channel.algorithm, 3);
     TRUNCATE(channel.octave, 3);
     TRUNCATE(channel.frequency, 11);
     return true;
