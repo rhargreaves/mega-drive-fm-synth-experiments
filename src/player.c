@@ -29,8 +29,8 @@ static void stopFmNote(void);
 
 void player_init(void)
 {
-    channel.octave = 3;
     channel.frequency = 440;
+    channel.octave = 3;
     channel.algorithm = 1;
     channel.feedback = 0;
 }
@@ -41,11 +41,11 @@ void player_checkInput(void)
     checkPlayNoteButton(joyState);
     {
         static struct DebounceState debounceState;
-        debounce(checkSelectionChangeButtons, joyState, 5, &debounceState);
+        debounce(checkSelectionChangeButtons, joyState, 8, &debounceState);
     }
     {
         static struct DebounceState debounceState;
-        debounce(checkValueChangeButtons, joyState, 5, &debounceState);
+        debounce(checkValueChangeButtons, joyState, 6, &debounceState);
 
         VDP_setTextPalette(selection == 0 ? PAL3 : PAL0);
         printValue("Frequency", 4, channel.frequency, 3);
@@ -159,12 +159,21 @@ static bool checkValueChangeButtons(u16 joyState)
 
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate, struct DebounceState *state)
 {
-    if(state->counter == 0 && !func(joyState))
+    static u16 lastJoyState;
+    if(lastJoyState == joyState)
+    {
+        state->counter++;
+        if(state->counter > rate)
+        {
+            state->counter = 0;
+        }
+    } 
+    else 
     {
         state->counter = 0;
+        lastJoyState = joyState;
     }
-    state->counter++;
-    if(state->counter > rate)
+    if(state->counter == 0 && !func(joyState))
     {
         state->counter = 0;
     }
