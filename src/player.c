@@ -14,12 +14,14 @@ static struct FmChannel {
     u8 algorithm;
 } channel;
 
+static u8 selection = 0;
+
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate, struct DebounceState *state);
 static void YM2612_setFrequency(u16 freq, u8 octave);
 static void YM2612_setAlgorithm(u8 algorithm);
 static void checkPlayNoteButton(u16 joyState);
-static bool checkFreqChangeButtons(u16 joyState);
-static bool checkOctaveChangeButtons(u16 joyState);
+static bool checkSelectionChangeButtons(u16 joyState);
+static bool checkValueChangeButtons(u16 joyState);
 static void printValue(const char* header, u16 minSize, u32 value, u16 row);
 static void playFmNote(void);
 static void stopFmNote(void);
@@ -37,13 +39,17 @@ void player_checkInput(void)
     checkPlayNoteButton(joyState);
     {
         static struct DebounceState debounceState;
-        debounce(checkFreqChangeButtons, joyState, 1, &debounceState);
-        printValue("Frequency", 4, channel.frequency, 3);
+        debounce(checkSelectionChangeButtons, joyState, 5, &debounceState);
     }
     {
         static struct DebounceState debounceState;
-        debounce(checkOctaveChangeButtons, joyState, 10, &debounceState);
-        printValue("Octave", 1, channel.octave, 4);
+        debounce(checkValueChangeButtons, joyState, 5, &debounceState);
+
+        VDP_setTextPalette(selection == 0 ? PAL0 : PAL3);
+        printValue("Frequency", 4, channel.frequency, 3);
+        VDP_setTextPalette(selection == 1 ? PAL0 : PAL3);
+        printValue("Octave   ", 1, channel.octave, 4);
+        VDP_setTextPalette(PAL0);
     }
 }
 
@@ -53,7 +59,7 @@ static void printValue(const char* header, u16 minSize, u32 value, u16 row)
     char str[5];
     uintToStr(value, str, minSize);
     strcpy(text, header);
-    strcat(text, " = ");
+    strcat(text, " ");
     strcat(text, str);
     VDP_drawText(text, 0, row);
 }
@@ -76,39 +82,58 @@ static void checkPlayNoteButton(u16 joyState)
     }
 }
 
-static bool checkFreqChangeButtons(u16 joyState)
+static bool checkSelectionChangeButtons(u16 joyState)
 {
     if(joyState & BUTTON_UP)
     {
-        channel.frequency += 4;
+        selection += 1;
     }
     else if(joyState & BUTTON_DOWN)
     {
-        channel.frequency -= 4;
+        selection -= 4;
     }
     else
     {
         return false;
     }
-    TRUNCATE(channel.frequency, 11);
+    if(selection > 1) {
+        selection = 0;
+    }
     return true;
 }
 
-static bool checkOctaveChangeButtons(u16 joyState)
+static bool checkValueChangeButtons(u16 joyState)
 {
     if(joyState & BUTTON_RIGHT)
     {
-        channel.octave++;
+        switch(selection) 
+        {
+            case 0:
+                channel.octave++;
+                break;
+            case 1:
+                channel.frequency += 4;
+                break;
+        }
     }
     else if(joyState & BUTTON_LEFT)
     {
-        channel.octave--;
+        switch(selection) 
+        {
+            case 0:
+                channel.octave--;
+                break;
+            case 1:
+                channel.frequency -= 4;
+                break;
+        }
     }
     else
     {
         return false;
     }
     TRUNCATE(channel.octave, 3);
+    TRUNCATE(channel.frequency, 11);
     return true;
 }
 
