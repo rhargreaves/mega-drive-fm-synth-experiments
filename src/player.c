@@ -4,10 +4,6 @@
 
 typedef bool _debouncedFunc(u16 joyState);
 
-static struct DebounceState {
-    u16 counter;
-};
-
 static struct FmChannel {
     u8 octave;
     u16 frequency;
@@ -17,7 +13,7 @@ static struct FmChannel {
 
 static u8 selection = 0;
 
-static void debounce(_debouncedFunc func, u16 joyState, u8 rate, struct DebounceState *state);
+static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
 static void YM2612_setFrequency(u16 freq, u8 octave);
 static void YM2612_setAlgorithm(u8 algorithm, u8 feedback);
 static void checkPlayNoteButton(u16 joyState);
@@ -39,24 +35,18 @@ void player_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
-    {
-        static struct DebounceState debounceState;
-        debounce(checkSelectionChangeButtons, joyState, 8, &debounceState);
-    }
-    {
-        static struct DebounceState debounceState;
-        debounce(checkValueChangeButtons, joyState, 6, &debounceState);
+    debounce(checkSelectionChangeButtons, joyState, 8);
+    debounce(checkValueChangeButtons, joyState, 6);
 
-        VDP_setTextPalette(selection == 0 ? PAL3 : PAL0);
-        printValue("Frequency", 4, channel.frequency, 3);
-        VDP_setTextPalette(selection == 1 ? PAL3 : PAL0);
-        printValue("Octave   ", 1, channel.octave, 4);
-        VDP_setTextPalette(selection == 2 ? PAL3 : PAL0);
-        printValue("Algorithm", 1, channel.algorithm, 5);
-        VDP_setTextPalette(selection == 3 ? PAL3 : PAL0);
-        printValue("Feedback ", 1, channel.feedback, 6);        
-        VDP_setTextPalette(PAL0);
-    }
+    VDP_setTextPalette(selection == 0 ? PAL3 : PAL0);
+    printValue("Frequency", 4, channel.frequency, 3);
+    VDP_setTextPalette(selection == 1 ? PAL3 : PAL0);
+    printValue("Octave   ", 1, channel.octave, 4);
+    VDP_setTextPalette(selection == 2 ? PAL3 : PAL0);
+    printValue("Algorithm", 1, channel.algorithm, 5);
+    VDP_setTextPalette(selection == 3 ? PAL3 : PAL0);
+    printValue("Feedback ", 1, channel.feedback, 6);        
+    VDP_setTextPalette(PAL0);
 }
 
 static void printValue(const char* header, u16 minSize, u32 value, u16 row)
@@ -157,25 +147,26 @@ static bool checkValueChangeButtons(u16 joyState)
     return true;
 }
 
-static void debounce(_debouncedFunc func, u16 joyState, u8 rate, struct DebounceState *state)
+static void debounce(_debouncedFunc func, u16 joyState, u8 rate)
 {
+    static u16 counter;
     static u16 lastJoyState;
     if(lastJoyState == joyState)
     {
-        state->counter++;
-        if(state->counter > rate)
+        counter++;
+        if(counter > rate)
         {
-            state->counter = 0;
+            counter = 0;
         }
     } 
     else 
     {
-        state->counter = 0;
+        counter = 0;
         lastJoyState = joyState;
     }
-    if(state->counter == 0 && !func(joyState))
+    if(counter == 0 && !func(joyState))
     {
-        state->counter = 0;
+        counter = 0;
     }
 }
 
