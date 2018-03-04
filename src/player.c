@@ -47,11 +47,9 @@ static FmParameter fmParameters[MAX_PARAMETERS] = {
 #define PARAMETER_FEEDBACK 3
 
 static u8 selection = 0;
-static FmParameter* parameter;
 
 void player_init(void)
 {
-    parameter = &fmParameters[0];
 }
 
 void player_checkInput(void)
@@ -116,11 +114,11 @@ static void checkSelectionChangeButtons(u16 joyState)
     if(selection > MAX_PARAMETERS) {
         selection = 0;
     }
-    parameter = &fmParameters[selection];
 }
 
 static void checkValueChangeButtons(u16 joyState)
 {
+    FmParameter* parameter = &fmParameters[selection];
     if(joyState & BUTTON_RIGHT)
     {
         parameter->value += parameter->step;
