@@ -2,8 +2,7 @@
 #include <stdbool.h>
 #include <util.h>
 
-typedef void _onUpdateFunc(void);
-typedef void _changeValueFunc(void);
+typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
 static void updateAlgorithmAndFeedback(void);
@@ -30,10 +29,10 @@ typedef struct {
     u16 value;
     const u16 maxValue;
     const u8 step;
-    const _onUpdateFunc *onUpdate;
+    const void (*onUpdate)(void);
 } FmParameter;
 
- static FmParameter fmParameters[] = {
+static FmParameter fmParameters[] = {
     {
         "G.LFO On ", 1, 1, 1, 1, updateGlobalLFO
     },
