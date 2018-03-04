@@ -1,4 +1,4 @@
-# Sega Mega Drive Experiments
+# Sega Mega Drive Experiments [![Build Status](https://travis-ci.org/rhargreaves/mega-drive-experiments.svg?branch=master)](https://travis-ci.org/rhargreaves/mega-drive-experiments)
 
 Various experiments mostly centred around the Yamaha YM2612 FM Synthesis & PSG chips.
 
