@@ -5,6 +5,7 @@
 typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
+static void updateNote(void);
 static void noop(void);
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
 static void YM2612_setFrequency(u16 freq, u8 octave);
@@ -25,44 +26,44 @@ typedef struct {
     u16 value;
     const u16 maxValue;
     const u8 step;
-    void (*onUpdate)();
+    const void (*onUpdate)();
 } FmParameter;
 
 static FmParameter fmParameters[] = {
     {
-        "G.LFO On ", 1, 1, 2 ^ 1, 1, noop
+        "G.LFO On ", 1, 1, 1, 1, noop
     },
     {
-        "G.LFO Frq", 1, 3, 2 ^ 3, 1, noop
+        "G.LFO Frq", 1, 3, 7, 1, noop
     },
     {
-        "Frequency", 4, 440, 2 ^ 11, 4, noop
+        "Frequency", 4, 440, 2047, 4, noop
     },
     {
-        "Note     ", 2, 0, 11, 1, noop
+        "Note     ", 2, 0, 11, 1, updateNote
     },
     {
-        "Octave   ", 1, 4, 2 ^ 3, 1, noop
+        "Octave   ", 1, 4, 7, 1, noop
     },
     {
-        "Algorithm", 1, 0, 2 ^ 3, 1, noop
+        "Algorithm", 1, 0, 7, 1, noop
     },
     {
-        "Feedback ", 1, 0, 2 ^ 3, 1, noop
+        "Feedback ", 1, 0, 7, 1, noop
     },
     {
-        "LFO AMS  ", 1, 0, 2 ^ 3, 1, noop
+        "LFO AMS  ", 1, 0, 7, 1, noop
     },
     {
-        "LFO FMS  ", 1, 0, 2 ^ 3, 1, noop
+        "LFO FMS  ", 1, 0, 7, 1, noop
     },
     {
-        "Stereo   ", 1, 3, 2 ^ 2, 1, noop
+        "Stereo   ", 1, 3, 3, 1, noop
     }
 };
 
 static const char notes_text[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#"};
-static const u16 notes_freq = {617, 653, 692, 733, 777, 823, 872, 924, 979, 1037, 1099, 1164};
+static const u16 notes_freq[] = {617, 653, 692, 733, 777, 823, 872, 924, 979, 1037, 1099, 1164};
 
 #define MAX_PARAMETERS sizeof(fmParameters) / sizeof(FmParameter)
 
@@ -83,6 +84,13 @@ static u8 selection = 0;
 
 void noop(void)
 {
+}
+
+void updateNote(void)
+{
+    u16 note_index = fmParameters[PARAMETER_NOTE].value;
+    u16 note_freq = notes_freq[note_index];
+    fmParameters[PARAMETER_FREQ].value = note_freq;
 }
 
 void player_init(void)
