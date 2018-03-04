@@ -251,8 +251,8 @@ static void YM2612_setGlobalLFO(u8 enable, u8 freq)
 
 static void YM2612_setFrequency(u16 freq, u8 octave)
 {
-	YM2612_writeReg(0, 0xA4, (u8)((u16)(freq >> 8) + (u16)(octave << 3)));
-	YM2612_writeReg(0, 0xA0, (u8)freq);
+	YM2612_writeReg(0, 0xA4, (freq >> 8) + (octave << 3));
+	YM2612_writeReg(0, 0xA0, freq);
 }
 
 static void YM2612_setAlgorithm(u8 algorithm, u8 feedback)
