@@ -5,8 +5,11 @@
 typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
+static void updateAlgorithmAndFeedback(void);
+static void updateGlobalLFO(void);
+static void updateStereoAndLFO(void);
+static void updateFreqAndOctave(void);
 static void updateNote(void);
-static void noop(void);
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
 static void YM2612_setFrequency(u16 freq, u8 octave);
 static void YM2612_setAlgorithm(u8 algorithm, u8 feedback);
@@ -31,34 +34,34 @@ typedef struct {
 
 static FmParameter fmParameters[] = {
     {
-        "G.LFO On ", 1, 1, 1, 1, noop
+        "G.LFO On ", 1, 1, 1, 1, updateGlobalLFO
     },
     {
-        "G.LFO Frq", 1, 3, 7, 1, noop
+        "G.LFO Frq", 1, 3, 7, 1, updateGlobalLFO
     },
     {
-        "Frequency", 4, 653, 2047, 4, noop
+        "Frequency", 4, 653, 2047, 4, updateFreqAndOctave
     },
     {
         "Note     ", 2, 1, 11, 1, updateNote
     },
     {
-        "Octave   ", 1, 4, 7, 1, noop
+        "Octave   ", 1, 4, 7, 1, updateFreqAndOctave
     },
     {
-        "Algorithm", 1, 0, 7, 1, noop
+        "Algorithm", 1, 0, 7, 1, updateAlgorithmAndFeedback
     },
     {
-        "Feedback ", 1, 0, 7, 1, noop
+        "Feedback ", 1, 0, 7, 1, updateAlgorithmAndFeedback
     },
     {
-        "LFO AMS  ", 1, 0, 7, 1, noop
+        "LFO AMS  ", 1, 0, 7, 1, updateStereoAndLFO
     },
     {
-        "LFO FMS  ", 1, 0, 7, 1, noop
+        "LFO FMS  ", 1, 0, 7, 1, updateStereoAndLFO
     },
     {
-        "Stereo   ", 1, 3, 3, 1, noop
+        "Stereo   ", 1, 3, 3, 1, updateStereoAndLFO
     }
 };
 
@@ -82,15 +85,42 @@ enum FmParameters {
 
 static u8 selection = 0;
 
-void noop(void)
-{
-}
-
 void updateNote(void)
 {
     u16 note_index = fmParameters[PARAMETER_NOTE].value;
     u16 note_freq = notes_freq[note_index];
     fmParameters[PARAMETER_FREQ].value = note_freq;
+}
+
+void updateStereoAndLFO(void)
+{
+    YM2612_setStereoAndLFO(
+        fmParameters[PARAMETER_STEREO].value,
+        fmParameters[PARAMETER_LFO_AMS].value,
+        fmParameters[PARAMETER_LFO_FMS].value
+    );
+}
+
+void updateFreqAndOctave(void)
+{
+    YM2612_setFrequency(
+        fmParameters[PARAMETER_FREQ].value,
+        fmParameters[PARAMETER_OCTAVE].value);
+}
+
+void updateGlobalLFO(void)
+{
+    YM2612_setGlobalLFO(
+        fmParameters[PARAMETER_G_LFO_ON].value,
+        fmParameters[PARAMETER_G_LFO_FREQ].value
+    );
+}
+
+void updateAlgorithmAndFeedback(void)
+{
+	YM2612_setAlgorithm(
+        fmParameters[PARAMETER_ALGORITHM].value,
+        fmParameters[PARAMETER_FEEDBACK].value);
 }
 
 void player_init(void)
