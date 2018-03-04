@@ -40,10 +40,10 @@ static FmParameter fmParameters[] = {
         "G.LFO Frq", 1, 3, 7, 1, updateGlobalLFO
     },
     {
-        "Frequency", 4, 653, 2047, 4, updateFreqAndOctave
+        "Note     ", 2, 1, 11, 1, updateNote
     },
     {
-        "Note     ", 2, 1, 11, 1, updateNote
+        "Freq Num ", 4, 653, 2047, 4, updateFreqAndOctave
     },
     {
         "Octave   ", 1, 4, 7, 1, updateFreqAndOctave
@@ -73,8 +73,8 @@ static const u16 notes_freq[] = {617, 653, 692, 733, 777, 823, 872, 924, 979, 10
 enum FmParameters {
     PARAMETER_G_LFO_ON,
     PARAMETER_G_LFO_FREQ,
-    PARAMETER_FREQ,
     PARAMETER_NOTE,
+    PARAMETER_FREQ,
     PARAMETER_OCTAVE,
     PARAMETER_ALGORITHM,
     PARAMETER_FEEDBACK,
@@ -90,6 +90,7 @@ void updateNote(void)
     u16 note_index = fmParameters[PARAMETER_NOTE].value;
     u16 note_freq = notes_freq[note_index];
     fmParameters[PARAMETER_FREQ].value = note_freq;
+    fmParameters[PARAMETER_FREQ].onUpdate();
 }
 
 void updateStereoAndLFO(void)
