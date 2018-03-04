@@ -29,7 +29,7 @@ typedef struct {
     u16 value;
     const u16 maxValue;
     const u8 step;
-    const void (*onUpdate)();
+    const void (*onUpdate)(void);
 } FmParameter;
 
 static FmParameter fmParameters[] = {
@@ -85,45 +85,6 @@ enum FmParameters {
 
 static u8 selection = 0;
 
-void updateNote(void)
-{
-    u16 note_index = fmParameters[PARAMETER_NOTE].value;
-    u16 note_freq = notes_freq[note_index];
-    fmParameters[PARAMETER_FREQ].value = note_freq;
-    fmParameters[PARAMETER_FREQ].onUpdate();
-}
-
-void updateStereoAndLFO(void)
-{
-    YM2612_setStereoAndLFO(
-        fmParameters[PARAMETER_STEREO].value,
-        fmParameters[PARAMETER_LFO_AMS].value,
-        fmParameters[PARAMETER_LFO_FMS].value
-    );
-}
-
-void updateFreqAndOctave(void)
-{
-    YM2612_setFrequency(
-        fmParameters[PARAMETER_FREQ].value,
-        fmParameters[PARAMETER_OCTAVE].value);
-}
-
-void updateGlobalLFO(void)
-{
-    YM2612_setGlobalLFO(
-        fmParameters[PARAMETER_G_LFO_ON].value,
-        fmParameters[PARAMETER_G_LFO_FREQ].value
-    );
-}
-
-void updateAlgorithmAndFeedback(void)
-{
-	YM2612_setAlgorithm(
-        fmParameters[PARAMETER_ALGORITHM].value,
-        fmParameters[PARAMETER_FEEDBACK].value);
-}
-
 void player_init(void)
 {
 }
@@ -141,7 +102,7 @@ void player_checkInput(void)
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
         if(index == PARAMETER_NOTE)
         {
-            char* note_text = notes_text[fmParameters[PARAMETER_NOTE].value];
+            const char* note_text = notes_text[fmParameters[PARAMETER_NOTE].value];
             printText(p.name, p.minSize, note_text, index + 3);
         }
         else
@@ -339,4 +300,43 @@ static void YM2612_setAlgorithm(u8 algorithm, u8 feedback)
 static void stopFmNote(void)
 {
     YM2612_writeReg(0, 0x28, 0x00); // Key Off
+}
+
+static void updateNote(void)
+{
+    u16 note_index = fmParameters[PARAMETER_NOTE].value;
+    u16 note_freq = notes_freq[note_index];
+    fmParameters[PARAMETER_FREQ].value = note_freq;
+    fmParameters[PARAMETER_FREQ].onUpdate();
+}
+
+static void updateStereoAndLFO(void)
+{
+    YM2612_setStereoAndLFO(
+        fmParameters[PARAMETER_STEREO].value,
+        fmParameters[PARAMETER_LFO_AMS].value,
+        fmParameters[PARAMETER_LFO_FMS].value
+    );
+}
+
+static void updateFreqAndOctave(void)
+{
+    YM2612_setFrequency(
+        fmParameters[PARAMETER_FREQ].value,
+        fmParameters[PARAMETER_OCTAVE].value);
+}
+
+static void updateGlobalLFO(void)
+{
+    YM2612_setGlobalLFO(
+        fmParameters[PARAMETER_G_LFO_ON].value,
+        fmParameters[PARAMETER_G_LFO_FREQ].value
+    );
+}
+
+static void updateAlgorithmAndFeedback(void)
+{
+	YM2612_setAlgorithm(
+        fmParameters[PARAMETER_ALGORITHM].value,
+        fmParameters[PARAMETER_FEEDBACK].value);
 }
