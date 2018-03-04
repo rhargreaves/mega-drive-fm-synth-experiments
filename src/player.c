@@ -196,6 +196,9 @@ static void checkValueChangeButtons(u16 joyState)
     {
         return;
     }
+    if(parameter->value == (u16)-1) {
+        parameter->value = parameter->maxValue;
+    }
     if(parameter->value > parameter->maxValue) {
         parameter->value = 0;
     }
