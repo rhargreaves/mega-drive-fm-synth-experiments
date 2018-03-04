@@ -3,14 +3,14 @@
 #include <util.h>
 
 typedef void _changeValueFunc();
-typedef bool _debouncedFunc(u16 joyState);
+typedef void _debouncedFunc(u16 joyState);
 
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
 static void YM2612_setFrequency(u16 freq, u8 octave);
 static void YM2612_setAlgorithm(u8 algorithm, u8 feedback);
 static void checkPlayNoteButton(u16 joyState);
-static bool checkSelectionChangeButtons(u16 joyState);
-static bool checkValueChangeButtons(u16 joyState);
+static void checkSelectionChangeButtons(u16 joyState);
+static void checkValueChangeButtons(u16 joyState);
 static void printValue(const char* header, u16 minSize, u32 value, u16 row);
 static void playFmNote(void);
 static void stopFmNote(void);
@@ -99,7 +99,7 @@ static void checkPlayNoteButton(u16 joyState)
     }
 }
 
-static bool checkSelectionChangeButtons(u16 joyState)
+static void checkSelectionChangeButtons(u16 joyState)
 {
     if(joyState & BUTTON_DOWN)
     {
@@ -111,16 +111,15 @@ static bool checkSelectionChangeButtons(u16 joyState)
     }
     else
     {
-        return false;
+        return;
     }
     if(selection > MAX_PARAMETERS) {
         selection = 0;
     }
     parameter = &fmParameters[selection];
-    return true;
 }
 
-static bool checkValueChangeButtons(u16 joyState)
+static void checkValueChangeButtons(u16 joyState)
 {
     if(joyState & BUTTON_RIGHT)
     {
@@ -132,10 +131,9 @@ static bool checkValueChangeButtons(u16 joyState)
     }
     else
     {
-        return false;
+        return;
     }
     TRUNCATE(parameter->value, parameter->bits);
-    return true;
 }
 
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate)
@@ -155,9 +153,9 @@ static void debounce(_debouncedFunc func, u16 joyState, u8 rate)
         counter = 0;
         lastJoyState = joyState;
     }
-    if(counter == 0 && !func(joyState))
+    if(counter == 0)
     {
-        counter = 0;
+        func(joyState);
     }
 }
 
