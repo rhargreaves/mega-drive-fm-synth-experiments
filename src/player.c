@@ -9,7 +9,7 @@ static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
 static void YM2612_setFrequency(u16 freq, u8 octave);
 static void YM2612_setAlgorithm(u8 algorithm, u8 feedback);
 static void YM2612_setGlobalLFO(u8 enable, u8 freq);
-static void YM2612_setStereoAndLFO(u8 ams, u8 fms);
+static void YM2612_setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
 static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
@@ -50,6 +50,9 @@ static FmParameter fmParameters[] = {
     },
     {
         "LFO FMS  ", 0, 1, 0, 3, 1
+    },
+    {
+        "Stereo   ", 0, 1, 3, 2, 1
     }
 };
 
@@ -62,6 +65,7 @@ static FmParameter fmParameters[] = {
 #define PARAMETER_FEEDBACK 5
 #define PARAMETER_LFO_AMS 6
 #define PARAMETER_LFO_FMS 7
+#define PARAMETER_STEREO 8
 
 static u8 selection = 0;
 
@@ -222,6 +226,7 @@ static void playFmNote(void)
         fmParameters[PARAMETER_ALGORITHM].value,
         fmParameters[PARAMETER_FEEDBACK].value);
     YM2612_setStereoAndLFO(
+        fmParameters[PARAMETER_STEREO].value,
         fmParameters[PARAMETER_LFO_AMS].value,
         fmParameters[PARAMETER_LFO_FMS].value
     );
@@ -232,11 +237,10 @@ static void playFmNote(void)
 	YM2612_writeReg(0, 0x28, 0xF0); // Key On
 }
 
-static void YM2612_setStereoAndLFO(u8 ams, u8 fms)
+static void YM2612_setStereoAndLFO(u8 stereo, u8 ams, u8 fms)
 {
     YM2612_writeReg(0, 0xB4,
-        ((u8)1 << 7) + // Left On
-        ((u8)1 << 6) + // Right On
+        (stereo << 6) +
         (ams << 3) +
         fms);
 }
