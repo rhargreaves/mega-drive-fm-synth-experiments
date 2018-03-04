@@ -21,7 +21,7 @@ RM = rm -f
 NM = nm
 NM2WCH = nm2wch
 MKISOFS = mkisofs
-OPTION = -std=c11
+OPTION = -std=c11 -fno-builtin
 INCS = -I. -I$(GENDEV)/m68k-elf/include -I$(GENDEV)/m68k-elf/m68k-elf/include -Isrc -Ires
 CCFLAGS = $(OPTION) -m68000 -Wall -O2 -c -fomit-frame-pointer
 HWCCFLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer
