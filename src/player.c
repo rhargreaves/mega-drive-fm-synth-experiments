@@ -8,6 +8,7 @@ typedef void _debouncedFunc(u16 joyState);
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
 static void YM2612_setFrequency(u16 freq, u8 octave);
 static void YM2612_setAlgorithm(u8 algorithm, u8 feedback);
+static void YM2612_setGlobalLFO(u8 enable, u8 freq);
 static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
@@ -26,6 +27,12 @@ typedef struct {
 
 static FmParameter fmParameters[] = {
     {
+        "G.LFO On ", 0, 1, 1, 1, 1
+    },
+    {
+        "G.LFO Frq", 0, 1, 3, 3, 1
+    },
+    {
         "Frequency", 3, 4, 440, 11, 4
     },
     {
@@ -40,10 +47,12 @@ static FmParameter fmParameters[] = {
 };
 
 #define MAX_PARAMETERS sizeof(fmParameters) / sizeof(FmParameter)
-#define PARAMETER_FREQ 0
-#define PARAMETER_OCTAVE 1
-#define PARAMETER_ALGORITHM 2
-#define PARAMETER_FEEDBACK 3
+#define PARAMETER_G_LFO_ON 0
+#define PARAMETER_G_LFO_FREQ 1
+#define PARAMETER_FREQ 2
+#define PARAMETER_OCTAVE 3
+#define PARAMETER_ALGORITHM 4
+#define PARAMETER_FEEDBACK 5
 
 static u8 selection = 0;
 
@@ -62,7 +71,7 @@ void player_checkInput(void)
     {
         FmParameter p = fmParameters[index];
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
-        printValue(p.name, p.minSize, p.value, p.row);
+        printValue(p.name, p.minSize, p.value, index + 3);
     }
     VDP_setTextPalette(PAL0);
 }
@@ -161,7 +170,10 @@ static void debounce(_debouncedFunc func, u16 joyState, u8 rate)
 
 static void playFmNote(void)
 {
-    YM2612_writeReg(0, 0x22, 0);    // LFO Off
+    YM2612_setGlobalLFO(
+        fmParameters[PARAMETER_G_LFO_ON].value,
+        fmParameters[PARAMETER_G_LFO_FREQ].value
+    );
 	YM2612_writeReg(0, 0x27, 0);    // Ch 3 Normal
 	YM2612_writeReg(0, 0x28, 0);    // All channels off
 	YM2612_writeReg(0, 0x28, 1);
@@ -206,6 +218,11 @@ static void playFmNote(void)
         fmParameters[PARAMETER_FREQ].value,
         fmParameters[PARAMETER_OCTAVE].value);
 	YM2612_writeReg(0, 0x28, 0xF0); // Key On
+}
+
+static void YM2612_setGlobalLFO(u8 enable, u8 freq)
+{
+    YM2612_writeReg(0, 0x22, (enable << 3) + freq);
 }
 
 static void YM2612_setFrequency(u16 freq, u8 octave)
