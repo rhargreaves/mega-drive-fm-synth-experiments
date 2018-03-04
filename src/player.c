@@ -56,15 +56,18 @@ static FmParameter fmParameters[] = {
 };
 
 #define MAX_PARAMETERS sizeof(fmParameters) / sizeof(FmParameter)
-#define PARAMETER_G_LFO_ON 0
-#define PARAMETER_G_LFO_FREQ 1
-#define PARAMETER_FREQ 2
-#define PARAMETER_OCTAVE 3
-#define PARAMETER_ALGORITHM 4
-#define PARAMETER_FEEDBACK 5
-#define PARAMETER_LFO_AMS 6
-#define PARAMETER_LFO_FMS 7
-#define PARAMETER_STEREO 8
+
+enum FmParameters {
+    PARAMETER_G_LFO_ON,
+    PARAMETER_G_LFO_FREQ,
+    PARAMETER_FREQ,
+    PARAMETER_OCTAVE,
+    PARAMETER_ALGORITHM,
+    PARAMETER_FEEDBACK,
+    PARAMETER_LFO_AMS,
+    PARAMETER_LFO_FMS,
+    PARAMETER_STEREO
+};
 
 static u8 selection = 0;
 
@@ -229,7 +232,7 @@ static void playFmNote(void)
         fmParameters[PARAMETER_LFO_AMS].value,
         fmParameters[PARAMETER_LFO_FMS].value
     );
-	YM2612_writeReg(0, 0x28, 0x00); // Key off
+    YM2612_writeReg(0, 0x28, 0x00); // Key off
     YM2612_setFrequency(
         fmParameters[PARAMETER_FREQ].value,
         fmParameters[PARAMETER_OCTAVE].value);
