@@ -1,3 +1,5 @@
 *.bin
-.vscode/
+.vscode/*
+!.vscode/
+!.vscode/tasks.json
 *.o
