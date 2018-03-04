@@ -5,6 +5,7 @@
 typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
+static void noop(void);
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
 static void YM2612_setFrequency(u16 freq, u8 octave);
 static void YM2612_setAlgorithm(u8 algorithm, u8 feedback);
@@ -14,6 +15,7 @@ static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
 static void printValue(const char* header, u16 minSize, u32 value, u16 row);
+static void printText(const char* header, u16 minSize, const char* value, u16 row);
 static void playFmNote(void);
 static void stopFmNote(void);
 
@@ -21,39 +23,46 @@ typedef struct {
     const char name[10];
     const u16 minSize;
     u16 value;
-    const u8 bits;
+    const u16 maxValue;
     const u8 step;
+    void (*onUpdate)();
 } FmParameter;
 
 static FmParameter fmParameters[] = {
     {
-        "G.LFO On ", 1, 1, 1, 1
+        "G.LFO On ", 1, 1, 2 ^ 1, 1, noop
     },
     {
-        "G.LFO Frq", 1, 3, 3, 1
+        "G.LFO Frq", 1, 3, 2 ^ 3, 1, noop
     },
     {
-        "Frequency", 4, 440, 11, 4
+        "Frequency", 4, 440, 2 ^ 11, 4, noop
     },
     {
-        "Octave   ", 1, 4, 3, 1
+        "Note     ", 2, 0, 11, 1, noop
     },
     {
-        "Algorithm", 1, 0, 3, 1
+        "Octave   ", 1, 4, 2 ^ 3, 1, noop
     },
     {
-        "Feedback ", 1, 0, 3, 1
+        "Algorithm", 1, 0, 2 ^ 3, 1, noop
     },
     {
-        "LFO AMS  ", 1, 0, 3, 1
+        "Feedback ", 1, 0, 2 ^ 3, 1, noop
     },
     {
-        "LFO FMS  ", 1, 0, 3, 1
+        "LFO AMS  ", 1, 0, 2 ^ 3, 1, noop
     },
     {
-        "Stereo   ", 1, 3, 2, 1
+        "LFO FMS  ", 1, 0, 2 ^ 3, 1, noop
+    },
+    {
+        "Stereo   ", 1, 3, 2 ^ 2, 1, noop
     }
 };
+
+static const char notes_text[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#"};
+static const u16 notes_freq = {617, 653, 692, 733, 777, 823, 872, 924, 979, 1037, 1099, 1164};
 
 #define MAX_PARAMETERS sizeof(fmParameters) / sizeof(FmParameter)
 
@@ -61,6 +70,7 @@ enum FmParameters {
     PARAMETER_G_LFO_ON,
     PARAMETER_G_LFO_FREQ,
     PARAMETER_FREQ,
+    PARAMETER_NOTE,
     PARAMETER_OCTAVE,
     PARAMETER_ALGORITHM,
     PARAMETER_FEEDBACK,
@@ -70,6 +80,10 @@ enum FmParameters {
 };
 
 static u8 selection = 0;
+
+void noop(void)
+{
+}
 
 void player_init(void)
 {
@@ -86,9 +100,26 @@ void player_checkInput(void)
     {
         FmParameter p = fmParameters[index];
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
-        printValue(p.name, p.minSize, p.value, index + 3);
+        if(index == PARAMETER_NOTE)
+        {
+            char* note_text = notes_text[fmParameters[PARAMETER_NOTE].value];
+            printText(p.name, p.minSize, note_text, index + 3);
+        }
+        else
+        {
+            printValue(p.name, p.minSize, p.value, index + 3);
+        }
     }
     VDP_setTextPalette(PAL0);
+}
+
+static void printText(const char* header, u16 minSize, const char* value, u16 row)
+{
+    char text[50];
+    strcpy(text, header);
+    strcat(text, " ");
+    strcat(text, value);
+    VDP_drawText(text, 0, row);
 }
 
 static void printValue(const char* header, u16 minSize, u32 value, u16 row)
@@ -157,7 +188,10 @@ static void checkValueChangeButtons(u16 joyState)
     {
         return;
     }
-    TRUNCATE(parameter->value, parameter->bits);
+    if(parameter->value > parameter->maxValue) {
+        parameter->value = 0;
+    }
+    parameter->onUpdate();
 }
 
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate)
