@@ -19,7 +19,6 @@ static void stopFmNote(void);
 
 typedef struct {
     const char name[10];
-    const u16 row;
     const u16 minSize;
     u16 value;
     const u8 bits;
@@ -28,31 +27,31 @@ typedef struct {
 
 static FmParameter fmParameters[] = {
     {
-        "G.LFO On ", 0, 1, 1, 1, 1
+        "G.LFO On ", 1, 1, 1, 1
     },
     {
-        "G.LFO Frq", 0, 1, 3, 3, 1
+        "G.LFO Frq", 1, 3, 3, 1
     },
     {
-        "Frequency", 0, 4, 440, 11, 4
+        "Frequency", 4, 440, 11, 4
     },
     {
-        "Octave   ", 0, 1, 4, 3, 1
+        "Octave   ", 1, 4, 3, 1
     },
     {
-        "Algorithm", 0, 1, 0, 3, 1
+        "Algorithm", 1, 0, 3, 1
     },
     {
-        "Feedback ", 0, 1, 0, 3, 1
+        "Feedback ", 1, 0, 3, 1
     },
     {
-        "LFO AMS  ", 0, 1, 0, 3, 1
+        "LFO AMS  ", 1, 0, 3, 1
     },
     {
-        "LFO FMS  ", 0, 1, 0, 3, 1
+        "LFO FMS  ", 1, 0, 3, 1
     },
     {
-        "Stereo   ", 0, 1, 3, 2, 1
+        "Stereo   ", 1, 3, 2, 1
     }
 };
 
