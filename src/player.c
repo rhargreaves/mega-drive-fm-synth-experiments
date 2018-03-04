@@ -222,10 +222,7 @@ static void debounce(_debouncedFunc func, u16 joyState, u8 rate)
 
 static void playFmNote(void)
 {
-    YM2612_setGlobalLFO(
-        fmParameters[PARAMETER_G_LFO_ON].value,
-        fmParameters[PARAMETER_G_LFO_FREQ].value
-    );
+    updateGlobalLFO();
 	YM2612_writeReg(0, 0x27, 0);    // Ch 3 Normal
 	YM2612_writeReg(0, 0x28, 0);    // All channels off
 	YM2612_writeReg(0, 0x28, 1);
@@ -261,18 +258,10 @@ static void playFmNote(void)
 	YM2612_writeReg(0, 0x94, 0);
 	YM2612_writeReg(0, 0x98, 0);
 	YM2612_writeReg(0, 0x9C, 0);
-	YM2612_setAlgorithm(
-        fmParameters[PARAMETER_ALGORITHM].value,
-        fmParameters[PARAMETER_FEEDBACK].value);
-    YM2612_setStereoAndLFO(
-        fmParameters[PARAMETER_STEREO].value,
-        fmParameters[PARAMETER_LFO_AMS].value,
-        fmParameters[PARAMETER_LFO_FMS].value
-    );
+    updateAlgorithmAndFeedback();
+    updateStereoAndLFO();
     YM2612_writeReg(0, 0x28, 0x00); // Key off
-    YM2612_setFrequency(
-        fmParameters[PARAMETER_FREQ].value,
-        fmParameters[PARAMETER_OCTAVE].value);
+    updateFreqAndOctave();
 	YM2612_writeReg(0, 0x28, 0xF0); // Key On
 }
 
