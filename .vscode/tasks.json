@@ -6,7 +6,7 @@
         {
             "label": "Build",
             "type": "shell",
-            "command": "./docker-make.sh",
+            "command": "./docker-make",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -15,7 +15,7 @@
         {
             "label": "Build & Run in Regen",
             "type": "shell",
-            "command": "./docker-make.sh && ./run-regen.sh bin/out.bin",
+            "command": "./docker-make && ./run-regen bin/out.bin",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -24,7 +24,7 @@
         {
             "label": "Build & Run on Mega Drive",
             "type": "shell",
-            "command": "./docker-make.sh && ./run-everdrive.sh bin/out.bin",
+            "command": "./docker-make && ./run-everdrive bin/out.bin",
             "problemMatcher": [
                 "$gcc"
             ],
