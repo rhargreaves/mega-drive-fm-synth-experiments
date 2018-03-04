@@ -15,8 +15,6 @@ static void printValue(const char* header, u16 minSize, u32 value, u16 row);
 static void playFmNote(void);
 static void stopFmNote(void);
 
-#define MAX_PARAMETERS 4
-
 typedef struct {
     const char name[10];
     const u16 row;
@@ -26,7 +24,7 @@ typedef struct {
     const u8 step;
 } FmParameter;
 
-static FmParameter fmParameters[MAX_PARAMETERS] = {
+static FmParameter fmParameters[] = {
     {
         "Frequency", 3, 4, 440, 11, 4
     },
@@ -41,6 +39,7 @@ static FmParameter fmParameters[MAX_PARAMETERS] = {
     }
 };
 
+#define MAX_PARAMETERS sizeof(fmParameters) / sizeof(FmParameter)
 #define PARAMETER_FREQ 0
 #define PARAMETER_OCTAVE 1
 #define PARAMETER_ALGORITHM 2
@@ -111,7 +110,10 @@ static void checkSelectionChangeButtons(u16 joyState)
     {
         return;
     }
-    if(selection > MAX_PARAMETERS) {
+    if(selection == (u8)-1) {
+        selection = MAX_PARAMETERS - 1;
+    }
+    if(selection > MAX_PARAMETERS - 1) {
         selection = 0;
     }
 }
