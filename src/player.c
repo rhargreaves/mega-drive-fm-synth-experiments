@@ -61,7 +61,7 @@ static FmParameter fmParameters[] = {
 #define PARAMETER_ALGORITHM 4
 #define PARAMETER_FEEDBACK 5
 #define PARAMETER_LFO_AMS 6
-#define PARAMETER_LFO_FMS 6
+#define PARAMETER_LFO_FMS 7
 
 static u8 selection = 0;
 
