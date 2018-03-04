@@ -1,4 +1,4 @@
 sudo: required
 services:
   - docker
-script: ./docker-make.sh
+script: ./docker-make
