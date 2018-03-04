@@ -37,10 +37,10 @@ static FmParameter fmParameters[] = {
         "G.LFO Frq", 1, 3, 7, 1, noop
     },
     {
-        "Frequency", 4, 440, 2047, 4, noop
+        "Frequency", 4, 653, 2047, 4, noop
     },
     {
-        "Note     ", 2, 0, 11, 1, updateNote
+        "Note     ", 2, 1, 11, 1, updateNote
     },
     {
         "Octave   ", 1, 4, 7, 1, noop
@@ -286,10 +286,7 @@ static void playFmNote(void)
 
 static void YM2612_setStereoAndLFO(u8 stereo, u8 ams, u8 fms)
 {
-    YM2612_writeReg(0, 0xB4,
-        (stereo << 6) +
-        (ams << 3) +
-        fms);
+    YM2612_writeReg(0, 0xB4, (stereo << 6) + (ams << 3) + fms);
 }
 
 static void YM2612_setGlobalLFO(u8 enable, u8 freq)
