@@ -18,8 +18,8 @@ static void YM2612_setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
 static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
-static void printValue(const char* header, u16 minSize, u32 value, u16 row);
-static void printText(const char* header, u16 minSize, const char* value, u16 row);
+static void printValue(const char *header, u16 minSize, u16 value, u16 row);
+static void printText(const char *header, u16 minSize, const char *value, u16 row);
 static void playFmNote(void);
 static void stopFmNote(void);
 
@@ -102,7 +102,7 @@ void player_checkInput(void)
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
         if(index == PARAMETER_NOTE)
         {
-            const char* note_text = notes_text[fmParameters[PARAMETER_NOTE].value];
+            const char *note_text = notes_text[fmParameters[PARAMETER_NOTE].value];
             printText(p.name, p.minSize, note_text, index + 3);
         }
         else
@@ -113,7 +113,7 @@ void player_checkInput(void)
     VDP_setTextPalette(PAL0);
 }
 
-static void printText(const char* header, u16 minSize, const char* value, u16 row)
+static void printText(const char *header, u16 minSize, const char *value, u16 row)
 {
     char text[50];
     strcpy(text, header);
@@ -122,15 +122,11 @@ static void printText(const char* header, u16 minSize, const char* value, u16 ro
     VDP_drawText(text, 0, row);
 }
 
-static void printValue(const char* header, u16 minSize, u32 value, u16 row)
+static void printValue(const char *header, u16 minSize, u16 value, u16 row)
 {
-    char text[50];
     char str[5];
     uintToStr(value, str, minSize);
-    strcpy(text, header);
-    strcat(text, " ");
-    strcat(text, str);
-    VDP_drawText(text, 0, row);
+    printText(header, minSize, str, row);
 }
 
 static void checkPlayNoteButton(u16 joyState)
@@ -175,7 +171,7 @@ static void checkSelectionChangeButtons(u16 joyState)
 
 static void checkValueChangeButtons(u16 joyState)
 {
-    FmParameter* parameter = &fmParameters[selection];
+    FmParameter *parameter = &fmParameters[selection];
     if(joyState & BUTTON_RIGHT)
     {
         parameter->value += parameter->step;
