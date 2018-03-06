@@ -11,15 +11,12 @@ int main(void)
     VDP_setTextPalette(PAL0);
     VDP_drawText("YM2612 & PSG Test", 11, 0);
     SYS_setVIntCallback(vintEvent);
-    player_init();
-
 	while(TRUE)
     {
         printFrame();
         player_checkInput();
         VDP_waitVSync();
     }
-    return (0);
 }
 
 static void printFrame(void)

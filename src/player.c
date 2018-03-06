@@ -85,10 +85,6 @@ enum FmParameters {
 
 static u8 selection = 0;
 
-void player_init(void)
-{
-}
-
 void player_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
