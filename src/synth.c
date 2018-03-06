@@ -44,11 +44,19 @@ static FmParameter fmParameters[] = {
     }
 };
 
-static const u16 notes_freq[] = {617, 653, 692, 733, 777, 823, 872, 924, 979, 1037, 1099, 1164};
-
 #define MAX_PARAMETERS sizeof(fmParameters) / sizeof(FmParameter)
 
-void playFmNote(void)
+FmParameter *s_fmParameter(FmParameters parameter)
+{
+    return &fmParameters[parameter];
+}
+
+u16 s_maxFmParameters(void)
+{
+    return MAX_PARAMETERS;
+}
+
+void s_playNote(void)
 {
     updateGlobalLFO();
 	YM2612_writeReg(0, 0x27, 0);    // Ch 3 Normal
@@ -93,7 +101,7 @@ void playFmNote(void)
 	YM2612_writeReg(0, 0x28, 0xF0); // Key On
 }
 
-void stopFmNote(void)
+void s_stopNote(void)
 {
     YM2612_writeReg(0, 0x28, 0x00); // Key Off
 }
@@ -119,9 +127,9 @@ static void YM2612_setAlgorithm(u8 algorithm, u8 feedback)
 	YM2612_writeReg(0, 0xB0, algorithm + (feedback << 3));
 }
 
-
 static void updateNote(void)
 {
+    const u16 notes_freq[] = {617, 653, 692, 733, 777, 823, 872, 924, 979, 1037, 1099, 1164};
     u16 note_index = fmParameters[PARAMETER_NOTE].value;
     u16 note_freq = notes_freq[note_index];
     fmParameters[PARAMETER_FREQ].value = note_freq;
@@ -157,14 +165,4 @@ static void updateAlgorithmAndFeedback(void)
 	YM2612_setAlgorithm(
         fmParameters[PARAMETER_ALGORITHM].value,
         fmParameters[PARAMETER_FEEDBACK].value);
-}
-
-FmParameter *fmParameter(FmParameters parameter)
-{
-    return &fmParameters[parameter];
-}
-
-u16 maxFmParameters(void)
-{
-    return MAX_PARAMETERS;
 }

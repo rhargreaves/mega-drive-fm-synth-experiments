@@ -17,16 +17,16 @@ static const char notes_text[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "
 
 static u8 selection = 0;
 
-void player_checkInput(void)
+void u_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
     debounce(checkSelectionChangeButtons, joyState, 8);
     debounce(checkValueChangeButtons, joyState, 6);
 
-    for(u16 index = 0; index < maxFmParameters(); index++)
+    for(u16 index = 0; index < s_maxFmParameters(); index++)
     {
-        FmParameter *p = fmParameter(index);
+        FmParameter *p = s_fmParameter(index);
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
         if(index == PARAMETER_NOTE)
         {
@@ -64,14 +64,14 @@ static void checkPlayNoteButton(u16 joyState)
     {
         if(!playing)
         {
-            playFmNote();
+            s_playNote();
         }
         playing = true;
     }
     else
     {
         playing = false;
-        stopFmNote();
+        s_stopNote();
     }
 }
 
@@ -89,7 +89,7 @@ static void checkSelectionChangeButtons(u16 joyState)
     {
         return;
     }
-    u16 maxParameters = maxFmParameters();
+    u16 maxParameters = s_maxFmParameters();
     if(selection == (u8)-1) {
         selection = maxParameters - 1;
     }
@@ -100,7 +100,7 @@ static void checkSelectionChangeButtons(u16 joyState)
 
 static void checkValueChangeButtons(u16 joyState)
 {
-    FmParameter *parameter = fmParameter(selection);
+    FmParameter *parameter = s_fmParameter(selection);
     if(joyState & BUTTON_RIGHT)
     {
         parameter->value += parameter->step;

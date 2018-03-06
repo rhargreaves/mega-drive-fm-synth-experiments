@@ -22,7 +22,7 @@ typedef struct {
     const void (*onUpdate)(void);
 } FmParameter;
 
-void playFmNote(void);
-void stopFmNote(void);
-FmParameter* fmParameter(FmParameters parameter);
-u16 maxFmParameters(void);
+void s_playNote(void);
+void s_stopNote(void);
+FmParameter* s_fmParameter(FmParameters parameter);
+u16 s_maxFmParameters(void);

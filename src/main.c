@@ -1,10 +1,10 @@
 #include <genesis.h>
-#include <player.h>
+#include <ui.h>
 
 static void printFrame();
 static void vintEvent();
 
-static u32 frame = 0;
+static u16 frame = 0;
 
 int main(void)
 {
@@ -14,7 +14,7 @@ int main(void)
 	while(TRUE)
     {
         printFrame();
-        player_checkInput();
+        u_checkInput();
         VDP_waitVSync();
     }
 }
