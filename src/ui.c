@@ -6,14 +6,11 @@ typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
 static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
-
 static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
 static void printValue(const char *header, u16 minSize, u16 value, u16 row);
 static void printText(const char *header, u16 minSize, const char *value, u16 row);
-
-static const char notes_text[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#"};
 
 static u8 selection = 0;
 
@@ -30,8 +27,9 @@ void u_checkInput(void)
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
         if(index == PARAMETER_NOTE)
         {
-            const char *note_text = notes_text[p->value];
-            printText(p->name, p->minSize, note_text, index + 3);
+            const char NOTES_TEXT[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#"};
+            const char *noteText = NOTES_TEXT[p->value];
+            printText(p->name, p->minSize, noteText, index + 3);
         }
         else
         {
