@@ -1,6 +1,5 @@
 #include <genesis.h>
 #include <stdbool.h>
-#include <util.h>
 #include <synth.h>
 
 typedef void _changeValueFunc();

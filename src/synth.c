@@ -168,7 +168,3 @@ u16 maxFmParameters(void)
 {
     return MAX_PARAMETERS;
 }
-
-char *noteText(void) {
-
-}
