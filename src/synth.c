@@ -6,10 +6,10 @@ static void updateGlobalLFO(void);
 static void updateStereoAndLFO(void);
 static void updateFreqAndOctave(void);
 static void updateNote(void);
-static void YM2612_setFrequency(u16 freq, u8 octave);
-static void YM2612_setAlgorithm(u8 algorithm, u8 feedback);
-static void YM2612_setGlobalLFO(u8 enable, u8 freq);
-static void YM2612_setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
+static void setFrequency(u16 freq, u8 octave);
+static void setAlgorithm(u8 algorithm, u8 feedback);
+static void setGlobalLFO(u8 enable, u8 freq);
+static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
 
 static FmParameter fmParameters[] = {
     {
@@ -106,23 +106,23 @@ void s_stopNote(void)
     YM2612_writeReg(0, 0x28, 0x00); // Key Off
 }
 
-static void YM2612_setStereoAndLFO(u8 stereo, u8 ams, u8 fms)
+static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms)
 {
     YM2612_writeReg(0, 0xB4, (stereo << 6) + (ams << 3) + fms);
 }
 
-static void YM2612_setGlobalLFO(u8 enable, u8 freq)
+static void setGlobalLFO(u8 enable, u8 freq)
 {
     YM2612_writeReg(0, 0x22, (enable << 3) + freq);
 }
 
-static void YM2612_setFrequency(u16 freq, u8 octave)
+static void setFrequency(u16 freq, u8 octave)
 {
 	YM2612_writeReg(0, 0xA4, (freq >> 8) + (octave << 3));
 	YM2612_writeReg(0, 0xA0, freq);
 }
 
-static void YM2612_setAlgorithm(u8 algorithm, u8 feedback)
+static void setAlgorithm(u8 algorithm, u8 feedback)
 {
 	YM2612_writeReg(0, 0xB0, algorithm + (feedback << 3));
 }
@@ -138,7 +138,7 @@ static void updateNote(void)
 
 static void updateStereoAndLFO(void)
 {
-    YM2612_setStereoAndLFO(
+    setStereoAndLFO(
         fmParameters[PARAMETER_STEREO].value,
         fmParameters[PARAMETER_LFO_AMS].value,
         fmParameters[PARAMETER_LFO_FMS].value
@@ -147,14 +147,14 @@ static void updateStereoAndLFO(void)
 
 static void updateFreqAndOctave(void)
 {
-    YM2612_setFrequency(
+    setFrequency(
         fmParameters[PARAMETER_FREQ].value,
         fmParameters[PARAMETER_OCTAVE].value);
 }
 
 static void updateGlobalLFO(void)
 {
-    YM2612_setGlobalLFO(
+    setGlobalLFO(
         fmParameters[PARAMETER_G_LFO_ON].value,
         fmParameters[PARAMETER_G_LFO_FREQ].value
     );
@@ -162,7 +162,7 @@ static void updateGlobalLFO(void)
 
 static void updateAlgorithmAndFeedback(void)
 {
-	YM2612_setAlgorithm(
+	setAlgorithm(
         fmParameters[PARAMETER_ALGORITHM].value,
         fmParameters[PARAMETER_FEEDBACK].value);
 }
