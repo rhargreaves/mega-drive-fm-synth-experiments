@@ -159,9 +159,9 @@ static void updateAlgorithmAndFeedback(void)
         fmParameters[PARAMETER_FEEDBACK].value);
 }
 
-FmParameter *fmParameter(u16 index)
+FmParameter *fmParameter(FmParameters parameter)
 {
-    return &fmParameters[index];
+    return &fmParameters[parameter];
 }
 
 u16 maxFmParameters(void)

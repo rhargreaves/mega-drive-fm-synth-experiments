@@ -1,6 +1,6 @@
 #include <genesis.h>
 
-enum FmParameters {
+typedef enum {
     PARAMETER_G_LFO_ON,
     PARAMETER_G_LFO_FREQ,
     PARAMETER_NOTE,
@@ -11,7 +11,7 @@ enum FmParameters {
     PARAMETER_LFO_AMS,
     PARAMETER_LFO_FMS,
     PARAMETER_STEREO
-};
+} FmParameters;
 
 typedef struct {
     const char name[10];
@@ -24,5 +24,5 @@ typedef struct {
 
 void playFmNote(void);
 void stopFmNote(void);
-FmParameter* fmParameter(u16 index);
+FmParameter* fmParameter(FmParameters parameter);
 u16 maxFmParameters(void);
