@@ -1,5 +1,6 @@
 #include <genesis.h>
 #include <ui.h>
+#include <synth.h>
 
 static void printFrame();
 static void vintEvent();
@@ -11,6 +12,7 @@ int main(void)
     VDP_setTextPalette(PAL0);
     VDP_drawText("YM2612 & PSG Test", 11, 0);
     SYS_setVIntCallback(vintEvent);
+    s_init();
 	while(TRUE)
     {
         printFrame();

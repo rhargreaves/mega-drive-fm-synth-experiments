@@ -18,7 +18,9 @@ typedef enum {
     PARAMETER_OP1_AR,
     PARAMETER_OP1_AM,
     PARAMETER_OP1_D1R,
-    PARAMETER_OP1_D2R
+    PARAMETER_OP1_D2R,
+    PARAMETER_OP1_D1L,
+    PARAMETER_OP1_RR
 } FmParameters;
 
 typedef struct {
@@ -30,6 +32,7 @@ typedef struct {
     const void (*onUpdate)(void);
 } FmParameter;
 
+void s_init(void);
 void s_playNote(void);
 void s_stopNote(void);
 FmParameter* s_fmParameter(FmParameters parameter);
