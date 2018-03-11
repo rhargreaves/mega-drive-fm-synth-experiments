@@ -6,10 +6,12 @@ static void updateGlobalLFO(void);
 static void updateStereoAndLFO(void);
 static void updateFreqAndOctave(void);
 static void updateNote(void);
+static void updateOp1MulDt1(void);
 static void setFrequency(u16 freq, u8 octave);
 static void setAlgorithm(u8 algorithm, u8 feedback);
 static void setGlobalLFO(u8 enable, u8 freq);
 static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
+static void setOp1MulDt1(u8 mul, u8 dt1);
 
 static FmParameter fmParameters[] = {
     {
@@ -41,6 +43,12 @@ static FmParameter fmParameters[] = {
     },
     {
         "Stereo   ", 1, 3, 3, 1, updateStereoAndLFO
+    },
+    {
+        "Op1 Mul  ", 2, 1, 15, 1, updateOp1MulDt1
+    },
+    {
+        "Op1 Dt1  ", 1, 1, 7, 1, updateOp1MulDt1
     }
 };
 
@@ -66,7 +74,7 @@ void s_playNote(void)
 	YM2612_writeReg(0, 0x28, 4);
 	YM2612_writeReg(0, 0x28, 5);
 	YM2612_writeReg(0, 0x28, 6);
-	YM2612_writeReg(0, 0x30, 0x71); // DT1/MUL
+    updateOp1MulDt1();
 	YM2612_writeReg(0, 0x34, 0x0D);
 	YM2612_writeReg(0, 0x38, 0x33);
 	YM2612_writeReg(0, 0x3C, 0x01);
@@ -127,6 +135,11 @@ static void setAlgorithm(u8 algorithm, u8 feedback)
 	YM2612_writeReg(0, 0xB0, algorithm + (feedback << 3));
 }
 
+static void setOp1MulDt1(u8 mul, u8 dt1)
+{
+	YM2612_writeReg(0, 0x30, mul + (dt1 << 4));
+}
+
 static void updateNote(void)
 {
     const u16 notes_freq[] = {617, 653, 692, 733, 777, 823, 872, 924, 979, 1037, 1099, 1164};
@@ -165,4 +178,11 @@ static void updateAlgorithmAndFeedback(void)
 	setAlgorithm(
         fmParameters[PARAMETER_ALGORITHM].value,
         fmParameters[PARAMETER_FEEDBACK].value);
+}
+
+static void updateOp1MulDt1(void)
+{
+	setOp1MulDt1(
+        fmParameters[PARAMETER_OP1_MUL].value,
+        fmParameters[PARAMETER_OP1_DT1].value);
 }

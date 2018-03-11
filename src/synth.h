@@ -10,7 +10,9 @@ typedef enum {
     PARAMETER_FEEDBACK,
     PARAMETER_LFO_AMS,
     PARAMETER_LFO_FMS,
-    PARAMETER_STEREO
+    PARAMETER_STEREO,
+    PARAMETER_OP1_MUL,
+    PARAMETER_OP1_DT1
 } FmParameters;
 
 typedef struct {
