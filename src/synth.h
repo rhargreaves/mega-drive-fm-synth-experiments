@@ -17,7 +17,8 @@ typedef enum {
     PARAMETER_OP1_RS,
     PARAMETER_OP1_AR,
     PARAMETER_OP1_AM,
-    PARAMETER_OP1_D1R
+    PARAMETER_OP1_D1R,
+    PARAMETER_OP1_D2R
 } FmParameters;
 
 typedef struct {
