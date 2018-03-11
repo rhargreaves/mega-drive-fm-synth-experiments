@@ -5,7 +5,7 @@
 typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
-static void debounce(_debouncedFunc func, u16 joyState, u8 rate);
+static void debounce(_debouncedFunc func, u16 joyState);
 static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
@@ -18,8 +18,8 @@ void u_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
-    debounce(checkSelectionChangeButtons, joyState, 8);
-    debounce(checkValueChangeButtons, joyState, 6);
+    debounce(checkSelectionChangeButtons, joyState);
+    debounce(checkValueChangeButtons, joyState);
 
     for(u16 index = 0; index < s_maxFmParameters(); index++)
     {
@@ -120,14 +120,15 @@ static void checkValueChangeButtons(u16 joyState)
     parameter->onUpdate();
 }
 
-static void debounce(_debouncedFunc func, u16 joyState, u8 rate)
+static void debounce(_debouncedFunc func, u16 joyState)
 {
+    const u8 REPEAT_RATE = 2;
     static u16 counter;
     static u16 lastJoyState;
     if(lastJoyState == joyState)
     {
         counter++;
-        if(counter > rate)
+        if(counter > REPEAT_RATE)
         {
             counter = 0;
         }
