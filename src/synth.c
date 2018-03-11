@@ -9,6 +9,7 @@ static void updateNote(void);
 static void updateOp1MulDt1(void);
 static void updateOp1TotalLevel(void);
 static void updateOp1RsAr(void);
+static void updateOp1AmD1r(void);
 static void setFrequency(u16 freq, u8 octave);
 static void setAlgorithm(u8 algorithm, u8 feedback);
 static void setGlobalLFO(u8 enable, u8 freq);
@@ -16,6 +17,7 @@ static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
 static void setOp1MulDt1(u8 mul, u8 dt1);
 static void setOp1TotalLevel(u8 totalLevel);
 static void setOp1RsAr(u8 rs, u8 ar);
+static void setOp1AmD1r(u8 am, u8 d1r);
 
 static FmParameter fmParameters[] = {
     {
@@ -62,6 +64,12 @@ static FmParameter fmParameters[] = {
     },
     {
         "Op1 AR   ", 1, 2, 3, 1, updateOp1RsAr
+    },
+    {
+        "Op1 AM   ", 1, 1, 1, 1, updateOp1AmD1r
+    },
+    {
+        "Op1 D1R  ", 2, 5, 31, 1, updateOp1AmD1r
     }
 };
 
@@ -99,7 +107,7 @@ void s_playNote(void)
 	YM2612_writeReg(0, 0x54, 0x99);
 	YM2612_writeReg(0, 0x58, 0x5F);
 	YM2612_writeReg(0, 0x5C, 0x99);
-	YM2612_writeReg(0, 0x60, 5);   // AM/D1R
+	updateOp1AmD1r();   // AM/D1R
 	YM2612_writeReg(0, 0x64, 5);
 	YM2612_writeReg(0, 0x68, 5);
 	YM2612_writeReg(0, 0x6C, 7);
@@ -163,6 +171,11 @@ static void setOp1RsAr(u8 rs, u8 ar)
 	YM2612_writeReg(0, 0x50, ar + (rs << 6));
 }
 
+static void setOp1AmD1r(u8 am, u8 d1r)
+{
+	YM2612_writeReg(0, 0x60, (am << 7) + d1r);
+}
+
 static void updateNote(void)
 {
     const u16 notes_freq[] = {617, 653, 692, 733, 777, 823, 872, 924, 979, 1037, 1099, 1164};
@@ -220,4 +233,11 @@ static void updateOp1RsAr(void) {
 	setOp1RsAr(
         fmParameters[PARAMETER_OP1_RS].value,
         fmParameters[PARAMETER_OP1_AR].value);
+}
+
+static void updateOp1AmD1r(void)
+{
+	setOp1AmD1r(
+        fmParameters[PARAMETER_OP1_AM].value,
+        fmParameters[PARAMETER_OP1_D1R].value);
 }
