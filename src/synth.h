@@ -1,4 +1,6 @@
+#pragma once
 #include <genesis.h>
+#include <operator.h>
 
 typedef enum {
     PARAMETER_G_LFO_ON,
@@ -10,20 +12,11 @@ typedef enum {
     PARAMETER_FEEDBACK,
     PARAMETER_LFO_AMS,
     PARAMETER_LFO_FMS,
-    PARAMETER_STEREO,
-    PARAMETER_OP1_MUL,
-    PARAMETER_OP1_DT1,
-    PARAMETER_OP1_TL,
-    PARAMETER_OP1_RS,
-    PARAMETER_OP1_AR,
-    PARAMETER_OP1_AM,
-    PARAMETER_OP1_D1R,
-    PARAMETER_OP1_D2R,
-    PARAMETER_OP1_D1L,
-    PARAMETER_OP1_RR
+    PARAMETER_STEREO
 } FmParameters;
 
-typedef struct {
+typedef struct
+{
     const char name[10];
     const u16 minSize;
     u16 value;
@@ -35,5 +28,6 @@ typedef struct {
 void s_init(void);
 void s_playNote(void);
 void s_stopNote(void);
-FmParameter* s_fmParameter(FmParameters parameter);
+FmParameter *s_fmParameter(FmParameters parameter);
 u16 s_maxFmParameters(void);
+OperatorParameter *s_operatorParameter(u8 opNumber, OpParameters parameter);

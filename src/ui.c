@@ -21,11 +21,11 @@ void u_checkInput(void)
     debounce(checkSelectionChangeButtons, joyState);
     debounce(checkValueChangeButtons, joyState);
 
-    for(u16 index = 0; index < s_maxFmParameters(); index++)
+    for (u16 index = 0; index < s_maxFmParameters(); index++)
     {
         FmParameter *p = s_fmParameter(index);
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
-        if(index == PARAMETER_NOTE)
+        if (index == PARAMETER_NOTE)
         {
             const char NOTES_TEXT[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#"};
             const char *noteText = NOTES_TEXT[p->value];
@@ -36,6 +36,13 @@ void u_checkInput(void)
             printValue(p->name, p->minSize, p->value, index + 3);
         }
     }
+
+    for (u16 index = 0; index < 10; index++)
+    {
+        OperatorParameter *p = s_operatorParameter(0, index);
+        printValue(p->name, p->minSize, p->value, index + 13);
+    }
+
     VDP_setTextPalette(PAL0);
 }
 
@@ -58,9 +65,9 @@ static void printValue(const char *header, u16 minSize, u16 value, u16 row)
 static void checkPlayNoteButton(u16 joyState)
 {
     static bool playing = false;
-    if(joyState & BUTTON_A)
+    if (joyState & BUTTON_A)
     {
-        if(!playing)
+        if (!playing)
         {
             s_playNote();
         }
@@ -75,11 +82,11 @@ static void checkPlayNoteButton(u16 joyState)
 
 static void checkSelectionChangeButtons(u16 joyState)
 {
-    if(joyState & BUTTON_DOWN)
+    if (joyState & BUTTON_DOWN)
     {
         selection += 1;
     }
-    else if(joyState & BUTTON_UP)
+    else if (joyState & BUTTON_UP)
     {
         selection -= 1;
     }
@@ -88,10 +95,12 @@ static void checkSelectionChangeButtons(u16 joyState)
         return;
     }
     u16 maxParameters = s_maxFmParameters();
-    if(selection == (u8)-1) {
+    if (selection == (u8)-1)
+    {
         selection = maxParameters - 1;
     }
-    if(selection > maxParameters - 1) {
+    if (selection > maxParameters - 1)
+    {
         selection = 0;
     }
 }
@@ -99,11 +108,11 @@ static void checkSelectionChangeButtons(u16 joyState)
 static void checkValueChangeButtons(u16 joyState)
 {
     FmParameter *parameter = s_fmParameter(selection);
-    if(joyState & BUTTON_RIGHT)
+    if (joyState & BUTTON_RIGHT)
     {
         parameter->value += parameter->step;
     }
-    else if(joyState & BUTTON_LEFT)
+    else if (joyState & BUTTON_LEFT)
     {
         parameter->value -= parameter->step;
     }
@@ -111,10 +120,12 @@ static void checkValueChangeButtons(u16 joyState)
     {
         return;
     }
-    if(parameter->value == (u16)-1) {
+    if (parameter->value == (u16)-1)
+    {
         parameter->value = parameter->maxValue;
     }
-    if(parameter->value > parameter->maxValue) {
+    if (parameter->value > parameter->maxValue)
+    {
         parameter->value = 0;
     }
     parameter->onUpdate();
@@ -125,10 +136,10 @@ static void debounce(_debouncedFunc func, u16 joyState)
     const u8 REPEAT_RATE = 2;
     static u16 counter;
     static u16 lastJoyState;
-    if(lastJoyState == joyState)
+    if (lastJoyState == joyState)
     {
         counter++;
-        if(counter > REPEAT_RATE)
+        if (counter > REPEAT_RATE)
         {
             counter = 0;
         }
@@ -138,7 +149,7 @@ static void debounce(_debouncedFunc func, u16 joyState)
         counter = 0;
         lastJoyState = joyState;
     }
-    if(counter == 0)
+    if (counter == 0)
     {
         func(joyState);
     }

@@ -1,3 +1,3 @@
-#include <genesis.h>
+#pragma once
 
 void u_checkInput();
