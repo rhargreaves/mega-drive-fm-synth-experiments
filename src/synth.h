@@ -2,6 +2,9 @@
 #include <genesis.h>
 #include <operator.h>
 
+#define OPERATOR_COUNT 4
+#define MAX_PARAMETERS sizeof(fmParameters) / sizeof(FmParameter)
+
 typedef enum {
     PARAMETER_G_LFO_ON,
     PARAMETER_G_LFO_FREQ,

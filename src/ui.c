@@ -39,13 +39,24 @@ void u_checkInput(void)
         }
     }
 
-    for (u16 index = 0; index < operator_parameterCount(); index++)
+    for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
     {
-        VDP_setTextPalette(selection == index + s_maxFmParameters() ? PAL3 : PAL0);
-        OperatorParameter *p = s_operatorParameter(0, index);
-        printValue(p->name, p->minSize, p->value, index + 13);
-    }
+        for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
+        {
+            OperatorParameter *p = s_operatorParameter(opIndex, index);
 
+            if (opIndex == 0)
+            {
+                VDP_drawText(p->name, 0, index + 13);
+            }
+
+            VDP_setTextPalette(selection == index + s_maxFmParameters() ? PAL3 : PAL0);
+
+            char str[5];
+            uintToStr(p->value, str, p->minSize);
+            VDP_drawText(str, (6 * opIndex) + 6, index + 13);
+        }
+    }
     VDP_setTextPalette(PAL0);
 }
 
@@ -97,7 +108,7 @@ static void checkSelectionChangeButtons(u16 joyState)
     {
         return;
     }
-    u16 maxParameters = s_maxFmParameters() + operator_parameterCount();
+    u16 maxParameters = s_maxFmParameters() + OPERATOR_PARAMETER_COUNT;
     if (selection == (u8)-1)
     {
         selection = maxParameters - 1;

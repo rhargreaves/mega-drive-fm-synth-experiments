@@ -14,7 +14,7 @@ static void setGlobalLFO(u8 enable, u8 freq);
 static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
 static void updateOperatorParameter(OpParameters opParameter, u8 opNumber);
 
-static Operator operators[4];
+static Operator operators[OPERATOR_COUNT];
 
 static FmParameter fmParameters[] = {
     {"G.LFO On ", 1, 1, 1, 1, updateGlobalLFO},
@@ -27,8 +27,6 @@ static FmParameter fmParameters[] = {
     {"LFO AMS  ", 1, 0, 7, 1, updateStereoAndLFO},
     {"LFO FMS  ", 1, 0, 7, 1, updateStereoAndLFO},
     {"Stereo   ", 1, 3, 3, 1, updateStereoAndLFO}};
-
-#define MAX_PARAMETERS sizeof(fmParameters) / sizeof(FmParameter)
 
 FmParameter *s_fmParameter(FmParameters parameter)
 {

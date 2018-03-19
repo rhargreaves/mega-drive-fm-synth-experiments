@@ -1,8 +1,6 @@
 #include <operator.h>
 #include <genesis.h>
 
-#define OP_MAX_PARAMETERS 10
-
 static void updateMulDt1(Operator *op);
 static void updateTotalLevel(Operator *op);
 static void updateRsAr(Operator *op);
@@ -106,9 +104,4 @@ static void setD2r(u8 opNum, u8 d2r)
 static void setD1lRr(u8 opNum, u8 d1l, u8 rr)
 {
     YM2612_writeReg(0, 0x80 + (opNum * 4), rr + (d1l << 4));
-}
-
-u16 operator_parameterCount(void)
-{
-    return OP_MAX_PARAMETERS;
 }

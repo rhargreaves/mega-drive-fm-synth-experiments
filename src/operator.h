@@ -21,6 +21,8 @@ struct Operator
     OperatorParameter parameters[10];
 };
 
+#define OPERATOR_PARAMETER_COUNT 10
+
 typedef enum {
     OP_PARAMETER_MUL,
     OP_PARAMETER_DT1,
@@ -35,4 +37,3 @@ typedef enum {
 } OpParameters;
 
 void operator_init(Operator *op, u8 opNumber);
-u16 operator_parameterCount(void);
