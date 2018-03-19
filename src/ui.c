@@ -37,8 +37,9 @@ void u_checkInput(void)
         }
     }
 
-    for (u16 index = 0; index < 10; index++)
+    for (u16 index = 0; index < operator_parameterCount(); index++)
     {
+        VDP_setTextPalette(selection == index + s_maxFmParameters() ? PAL3 : PAL0);
         OperatorParameter *p = s_operatorParameter(0, index);
         printValue(p->name, p->minSize, p->value, index + 13);
     }
@@ -94,7 +95,7 @@ static void checkSelectionChangeButtons(u16 joyState)
     {
         return;
     }
-    u16 maxParameters = s_maxFmParameters();
+    u16 maxParameters = s_maxFmParameters() + operator_parameterCount();
     if (selection == (u8)-1)
     {
         selection = maxParameters - 1;

@@ -35,3 +35,4 @@ typedef enum {
 } OpParameters;
 
 void operator_init(Operator *op, u8 opNumber);
+u16 operator_parameterCount(void);

@@ -107,3 +107,8 @@ static void setD1lRr(u8 opNum, u8 d1l, u8 rr)
 {
     YM2612_writeReg(0, 0x80 + (opNum * 4), rr + (d1l << 4));
 }
+
+u16 operator_parameterCount(void)
+{
+    return OP_MAX_PARAMETERS;
+}
