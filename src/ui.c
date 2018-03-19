@@ -14,6 +14,8 @@ static void printText(const char *header, u16 minSize, const char *value, u16 ro
 static void updateOpParameter(u16 joyState);
 static void updateFmParameter(u16 joyState);
 
+#define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
+
 static u8 selection = 0;
 
 void u_checkInput(void)
@@ -23,7 +25,7 @@ void u_checkInput(void)
     debounce(checkSelectionChangeButtons, joyState);
     debounce(checkValueChangeButtons, joyState);
 
-    for (u16 index = 0; index < s_maxFmParameters(); index++)
+    for (u16 index = 0; index < FM_PARAMETER_COUNT; index++)
     {
         FmParameter *p = s_fmParameter(index);
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
@@ -50,7 +52,7 @@ void u_checkInput(void)
                 VDP_drawText(p->name, 0, index + 13);
             }
 
-            VDP_setTextPalette(selection == index + s_maxFmParameters() ? PAL3 : PAL0);
+            VDP_setTextPalette(selection == index + FM_PARAMETER_COUNT ? PAL3 : PAL0);
 
             char str[5];
             uintToStr(p->value, str, p->minSize);
@@ -108,12 +110,11 @@ static void checkSelectionChangeButtons(u16 joyState)
     {
         return;
     }
-    u16 maxParameters = s_maxFmParameters() + OPERATOR_PARAMETER_COUNT;
     if (selection == (u8)-1)
     {
-        selection = maxParameters - 1;
+        selection = SELECTION_COUNT - 1;
     }
-    if (selection > maxParameters - 1)
+    if (selection > SELECTION_COUNT - 1)
     {
         selection = 0;
     }
@@ -121,7 +122,7 @@ static void checkSelectionChangeButtons(u16 joyState)
 
 static void checkValueChangeButtons(u16 joyState)
 {
-    if (selection < s_maxFmParameters())
+    if (selection < FM_PARAMETER_COUNT)
     {
         updateFmParameter(joyState);
     }
@@ -159,7 +160,7 @@ static void updateFmParameter(u16 joyState)
 
 static void updateOpParameter(u16 joyState)
 {
-    OpParameters opParameter = selection - s_maxFmParameters();
+    OpParameters opParameter = selection - FM_PARAMETER_COUNT;
     OperatorParameter *parameter = s_operatorParameter(0, opParameter);
     if (joyState & BUTTON_RIGHT)
     {

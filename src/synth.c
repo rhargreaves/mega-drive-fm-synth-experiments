@@ -33,11 +33,6 @@ FmParameter *s_fmParameter(FmParameters parameter)
     return &fmParameters[parameter];
 }
 
-u16 s_maxFmParameters(void)
-{
-    return MAX_PARAMETERS;
-}
-
 Operator *s_operator(u8 opNumber)
 {
     return &operators[opNumber];

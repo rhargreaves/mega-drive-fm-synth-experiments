@@ -2,9 +2,6 @@
 #include <genesis.h>
 #include <operator.h>
 
-#define OPERATOR_COUNT 4
-#define MAX_PARAMETERS sizeof(fmParameters) / sizeof(FmParameter)
-
 typedef enum {
     PARAMETER_G_LFO_ON,
     PARAMETER_G_LFO_FREQ,
@@ -28,10 +25,12 @@ typedef struct
     const void (*onUpdate)(void);
 } FmParameter;
 
+#define OPERATOR_COUNT 4
+#define FM_PARAMETER_COUNT 10
+
 void s_init(void);
 void s_playNote(void);
 void s_stopNote(void);
 FmParameter *s_fmParameter(FmParameters parameter);
-u16 s_maxFmParameters(void);
 Operator *s_operator(u8 opNumber);
 OperatorParameter *s_operatorParameter(u8 opNumber, OpParameters parameter);
