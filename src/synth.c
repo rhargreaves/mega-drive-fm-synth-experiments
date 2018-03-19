@@ -40,6 +40,11 @@ u16 s_maxFmParameters(void)
     return MAX_PARAMETERS;
 }
 
+Operator *s_operator(u8 opNumber)
+{
+    return &operators[opNumber];
+}
+
 OperatorParameter *s_operatorParameter(u8 opNumber, OpParameters parameter)
 {
     return &operators[opNumber].parameters[parameter];

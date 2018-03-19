@@ -30,4 +30,5 @@ void s_playNote(void);
 void s_stopNote(void);
 FmParameter *s_fmParameter(FmParameters parameter);
 u16 s_maxFmParameters(void);
+Operator *s_operator(u8 opNumber);
 OperatorParameter *s_operatorParameter(u8 opNumber, OpParameters parameter);

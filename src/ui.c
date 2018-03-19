@@ -11,6 +11,8 @@ static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
 static void printValue(const char *header, u16 minSize, u16 value, u16 row);
 static void printText(const char *header, u16 minSize, const char *value, u16 row);
+static void updateOpParameter(u16 joyState);
+static void updateFmParameter(u16 joyState);
 
 static u8 selection = 0;
 
@@ -108,6 +110,18 @@ static void checkSelectionChangeButtons(u16 joyState)
 
 static void checkValueChangeButtons(u16 joyState)
 {
+    if (selection < s_maxFmParameters())
+    {
+        updateFmParameter(joyState);
+    }
+    else
+    {
+        updateOpParameter(joyState);
+    }
+}
+
+static void updateFmParameter(u16 joyState)
+{
     FmParameter *parameter = s_fmParameter(selection);
     if (joyState & BUTTON_RIGHT)
     {
@@ -130,6 +144,33 @@ static void checkValueChangeButtons(u16 joyState)
         parameter->value = 0;
     }
     parameter->onUpdate();
+}
+
+static void updateOpParameter(u16 joyState)
+{
+    OpParameters opParameter = selection - s_maxFmParameters();
+    OperatorParameter *parameter = s_operatorParameter(0, opParameter);
+    if (joyState & BUTTON_RIGHT)
+    {
+        parameter->value += parameter->step;
+    }
+    else if (joyState & BUTTON_LEFT)
+    {
+        parameter->value -= parameter->step;
+    }
+    else
+    {
+        return;
+    }
+    if (parameter->value == (u16)-1)
+    {
+        parameter->value = parameter->maxValue;
+    }
+    if (parameter->value > parameter->maxValue)
+    {
+        parameter->value = 0;
+    }
+    parameter->onUpdate(s_operator(0));
 }
 
 static void debounce(_debouncedFunc func, u16 joyState)
