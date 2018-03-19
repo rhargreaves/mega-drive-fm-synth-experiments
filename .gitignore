@@ -1,6 +1,4 @@
 *.bin
-.vscode/*
-!.vscode/
-!.vscode/tasks.json
+.vscode/
 *.o
 project.code-workspace
