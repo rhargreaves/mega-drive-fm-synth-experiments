@@ -37,3 +37,4 @@ typedef enum {
 } OpParameters;
 
 void operator_init(Operator *op, u8 opNumber);
+OperatorParameter *operator_parameter(Operator *op, OpParameters parameter);

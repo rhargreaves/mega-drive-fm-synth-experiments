@@ -38,11 +38,6 @@ Operator *s_operator(u8 opNumber)
     return &operators[opNumber];
 }
 
-OperatorParameter *s_operatorParameter(u8 opNumber, OpParameters parameter)
-{
-    return &operators[opNumber].parameters[parameter];
-}
-
 static void initOperators(void)
 {
     for (u8 i = 0; i < 4; i++)

@@ -43,9 +43,10 @@ void u_checkInput(void)
 
     for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
     {
+        Operator *op = s_operator(opIndex);
         for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
         {
-            OperatorParameter *p = s_operatorParameter(opIndex, index);
+            OperatorParameter *p = operator_parameter(op, (OpParameters)index);
 
             if (opIndex == 0)
             {
@@ -161,7 +162,8 @@ static void updateFmParameter(u16 joyState)
 static void updateOpParameter(u16 joyState)
 {
     OpParameters opParameter = selection - FM_PARAMETER_COUNT;
-    OperatorParameter *parameter = s_operatorParameter(0, opParameter);
+    Operator *op = s_operator(0);
+    OperatorParameter *parameter = operator_parameter(op, opParameter);
     if (joyState & BUTTON_RIGHT)
     {
         parameter->value += parameter->step;
