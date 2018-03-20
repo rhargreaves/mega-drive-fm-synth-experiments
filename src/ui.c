@@ -12,8 +12,9 @@ static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
 static void printValue(const char *header, u16 minSize, u16 value, u16 row);
-static void printText(const char *header, u16 minSize, const char *value, u16 row);
+static void printText(const char *header, const char *value, u16 row);
 static void printNumber(u16 number, u16 minSize, u16 x, u16 y);
+static void printNote(const char *name, u16 index, u16 row);
 static void updateOpParameter(u16 joyState);
 static void updateFmParameter(u16 joyState);
 static void printFmParameters(void);
@@ -43,15 +44,20 @@ static void printFmParameters(void)
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
         if (index == PARAMETER_NOTE)
         {
-            const char NOTES_TEXT[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#"};
-            const char *noteText = NOTES_TEXT[p->value];
-            printText(p->name, p->minSize, noteText, row);
+            printNote(p->name, p->value, row);
         }
         else
         {
             printValue(p->name, p->minSize, p->value, row);
         }
     }
+}
+
+static void printNote(const char *name, u16 index, u16 row)
+{
+    const char NOTES_TEXT[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#"};
+    const char *noteText = NOTES_TEXT[index];
+    printText(name, noteText, row);
 }
 
 static void printOperators(void)
@@ -90,7 +96,7 @@ static void printNumber(u16 number, u16 minSize, u16 x, u16 y)
     VDP_drawText(str, x, y);
 }
 
-static void printText(const char *header, u16 minSize, const char *value, u16 row)
+static void printText(const char *header, const char *value, u16 row)
 {
     char text[50];
     strcpy(text, header);
@@ -103,7 +109,7 @@ static void printValue(const char *header, u16 minSize, u16 value, u16 row)
 {
     char str[5];
     uintToStr(value, str, minSize);
-    printText(header, minSize, str, row);
+    printText(header, str, row);
 }
 
 static void checkPlayNoteButton(u16 joyState)
