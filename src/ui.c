@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <synth.h>
 
+#define OPERATOR_TOP_ROW 14
 #define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
 
 typedef void _changeValueFunc();
@@ -65,6 +66,8 @@ static void printOperators(void)
     for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
     {
         Operator *op = synth_operator(opIndex);
+        VDP_setTextPalette(PAL2);
+        printNumber(op->opNumber, 1, (6 * op->opNumber) + 6, OPERATOR_TOP_ROW);
         printOperator(op);
     }
 }
@@ -73,15 +76,13 @@ static void printOperator(Operator *op)
 {
     for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
     {
-        const u16 TOP_ROW = 13;
-        u16 row = index + TOP_ROW;
+        VDP_setTextPalette(selection == index + FM_PARAMETER_COUNT ? PAL3 : PAL0);
+        u16 row = index + OPERATOR_TOP_ROW + 1;
         OperatorParameter *p = operator_parameter(op, (OpParameters)index);
         if (op->opNumber == 0)
         {
             VDP_drawText(p->name, 0, row);
         }
-
-        VDP_setTextPalette(selection == index + FM_PARAMETER_COUNT ? PAL3 : PAL0);
         printNumber(p->value,
                     p->minSize,
                     (6 * op->opNumber) + 6,
