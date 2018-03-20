@@ -2,6 +2,9 @@
 #include <genesis.h>
 #include <operator.h>
 
+#define OPERATOR_COUNT 4
+#define FM_PARAMETER_COUNT 10
+
 typedef enum {
     PARAMETER_G_LFO_ON,
     PARAMETER_G_LFO_FREQ,
@@ -24,9 +27,6 @@ typedef struct
     const u8 step;
     const void (*onUpdate)(void);
 } FmParameter;
-
-#define OPERATOR_COUNT 4
-#define FM_PARAMETER_COUNT 10
 
 void synth_init(void);
 void synth_playNote(void);

@@ -18,7 +18,7 @@ static void updateFmParameter(u16 joyState);
 
 static u8 selection = 0;
 
-void u_checkInput(void)
+void ui_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);

@@ -16,7 +16,7 @@ int main(void)
     while (TRUE)
     {
         printFrame();
-        u_checkInput();
+        ui_checkInput();
         VDP_waitVSync();
     }
 }

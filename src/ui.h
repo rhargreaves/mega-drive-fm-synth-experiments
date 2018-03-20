@@ -1,3 +1,3 @@
 #pragma once
 
-void u_checkInput();
+void ui_checkInput();
