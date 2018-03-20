@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <synth.h>
 
+#define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
+
 typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
@@ -11,10 +13,12 @@ static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
 static void printValue(const char *header, u16 minSize, u16 value, u16 row);
 static void printText(const char *header, u16 minSize, const char *value, u16 row);
+static void printNumber(u16 number, u16 minSize, u16 x, u16 y);
 static void updateOpParameter(u16 joyState);
 static void updateFmParameter(u16 joyState);
-
-#define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
+static void printFmParameters(void);
+static void printOperators(void);
+static void printOperator(Operator *op);
 
 static u8 selection = 0;
 
@@ -24,43 +28,66 @@ void ui_checkInput(void)
     checkPlayNoteButton(joyState);
     debounce(checkSelectionChangeButtons, joyState);
     debounce(checkValueChangeButtons, joyState);
+    printFmParameters();
+    printOperators();
+    VDP_setTextPalette(PAL0);
+}
 
+static void printFmParameters(void)
+{
     for (u16 index = 0; index < FM_PARAMETER_COUNT; index++)
     {
+        const u16 TOP_ROW = 3;
+        u16 row = index + TOP_ROW;
         FmParameter *p = synth_fmParameter(index);
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
         if (index == PARAMETER_NOTE)
         {
             const char NOTES_TEXT[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#"};
             const char *noteText = NOTES_TEXT[p->value];
-            printText(p->name, p->minSize, noteText, index + 3);
+            printText(p->name, p->minSize, noteText, row);
         }
         else
         {
-            printValue(p->name, p->minSize, p->value, index + 3);
+            printValue(p->name, p->minSize, p->value, row);
         }
     }
+}
 
+static void printOperators(void)
+{
     for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
     {
         Operator *op = synth_operator(opIndex);
-        for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
-        {
-            OperatorParameter *p = operator_parameter(op, (OpParameters)index);
-
-            if (opIndex == 0)
-            {
-                VDP_drawText(p->name, 0, index + 13);
-            }
-
-            VDP_setTextPalette(selection == index + FM_PARAMETER_COUNT ? PAL3 : PAL0);
-
-            char str[5];
-            uintToStr(p->value, str, p->minSize);
-            VDP_drawText(str, (6 * opIndex) + 6, index + 13);
-        }
+        printOperator(op);
     }
-    VDP_setTextPalette(PAL0);
+}
+
+static void printOperator(Operator *op)
+{
+    for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
+    {
+        const u16 TOP_ROW = 13;
+        u16 row = index + TOP_ROW;
+        OperatorParameter *p = operator_parameter(op, (OpParameters)index);
+        if (op->opNumber == 0)
+        {
+            VDP_drawText(p->name, 0, row);
+        }
+
+        VDP_setTextPalette(selection == index + FM_PARAMETER_COUNT ? PAL3 : PAL0);
+        printNumber(p->value,
+                    p->minSize,
+                    (6 * op->opNumber) + 6,
+                    row);
+    }
+}
+
+static void printNumber(u16 number, u16 minSize, u16 x, u16 y)
+{
+    char str[5];
+    uintToStr(number, str, minSize);
+    VDP_drawText(str, x, y);
 }
 
 static void printText(const char *header, u16 minSize, const char *value, u16 row)
