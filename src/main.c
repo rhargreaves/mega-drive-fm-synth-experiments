@@ -12,8 +12,8 @@ int main(void)
     VDP_setTextPalette(PAL0);
     VDP_drawText("YM2612 & PSG Test", 11, 0);
     SYS_setVIntCallback(vintEvent);
-    s_init();
-	while(TRUE)
+    synth_init();
+    while (TRUE)
     {
         printFrame();
         u_checkInput();
@@ -32,7 +32,7 @@ static void printFrame(void)
 
 static void vintEvent(void)
 {
-    if(++frame == (IS_PALSYSTEM ? 50 : 60))
+    if (++frame == (IS_PALSYSTEM ? 50 : 60))
     {
         frame = 0;
     }

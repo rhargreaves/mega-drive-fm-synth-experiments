@@ -27,7 +27,7 @@ void u_checkInput(void)
 
     for (u16 index = 0; index < FM_PARAMETER_COUNT; index++)
     {
-        FmParameter *p = s_fmParameter(index);
+        FmParameter *p = synth_fmParameter(index);
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
         if (index == PARAMETER_NOTE)
         {
@@ -43,7 +43,7 @@ void u_checkInput(void)
 
     for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
     {
-        Operator *op = s_operator(opIndex);
+        Operator *op = synth_operator(opIndex);
         for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
         {
             OperatorParameter *p = operator_parameter(op, (OpParameters)index);
@@ -86,14 +86,14 @@ static void checkPlayNoteButton(u16 joyState)
     {
         if (!playing)
         {
-            s_playNote();
+            synth_playNote();
         }
         playing = true;
     }
     else
     {
         playing = false;
-        s_stopNote();
+        synth_stopNote();
     }
 }
 
@@ -135,7 +135,7 @@ static void checkValueChangeButtons(u16 joyState)
 
 static void updateFmParameter(u16 joyState)
 {
-    FmParameter *parameter = s_fmParameter(selection);
+    FmParameter *parameter = synth_fmParameter(selection);
     if (joyState & BUTTON_RIGHT)
     {
         parameter->value += parameter->step;
@@ -162,7 +162,7 @@ static void updateFmParameter(u16 joyState)
 static void updateOpParameter(u16 joyState)
 {
     OpParameters opParameter = selection - FM_PARAMETER_COUNT;
-    Operator *op = s_operator(0);
+    Operator *op = synth_operator(0);
     OperatorParameter *parameter = operator_parameter(op, opParameter);
     if (joyState & BUTTON_RIGHT)
     {
@@ -184,7 +184,7 @@ static void updateOpParameter(u16 joyState)
     {
         parameter->value = 0;
     }
-    parameter->onUpdate(s_operator(0));
+    parameter->onUpdate(synth_operator(0));
 }
 
 static void debounce(_debouncedFunc func, u16 joyState)

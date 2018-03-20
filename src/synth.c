@@ -28,12 +28,12 @@ static FmParameter fmParameters[] = {
     {"LFO FMS  ", 1, 0, 7, 1, updateStereoAndLFO},
     {"Stereo   ", 1, 3, 3, 1, updateStereoAndLFO}};
 
-FmParameter *s_fmParameter(FmParameters parameter)
+FmParameter *synth_fmParameter(FmParameters parameter)
 {
     return &fmParameters[parameter];
 }
 
-Operator *s_operator(u8 opNumber)
+Operator *synth_operator(u8 opNumber)
 {
     return &operators[opNumber];
 }
@@ -47,7 +47,7 @@ static void initOperators(void)
     }
 }
 
-void s_init(void)
+void synth_init(void)
 {
     initOperators();
     YM2612_writeReg(0, 0x27, 0); // Ch 3 Normal
@@ -63,7 +63,7 @@ void s_init(void)
     YM2612_writeReg(0, 0x9C, 0);
 }
 
-void s_playNote(void)
+void synth_playNote(void)
 {
     updateGlobalLFO();
     updateOperatorParameter(OP_PARAMETER_MUL, 0);
@@ -103,7 +103,7 @@ static void updateOperatorParameter(OpParameters opParameter, u8 opNumber)
     op.parameters[opParameter].onUpdate(&op);
 }
 
-void s_stopNote(void)
+void synth_stopNote(void)
 {
     YM2612_writeReg(0, 0x28, 0x00); // Key Off
 }

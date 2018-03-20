@@ -28,8 +28,8 @@ typedef struct
 #define OPERATOR_COUNT 4
 #define FM_PARAMETER_COUNT 10
 
-void s_init(void);
-void s_playNote(void);
-void s_stopNote(void);
-FmParameter *s_fmParameter(FmParameters parameter);
-Operator *s_operator(u8 opNumber);
+void synth_init(void);
+void synth_playNote(void);
+void synth_stopNote(void);
+FmParameter *synth_fmParameter(FmParameters parameter);
+Operator *synth_operator(u8 opNumber);
