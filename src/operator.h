@@ -8,11 +8,11 @@ typedef void *updateFunc;
 struct OperatorParameter
 {
     const char name[6];
-    u16 minSize;
+    const u16 minSize;
     u16 value;
-    u16 maxValue;
-    u8 step;
-    void (*onUpdate)(Operator *op);
+    const u16 maxValue;
+    const u8 step;
+    const void (*onUpdate)(Operator *op);
 };
 
 struct Operator
