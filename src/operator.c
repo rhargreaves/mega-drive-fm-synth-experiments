@@ -16,6 +16,7 @@ static void setD1lRr(u8 opNum, u8 d1l, u8 rr);
 
 void operator_init(Operator *op, u8 opNumber)
 {
+    op->opNumber = opNumber;
     OperatorParameter paras[] = {
         {"Mul   ", 2, 1, 15, 1, updateMulDt1},
         {"Dt1   ", 1, 1, 7, 1, updateMulDt1},
