@@ -25,7 +25,7 @@ typedef struct
     u16 value;
     const u16 maxValue;
     const u8 step;
-    const void (*onUpdate)(void);
+    void (*onUpdate)(void);
 } FmParameter;
 
 void synth_init(void);

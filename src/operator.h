@@ -27,7 +27,7 @@ struct OperatorParameter
     u16 value;
     const u16 maxValue;
     const u8 step;
-    const void (*onUpdate)(Operator *op);
+    void (*onUpdate)(Operator *op);
 };
 
 struct Operator
