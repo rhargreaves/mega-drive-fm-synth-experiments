@@ -7,6 +7,7 @@ int main(void)
     VDP_setTextPalette(PAL0);
     VDP_drawText("YM2612 & PSG Test", 11, 0);
     synth_init();
+    ui_draw();
     while (TRUE)
     {
         VDP_showFPS(FALSE);

@@ -8,7 +8,9 @@
 typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
-static bool debounce(_debouncedFunc func, u16 joyState);
+static void updateUiIfRequired(void);
+static void requestUiUpdate(void);
+static void debounce(_debouncedFunc func, u16 joyState);
 static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
@@ -23,6 +25,7 @@ static void printOperators(void);
 static void printOperator(Operator *op);
 
 static u8 selection = 0;
+static bool drawUi = false;
 
 void ui_draw(void)
 {
@@ -35,12 +38,9 @@ void ui_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
-
-    if (debounce(checkSelectionChangeButtons, joyState) |
-        debounce(checkValueChangeButtons, joyState))
-    {
-        ui_draw();
-    }
+    debounce(checkSelectionChangeButtons, joyState);
+    debounce(checkValueChangeButtons, joyState);
+    updateUiIfRequired();
 }
 
 static void printFmParameters(void)
@@ -161,6 +161,7 @@ static void checkSelectionChangeButtons(u16 joyState)
     {
         selection = 0;
     }
+    requestUiUpdate();
 }
 
 static void checkValueChangeButtons(u16 joyState)
@@ -199,6 +200,7 @@ static void updateFmParameter(u16 joyState)
         parameter->value = 0;
     }
     parameter->onUpdate();
+    requestUiUpdate();
 }
 
 static void updateOpParameter(u16 joyState)
@@ -227,9 +229,10 @@ static void updateOpParameter(u16 joyState)
         parameter->value = 0;
     }
     parameter->onUpdate(synth_operator(0));
+    requestUiUpdate();
 }
 
-static bool debounce(_debouncedFunc func, u16 joyState)
+static void debounce(_debouncedFunc func, u16 joyState)
 {
     const u8 REPEAT_RATE = 2;
     static u16 counter;
@@ -250,7 +253,19 @@ static bool debounce(_debouncedFunc func, u16 joyState)
     if (counter == 0)
     {
         func(joyState);
-        return true;
     }
-    return false;
+}
+
+static void requestUiUpdate(void)
+{
+    drawUi = true;
+}
+
+static void updateUiIfRequired(void)
+{
+    if (drawUi)
+    {
+        drawUi = false;
+        ui_draw();
+    }
 }
