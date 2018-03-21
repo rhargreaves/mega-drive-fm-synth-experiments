@@ -8,7 +8,7 @@
 typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
-static void debounce(_debouncedFunc func, u16 joyState);
+static bool debounce(_debouncedFunc func, u16 joyState);
 static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
@@ -24,15 +24,23 @@ static void printOperator(Operator *op);
 
 static u8 selection = 0;
 
+void ui_draw(void)
+{
+    printFmParameters();
+    printOperators();
+    VDP_setTextPalette(PAL0);
+}
+
 void ui_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
-    debounce(checkSelectionChangeButtons, joyState);
-    debounce(checkValueChangeButtons, joyState);
-    printFmParameters();
-    printOperators();
-    VDP_setTextPalette(PAL0);
+
+    if (debounce(checkSelectionChangeButtons, joyState) |
+        debounce(checkValueChangeButtons, joyState))
+    {
+        ui_draw();
+    }
 }
 
 static void printFmParameters(void)
@@ -221,7 +229,7 @@ static void updateOpParameter(u16 joyState)
     parameter->onUpdate(synth_operator(0));
 }
 
-static void debounce(_debouncedFunc func, u16 joyState)
+static bool debounce(_debouncedFunc func, u16 joyState)
 {
     const u8 REPEAT_RATE = 2;
     static u16 counter;
@@ -242,5 +250,7 @@ static void debounce(_debouncedFunc func, u16 joyState)
     if (counter == 0)
     {
         func(joyState);
+        return true;
     }
+    return false;
 }
