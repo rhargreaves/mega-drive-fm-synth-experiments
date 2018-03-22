@@ -14,8 +14,6 @@ static void debounce(_debouncedFunc func, u16 joyState);
 static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
-static void printValue(const char *header, u16 minSize, u16 value, u16 row);
-static void printText(const char *header, const char *value, u16 row);
 static void printNumber(u16 number, u16 minSize, u16 x, u16 y);
 static void printNote(const char *name, u16 index, u16 row);
 static void updateOpParameter(u16 joyState);
@@ -50,6 +48,8 @@ static void printFmParameters(void)
         const u16 TOP_ROW = 3;
         u16 row = index + TOP_ROW;
         FmParameter *p = synth_fmParameter(index);
+        VDP_setTextPalette(PAL2);
+        VDP_drawText(p->name, 0, row);
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
         if (index == PARAMETER_NOTE)
         {
@@ -57,7 +57,10 @@ static void printFmParameters(void)
         }
         else
         {
-            printValue(p->name, p->minSize, p->value, row);
+            printNumber(p->value,
+                        p->minSize,
+                        10,
+                        row);
         }
     }
 }
@@ -66,7 +69,7 @@ static void printNote(const char *name, u16 index, u16 row)
 {
     const char NOTES_TEXT[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#"};
     const char *noteText = NOTES_TEXT[index];
-    printText(name, noteText, row);
+    VDP_drawText(noteText, 10, row);
 }
 
 static void printOperators(void)
@@ -75,7 +78,8 @@ static void printOperators(void)
     {
         Operator *op = synth_operator(opIndex);
         VDP_setTextPalette(PAL2);
-        printNumber(op->opNumber, 1, (6 * op->opNumber) + 6, OPERATOR_TOP_ROW);
+        printNumber(op->opNumber, 1, 6 * (op->opNumber + 1), OPERATOR_TOP_ROW);
+        VDP_setTextPalette(PAL0);
         printOperator(op);
     }
 }
@@ -84,17 +88,23 @@ static void printOperator(Operator *op)
 {
     for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
     {
-        VDP_setTextPalette(selection == index + FM_PARAMETER_COUNT ? PAL3 : PAL0);
         u16 row = index + OPERATOR_TOP_ROW + 1;
-        OperatorParameter *p = operator_parameter(op, (OpParameters)index);
+        OperatorParameter *p = operator_parameter(op, index);
         if (op->opNumber == 0)
         {
+            VDP_setTextPalette(PAL2);
             VDP_drawText(p->name, 0, row);
+            VDP_setTextPalette(PAL0);
+        }
+        if (selection - FM_PARAMETER_COUNT == index + op->opNumber * OPERATOR_PARAMETER_COUNT)
+        {
+            VDP_setTextPalette(PAL3);
         }
         printNumber(p->value,
                     p->minSize,
-                    (6 * op->opNumber) + 6,
+                    6 * (op->opNumber + 1),
                     row);
+        VDP_setTextPalette(PAL0);
     }
 }
 
@@ -103,22 +113,6 @@ static void printNumber(u16 number, u16 minSize, u16 x, u16 y)
     char str[5];
     uintToStr(number, str, minSize);
     VDP_drawText(str, x, y);
-}
-
-static void printText(const char *header, const char *value, u16 row)
-{
-    char text[50];
-    strcpy(text, header);
-    strcat(text, " ");
-    strcat(text, value);
-    VDP_drawText(text, 0, row);
-}
-
-static void printValue(const char *header, u16 minSize, u16 value, u16 row)
-{
-    char str[5];
-    uintToStr(value, str, minSize);
-    printText(header, str, row);
 }
 
 static void checkPlayNoteButton(u16 joyState)
