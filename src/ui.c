@@ -199,8 +199,9 @@ static void updateFmParameter(u16 joyState)
 
 static void updateOpParameter(u16 joyState)
 {
-    OpParameters opParameter = selection - FM_PARAMETER_COUNT;
-    Operator *op = synth_operator(0);
+    u16 opParaIndex = selection - FM_PARAMETER_COUNT;
+    Operator *op = synth_operator(opParaIndex / OPERATOR_PARAMETER_COUNT);
+    OpParameters opParameter = opParaIndex % OPERATOR_PARAMETER_COUNT;
     OperatorParameter *parameter = operator_parameter(op, opParameter);
     if (joyState & BUTTON_RIGHT)
     {
