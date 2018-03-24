@@ -73,14 +73,14 @@ u8 operator_parameterStep(Operator *op, OpParameters parameter)
 
 void operator_setParameterValue(Operator *op, OpParameters parameter, u16 value)
 {
-    OperatorParameter p = parameters[parameter];
-    if (value > p.maxValue)
+    OperatorParameter *p = &op->parameters[parameter];
+    if (value > p->maxValue)
     {
         value = 0;
     }
     if (value == (u16)-1)
     {
-        value = p.maxValue;
+        value = p->maxValue;
     }
     op->parameterValue[parameter] = value;
     op->parameters[parameter].onUpdate(op);
