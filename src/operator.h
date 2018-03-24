@@ -39,7 +39,6 @@ u16 operator_parameterValue(Operator *op, OpParameters parameter);
 const char *operator_parameterName(Operator *op, OpParameters parameter);
 void operator_parameterUpdate(Operator *op, OpParameters parameter);
 u16 operator_parameterMinSize(Operator *op, OpParameters parameter);
-u16 operator_parameterMaxValue(Operator *op, OpParameters parameter);
 u8 operator_parameterStep(Operator *op, OpParameters parameter);
 void operator_setParameterValue(Operator *op, OpParameters parameter, u16 value);
 void operator_update(Operator *op);

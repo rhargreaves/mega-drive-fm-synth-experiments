@@ -61,11 +61,6 @@ const char *operator_parameterName(Operator *op, OpParameters parameter)
     return &op->parameters[parameter].name[0];
 }
 
-u16 operator_parameterMaxValue(Operator *op, OpParameters parameter)
-{
-    return op->parameters[parameter].maxValue;
-}
-
 u16 operator_parameterMinSize(Operator *op, OpParameters parameter)
 {
     return op->parameters[parameter].minSize;
@@ -78,22 +73,27 @@ u8 operator_parameterStep(Operator *op, OpParameters parameter)
 
 void operator_setParameterValue(Operator *op, OpParameters parameter, u16 value)
 {
+    OperatorParameter p = parameters[parameter];
+    if (value > p.maxValue)
+    {
+        value = 0;
+    }
+    if (value == (u16)-1)
+    {
+        value = p.maxValue;
+    }
     op->parameterValue[parameter] = value;
     op->parameters[parameter].onUpdate(op);
 }
 
 void operator_update(Operator *op)
 {
-    const OpParameters parametersToUpdate[] = {OP_PARAMETER_MUL,
-                                               OP_PARAMETER_TL,
-                                               OP_PARAMETER_RS,
-                                               OP_PARAMETER_AM,
-                                               OP_PARAMETER_D2R,
-                                               OP_PARAMETER_D1L};
-    for (int i = 0; i < 6; i++)
-    {
-        op->parameters[parametersToUpdate[i]].onUpdate(op);
-    }
+    updateMulDt1(op);
+    updateTotalLevel(op);
+    updateRsAr(op);
+    updateAmD1r(op);
+    updateD2r(op);
+    updateD1lRr(op);
 }
 
 static void updateMulDt1(Operator *op)

@@ -213,29 +213,19 @@ static void updateOpParameter(u16 joyState)
     OpParameters opParameter = opParaIndex % OPERATOR_PARAMETER_COUNT;
     u16 value = operator_parameterValue(op, opParameter);
     u16 step = operator_parameterStep(op, opParameter);
-    u16 maxValue = operator_parameterMaxValue(op, opParameter);
-    u16 newValue;
     if (joyState & BUTTON_RIGHT)
     {
-        newValue = value + step;
-        if (newValue > maxValue)
-        {
-            newValue = 0;
-        }
+        value += step;
     }
     else if (joyState & BUTTON_LEFT)
     {
-        newValue = value - step;
-        if (newValue == (u16)-1)
-        {
-            newValue = maxValue;
-        }
+        value -= step;
     }
     else
     {
         return;
     }
-    operator_setParameterValue(op, opParameter, newValue);
+    operator_setParameterValue(op, opParameter, value);
     requestUiUpdate();
 }
 
