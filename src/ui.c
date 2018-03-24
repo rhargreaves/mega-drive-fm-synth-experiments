@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <synth.h>
 
+#define OPERATOR_VALUE_COLUMN 11
+#define OPERATOR_VALUE_WIDTH 6
 #define OPERATOR_TOP_ROW 14
 #define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
 
@@ -88,7 +90,7 @@ static void printOperatorHeader(Operator *op)
     VDP_setTextPalette(PAL2);
     char opHeader[5];
     sprintf(opHeader, "Op%u", op->opNumber + 1);
-    VDP_drawText(opHeader, 6 * (op->opNumber + 1), OPERATOR_TOP_ROW);
+    VDP_drawText(opHeader, OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN, OPERATOR_TOP_ROW);
     VDP_setTextPalette(PAL0);
 }
 
@@ -110,7 +112,7 @@ static void printOperator(Operator *op)
         }
         printNumber(p->value,
                     p->minSize,
-                    6 * (op->opNumber + 1),
+                    OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN,
                     row);
         VDP_setTextPalette(PAL0);
     }

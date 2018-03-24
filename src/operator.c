@@ -18,16 +18,16 @@ void operator_init(Operator *op, u8 opNumber)
 {
     op->opNumber = opNumber;
     OperatorParameter paras[OPERATOR_PARAMETER_COUNT] = {
-        {"Mul   ", 2, 0, 15, 1, updateMulDt1},
-        {"Dt1   ", 1, 0, 7, 1, updateMulDt1},
-        {"TL    ", 3, 0, 127, 1, updateTotalLevel},
-        {"RS    ", 1, 0, 2, 1, updateRsAr},
-        {"AR    ", 2, 0, 31, 1, updateRsAr},
-        {"AM    ", 1, 0, 1, 1, updateAmD1r},
-        {"D1R   ", 2, 0, 31, 1, updateAmD1r},
-        {"D2R   ", 2, 0, 31, 1, updateD2r},
-        {"D1L   ", 2, 0, 15, 1, updateD1lRr},
-        {"RR    ", 2, 0, 15, 1, updateD1lRr}};
+        {"Multiple", 2, 0, 15, 1, updateMulDt1},
+        {"Detune", 1, 0, 7, 1, updateMulDt1},
+        {"Total Lvl", 3, 0, 127, 1, updateTotalLevel},
+        {"Rate Scale", 1, 0, 2, 1, updateRsAr},
+        {"Atck Rate", 2, 0, 31, 1, updateRsAr},
+        {"Amp Mode?", 1, 0, 1, 1, updateAmD1r},
+        {"1st Decay", 2, 0, 31, 1, updateAmD1r},
+        {"2nd Decay", 2, 0, 31, 1, updateD2r},
+        {"Sub Level", 2, 0, 15, 1, updateD1lRr},
+        {"Rel Rate", 2, 0, 15, 1, updateD1lRr}};
     memcpy(&op->parameters, &paras, sizeof paras);
     switch (opNumber)
     {

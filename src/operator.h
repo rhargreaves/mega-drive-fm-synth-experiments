@@ -22,7 +22,7 @@ typedef void *updateFunc;
 
 struct OperatorParameter
 {
-    const char name[6];
+    const char name[12];
     const u16 minSize;
     u16 value;
     const u16 maxValue;
