@@ -21,6 +21,7 @@ static void updateFmParameter(u16 joyState);
 static void printFmParameters(void);
 static void printOperators(void);
 static void printOperator(Operator *op);
+static void printOperatorHeader(Operator *op);
 
 static u8 selection = 0;
 static bool drawUi = false;
@@ -77,11 +78,18 @@ static void printOperators(void)
     for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
     {
         Operator *op = synth_operator(opIndex);
-        VDP_setTextPalette(PAL2);
-        printNumber(op->opNumber, 1, 6 * (op->opNumber + 1), OPERATOR_TOP_ROW);
-        VDP_setTextPalette(PAL0);
+        printOperatorHeader(op);
         printOperator(op);
     }
+}
+
+static void printOperatorHeader(Operator *op)
+{
+    VDP_setTextPalette(PAL2);
+    char opHeader[5];
+    sprintf(opHeader, "Op%u", op->opNumber + 1);
+    VDP_drawText(opHeader, 6 * (op->opNumber + 1), OPERATOR_TOP_ROW);
+    VDP_setTextPalette(PAL0);
 }
 
 static void printOperator(Operator *op)
@@ -223,7 +231,7 @@ static void updateOpParameter(u16 joyState)
     {
         parameter->value = 0;
     }
-    parameter->onUpdate(synth_operator(0));
+    parameter->onUpdate(op);
     requestUiUpdate();
 }
 
