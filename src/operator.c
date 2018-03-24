@@ -17,18 +17,69 @@ static void setD1lRr(u8 opNum, u8 d1l, u8 rr);
 void operator_init(Operator *op, u8 opNumber)
 {
     op->opNumber = opNumber;
-    OperatorParameter paras[] = {
-        {"Mul   ", 2, 1, 15, 1, updateMulDt1},
-        {"Dt1   ", 1, 1, 7, 1, updateMulDt1},
-        {"TL    ", 3, 35, 127, 1, updateTotalLevel},
-        {"RS    ", 2, 15, 31, 1, updateRsAr},
-        {"AR    ", 1, 2, 3, 1, updateRsAr},
-        {"AM    ", 1, 1, 1, 1, updateAmD1r},
-        {"D1R   ", 2, 5, 31, 1, updateAmD1r},
-        {"D2R   ", 2, 2, 31, 1, updateD2r},
-        {"D1L   ", 2, 1, 15, 1, updateD1lRr},
-        {"RR    ", 2, 1, 15, 1, updateD1lRr}};
+    OperatorParameter paras[OPERATOR_PARAMETER_COUNT] = {
+        {"Mul   ", 2, 0, 15, 1, updateMulDt1},
+        {"Dt1   ", 1, 0, 7, 1, updateMulDt1},
+        {"TL    ", 3, 0, 127, 1, updateTotalLevel},
+        {"RS    ", 1, 0, 2, 1, updateRsAr},
+        {"AR    ", 2, 0, 31, 1, updateRsAr},
+        {"AM    ", 1, 0, 1, 1, updateAmD1r},
+        {"D1R   ", 2, 0, 31, 1, updateAmD1r},
+        {"D2R   ", 2, 0, 31, 1, updateD2r},
+        {"D1L   ", 2, 0, 15, 1, updateD1lRr},
+        {"RR    ", 2, 0, 15, 1, updateD1lRr}};
     memcpy(&op->parameters, &paras, sizeof paras);
+    switch (opNumber)
+    {
+    case 0:
+        op->parameters[OP_PARAMETER_MUL].value = 1;
+        op->parameters[OP_PARAMETER_DT1].value = 1;
+        op->parameters[OP_PARAMETER_TL].value = 35;
+        op->parameters[OP_PARAMETER_RS].value = 15;
+        op->parameters[OP_PARAMETER_AR].value = 2;
+        op->parameters[OP_PARAMETER_AM].value = 1;
+        op->parameters[OP_PARAMETER_D1R].value = 5;
+        op->parameters[OP_PARAMETER_D2R].value = 2;
+        op->parameters[OP_PARAMETER_D1L].value = 1;
+        op->parameters[OP_PARAMETER_RR].value = 1;
+        break;
+    case 1:
+        op->parameters[OP_PARAMETER_MUL].value = 13;
+        op->parameters[OP_PARAMETER_DT1].value = 0;
+        op->parameters[OP_PARAMETER_TL].value = 45;
+        op->parameters[OP_PARAMETER_RS].value = 2;
+        op->parameters[OP_PARAMETER_AR].value = 25;
+        op->parameters[OP_PARAMETER_AM].value = 0;
+        op->parameters[OP_PARAMETER_D1R].value = 36;
+        op->parameters[OP_PARAMETER_D2R].value = 2;
+        op->parameters[OP_PARAMETER_D1L].value = 1;
+        op->parameters[OP_PARAMETER_RR].value = 1;
+        break;
+    case 2:
+        op->parameters[OP_PARAMETER_MUL].value = 3;
+        op->parameters[OP_PARAMETER_DT1].value = 3;
+        op->parameters[OP_PARAMETER_TL].value = 38;
+        op->parameters[OP_PARAMETER_RS].value = 1;
+        op->parameters[OP_PARAMETER_AR].value = 31;
+        op->parameters[OP_PARAMETER_AM].value = 0;
+        op->parameters[OP_PARAMETER_D1R].value = 5;
+        op->parameters[OP_PARAMETER_D2R].value = 2;
+        op->parameters[OP_PARAMETER_D1L].value = 1;
+        op->parameters[OP_PARAMETER_RR].value = 1;
+        break;
+    case 3:
+        op->parameters[OP_PARAMETER_MUL].value = 1;
+        op->parameters[OP_PARAMETER_DT1].value = 0;
+        op->parameters[OP_PARAMETER_TL].value = 0;
+        op->parameters[OP_PARAMETER_RS].value = 2;
+        op->parameters[OP_PARAMETER_AR].value = 25;
+        op->parameters[OP_PARAMETER_AM].value = 0;
+        op->parameters[OP_PARAMETER_D1R].value = 7;
+        op->parameters[OP_PARAMETER_D2R].value = 2;
+        op->parameters[OP_PARAMETER_D1L].value = 10;
+        op->parameters[OP_PARAMETER_RR].value = 6;
+        break;
+    }
 }
 
 static void updateMulDt1(Operator *op)

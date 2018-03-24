@@ -67,29 +67,29 @@ void synth_playNote(void)
 {
     updateGlobalLFO();
     updateOperatorParameter(OP_PARAMETER_MUL, 0);
-    YM2612_writeReg(0, 0x34, 0x0D);
-    YM2612_writeReg(0, 0x38, 0x33);
-    YM2612_writeReg(0, 0x3C, 0x01);
+    updateOperatorParameter(OP_PARAMETER_MUL, 1);
+    updateOperatorParameter(OP_PARAMETER_MUL, 2);
+    updateOperatorParameter(OP_PARAMETER_MUL, 3);
     updateOperatorParameter(OP_PARAMETER_TL, 0);
-    YM2612_writeReg(0, 0x44, 0x2D);
-    YM2612_writeReg(0, 0x48, 0x26);
-    YM2612_writeReg(0, 0x4C, 0x00);
+    updateOperatorParameter(OP_PARAMETER_TL, 1);
+    updateOperatorParameter(OP_PARAMETER_TL, 2);
+    updateOperatorParameter(OP_PARAMETER_TL, 3);
     updateOperatorParameter(OP_PARAMETER_RS, 0);
-    YM2612_writeReg(0, 0x54, 0x99);
-    YM2612_writeReg(0, 0x58, 0x5F);
-    YM2612_writeReg(0, 0x5C, 0x99);
+    updateOperatorParameter(OP_PARAMETER_RS, 1);
+    updateOperatorParameter(OP_PARAMETER_RS, 2);
+    updateOperatorParameter(OP_PARAMETER_RS, 3);
     updateOperatorParameter(OP_PARAMETER_AM, 0);
-    YM2612_writeReg(0, 0x64, 5);
-    YM2612_writeReg(0, 0x68, 5);
-    YM2612_writeReg(0, 0x6C, 7);
+    updateOperatorParameter(OP_PARAMETER_AM, 1);
+    updateOperatorParameter(OP_PARAMETER_AM, 2);
+    updateOperatorParameter(OP_PARAMETER_AM, 3);
     updateOperatorParameter(OP_PARAMETER_D2R, 0);
-    YM2612_writeReg(0, 0x74, 2);
-    YM2612_writeReg(0, 0x78, 2);
-    YM2612_writeReg(0, 0x7C, 2);
-    updateOperatorParameter(OP_PARAMETER_D1R, 0);
-    YM2612_writeReg(0, 0x84, 0x11);
-    YM2612_writeReg(0, 0x88, 0x11);
-    YM2612_writeReg(0, 0x8C, 0xA6);
+    updateOperatorParameter(OP_PARAMETER_D2R, 1);
+    updateOperatorParameter(OP_PARAMETER_D2R, 2);
+    updateOperatorParameter(OP_PARAMETER_D2R, 3);
+    updateOperatorParameter(OP_PARAMETER_D1L, 0);
+    updateOperatorParameter(OP_PARAMETER_D1L, 1);
+    updateOperatorParameter(OP_PARAMETER_D1L, 2);
+    updateOperatorParameter(OP_PARAMETER_D1L, 3);
     updateAlgorithmAndFeedback();
     updateStereoAndLFO();
     YM2612_writeReg(0, 0x28, 0x00); // Key off
@@ -99,7 +99,7 @@ void synth_playNote(void)
 
 static void updateOperatorParameter(OpParameters opParameter, u8 opNumber)
 {
-    Operator op = operators[0];
+    Operator op = operators[opNumber];
     op.parameters[opParameter].onUpdate(&op);
 }
 
