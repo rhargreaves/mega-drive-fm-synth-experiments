@@ -29,7 +29,7 @@ static OperatorParameter parameters[OPERATOR_PARAMETER_COUNT] = {
 void operator_init(Operator *op, u8 opNumber)
 {
     op->opNumber = opNumber;
-    op->parameters = &parameters;
+    op->parameters = &parameters[0];
     switch (opNumber)
     {
     case 0:
