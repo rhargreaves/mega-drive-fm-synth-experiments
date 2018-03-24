@@ -24,7 +24,6 @@ struct OperatorParameter
 {
     const char name[12];
     const u16 minSize;
-    u16 value;
     const u16 maxValue;
     const u8 step;
     void (*onUpdate)(Operator *op);
@@ -33,7 +32,8 @@ struct OperatorParameter
 struct Operator
 {
     u8 opNumber;
-    OperatorParameter parameters[10];
+    OperatorParameter parameters[OPERATOR_PARAMETER_COUNT];
+    u16 parameterValue[OPERATOR_PARAMETER_COUNT];
 };
 
 void operator_init(Operator *op, u8 opNumber);

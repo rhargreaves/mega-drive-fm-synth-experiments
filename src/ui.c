@@ -110,7 +110,7 @@ static void printOperator(Operator *op)
         {
             VDP_setTextPalette(PAL3);
         }
-        printNumber(p->value,
+        printNumber(op->parameterValue[index],
                     p->minSize,
                     OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN,
                     row);
@@ -213,25 +213,26 @@ static void updateOpParameter(u16 joyState)
     Operator *op = synth_operator(opParaIndex / OPERATOR_PARAMETER_COUNT);
     OpParameters opParameter = opParaIndex % OPERATOR_PARAMETER_COUNT;
     OperatorParameter *parameter = operator_parameter(op, opParameter);
+    u16 *parameterValue = &op->parameterValue[opParameter];
     if (joyState & BUTTON_RIGHT)
     {
-        parameter->value += parameter->step;
+        *parameterValue += parameter->step;
     }
     else if (joyState & BUTTON_LEFT)
     {
-        parameter->value -= parameter->step;
+        *parameterValue -= parameter->step;
     }
     else
     {
         return;
     }
-    if (parameter->value == (u16)-1)
+    if (*parameterValue == (u16)-1)
     {
-        parameter->value = parameter->maxValue;
+        *parameterValue = parameter->maxValue;
     }
-    if (parameter->value > parameter->maxValue)
+    if (*parameterValue > parameter->maxValue)
     {
-        parameter->value = 0;
+        *parameterValue = 0;
     }
     parameter->onUpdate(op);
     requestUiUpdate();
