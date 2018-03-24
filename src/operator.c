@@ -14,6 +14,15 @@ static void setAmD1r(u8 opNum, u8 am, u8 d1r);
 static void setD2r(u8 opNum, u8 d2r);
 static void setD1lRr(u8 opNum, u8 d1l, u8 rr);
 
+struct OperatorParameter
+{
+    const char name[12];
+    const u16 minSize;
+    const u16 maxValue;
+    const u8 step;
+    void (*onUpdate)(Operator *op);
+};
+
 static OperatorParameter parameters[OPERATOR_PARAMETER_COUNT] = {
     {"Multiple", 2, 15, 1, updateMulDt1},
     {"Detune", 1, 7, 1, updateMulDt1},
@@ -26,66 +35,65 @@ static OperatorParameter parameters[OPERATOR_PARAMETER_COUNT] = {
     {"Sub Level", 2, 15, 1, updateD1lRr},
     {"Rel Rate", 2, 15, 1, updateD1lRr}};
 
-void operator_init(Operator *op, u8 opNumber)
+void operator_init(Operator *op, u8 opNumber, OperatorDefinition *definition)
 {
     op->opNumber = opNumber;
     op->parameters = &parameters[0];
-    switch (opNumber)
-    {
-    case 0:
-        op->parameterValue[OP_PARAMETER_DT1] = 1;
-        op->parameterValue[OP_PARAMETER_MUL] = 1;
-        op->parameterValue[OP_PARAMETER_TL] = 35;
-        op->parameterValue[OP_PARAMETER_RS] = 15;
-        op->parameterValue[OP_PARAMETER_AR] = 2;
-        op->parameterValue[OP_PARAMETER_AM] = 1;
-        op->parameterValue[OP_PARAMETER_D1R] = 5;
-        op->parameterValue[OP_PARAMETER_D2R] = 2;
-        op->parameterValue[OP_PARAMETER_D1L] = 1;
-        op->parameterValue[OP_PARAMETER_RR] = 1;
-        break;
-    case 1:
-        op->parameterValue[OP_PARAMETER_MUL] = 13;
-        op->parameterValue[OP_PARAMETER_DT1] = 0;
-        op->parameterValue[OP_PARAMETER_TL] = 45;
-        op->parameterValue[OP_PARAMETER_RS] = 2;
-        op->parameterValue[OP_PARAMETER_AR] = 25;
-        op->parameterValue[OP_PARAMETER_AM] = 0;
-        op->parameterValue[OP_PARAMETER_D1R] = 36;
-        op->parameterValue[OP_PARAMETER_D2R] = 2;
-        op->parameterValue[OP_PARAMETER_D1L] = 1;
-        op->parameterValue[OP_PARAMETER_RR] = 1;
-        break;
-    case 2:
-        op->parameterValue[OP_PARAMETER_MUL] = 3;
-        op->parameterValue[OP_PARAMETER_DT1] = 3;
-        op->parameterValue[OP_PARAMETER_TL] = 38;
-        op->parameterValue[OP_PARAMETER_RS] = 1;
-        op->parameterValue[OP_PARAMETER_AR] = 31;
-        op->parameterValue[OP_PARAMETER_AM] = 0;
-        op->parameterValue[OP_PARAMETER_D1R] = 5;
-        op->parameterValue[OP_PARAMETER_D2R] = 2;
-        op->parameterValue[OP_PARAMETER_D1L] = 1;
-        op->parameterValue[OP_PARAMETER_RR] = 1;
-        break;
-    case 3:
-        op->parameterValue[OP_PARAMETER_MUL] = 1;
-        op->parameterValue[OP_PARAMETER_DT1] = 0;
-        op->parameterValue[OP_PARAMETER_TL] = 0;
-        op->parameterValue[OP_PARAMETER_RS] = 2;
-        op->parameterValue[OP_PARAMETER_AR] = 25;
-        op->parameterValue[OP_PARAMETER_AM] = 0;
-        op->parameterValue[OP_PARAMETER_D1R] = 7;
-        op->parameterValue[OP_PARAMETER_D2R] = 2;
-        op->parameterValue[OP_PARAMETER_D1L] = 10;
-        op->parameterValue[OP_PARAMETER_RR] = 6;
-        break;
-    }
+    op->parameterValue[OP_PARAMETER_DT1] = definition->detune;
+    op->parameterValue[OP_PARAMETER_MUL] = definition->multiple;
+    op->parameterValue[OP_PARAMETER_TL] = definition->totalLevel;
+    op->parameterValue[OP_PARAMETER_RS] = definition->rateScale;
+    op->parameterValue[OP_PARAMETER_AR] = definition->attackRate;
+    op->parameterValue[OP_PARAMETER_AM] = definition->ampMode;
+    op->parameterValue[OP_PARAMETER_D1R] = definition->firstDecay;
+    op->parameterValue[OP_PARAMETER_D2R] = definition->secondDecay;
+    op->parameterValue[OP_PARAMETER_D1L] = definition->subLevel;
+    op->parameterValue[OP_PARAMETER_RR] = definition->releaseRate;
 }
 
-OperatorParameter *operator_parameter(Operator *op, OpParameters parameter)
+u16 operator_parameterValue(Operator *op, OpParameters parameter)
 {
-    return &op->parameters[parameter];
+    return op->parameterValue[parameter];
+}
+
+const char *operator_parameterName(Operator *op, OpParameters parameter)
+{
+    return &op->parameters[parameter].name[0];
+}
+
+u16 operator_parameterMaxValue(Operator *op, OpParameters parameter)
+{
+    return op->parameters[parameter].maxValue;
+}
+
+u16 operator_parameterMinSize(Operator *op, OpParameters parameter)
+{
+    return op->parameters[parameter].minSize;
+}
+
+u8 operator_parameterStep(Operator *op, OpParameters parameter)
+{
+    return op->parameters[parameter].step;
+}
+
+void operator_setParameterValue(Operator *op, OpParameters parameter, u16 value)
+{
+    op->parameterValue[parameter] = value;
+    op->parameters[parameter].onUpdate(op);
+}
+
+void operator_update(Operator *op)
+{
+    const OpParameters parametersToUpdate[] = {OP_PARAMETER_MUL,
+                                               OP_PARAMETER_TL,
+                                               OP_PARAMETER_RS,
+                                               OP_PARAMETER_AM,
+                                               OP_PARAMETER_D2R,
+                                               OP_PARAMETER_D1L};
+    for (int i = 0; i < 6; i++)
+    {
+        op->parameters[parametersToUpdate[i]].onUpdate(op);
+    }
 }
 
 static void updateMulDt1(Operator *op)

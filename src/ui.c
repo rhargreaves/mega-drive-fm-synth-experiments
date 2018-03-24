@@ -99,19 +99,18 @@ static void printOperator(Operator *op)
     for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
     {
         u16 row = index + OPERATOR_TOP_ROW + 1;
-        OperatorParameter *p = operator_parameter(op, index);
         if (op->opNumber == 0)
         {
             VDP_setTextPalette(PAL2);
-            VDP_drawText(p->name, 0, row);
+            VDP_drawText(operator_parameterName(op, index), 0, row);
             VDP_setTextPalette(PAL0);
         }
         if (selection - FM_PARAMETER_COUNT == index + op->opNumber * OPERATOR_PARAMETER_COUNT)
         {
             VDP_setTextPalette(PAL3);
         }
-        printNumber(op->parameterValue[index],
-                    p->minSize,
+        printNumber(operator_parameterValue(op, index),
+                    operator_parameterMinSize(op, index),
                     OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN,
                     row);
         VDP_setTextPalette(PAL0);
@@ -212,29 +211,31 @@ static void updateOpParameter(u16 joyState)
     u16 opParaIndex = selection - FM_PARAMETER_COUNT;
     Operator *op = synth_operator(opParaIndex / OPERATOR_PARAMETER_COUNT);
     OpParameters opParameter = opParaIndex % OPERATOR_PARAMETER_COUNT;
-    OperatorParameter *parameter = operator_parameter(op, opParameter);
-    u16 *parameterValue = &op->parameterValue[opParameter];
+    u16 value = operator_parameterValue(op, opParameter);
+    u16 step = operator_parameterStep(op, opParameter);
+    u16 maxValue = operator_parameterMaxValue(op, opParameter);
+    u16 newValue;
     if (joyState & BUTTON_RIGHT)
     {
-        *parameterValue += parameter->step;
+        newValue = value + step;
+        if (newValue > maxValue)
+        {
+            newValue = 0;
+        }
     }
     else if (joyState & BUTTON_LEFT)
     {
-        *parameterValue -= parameter->step;
+        newValue = value - step;
+        if (newValue == (u16)-1)
+        {
+            newValue = maxValue;
+        }
     }
     else
     {
         return;
     }
-    if (*parameterValue == (u16)-1)
-    {
-        *parameterValue = parameter->maxValue;
-    }
-    if (*parameterValue > parameter->maxValue)
-    {
-        *parameterValue = 0;
-    }
-    parameter->onUpdate(op);
+    operator_setParameterValue(op, opParameter, newValue);
     requestUiUpdate();
 }
 

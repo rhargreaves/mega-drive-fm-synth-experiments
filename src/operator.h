@@ -20,14 +20,12 @@ typedef struct Operator Operator;
 typedef struct OperatorParameter OperatorParameter;
 typedef void *updateFunc;
 
-struct OperatorParameter
+typedef struct OperatorDefinition
 {
-    const char name[12];
-    const u16 minSize;
-    const u16 maxValue;
-    const u8 step;
-    void (*onUpdate)(Operator *op);
-};
+    u16 multiple, detune, totalLevel, rateScale,
+        attackRate, ampMode, firstDecay, secondDecay,
+        subLevel, releaseRate;
+} OperatorDefinition;
 
 struct Operator
 {
@@ -36,5 +34,12 @@ struct Operator
     u16 parameterValue[OPERATOR_PARAMETER_COUNT];
 };
 
-void operator_init(Operator *op, u8 opNumber);
-OperatorParameter *operator_parameter(Operator *op, OpParameters parameter);
+void operator_init(Operator *op, u8 opNumber, OperatorDefinition *definition);
+u16 operator_parameterValue(Operator *op, OpParameters parameter);
+const char *operator_parameterName(Operator *op, OpParameters parameter);
+void operator_parameterUpdate(Operator *op, OpParameters parameter);
+u16 operator_parameterMinSize(Operator *op, OpParameters parameter);
+u16 operator_parameterMaxValue(Operator *op, OpParameters parameter);
+u8 operator_parameterStep(Operator *op, OpParameters parameter);
+void operator_setParameterValue(Operator *op, OpParameters parameter, u16 value);
+void operator_update(Operator *op);

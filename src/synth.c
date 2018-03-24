@@ -12,9 +12,14 @@ static void setFrequency(u16 freq, u8 octave);
 static void setAlgorithm(u8 algorithm, u8 feedback);
 static void setGlobalLFO(u8 enable, u8 freq);
 static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
-static void updateOperatorParameter(OpParameters opParameter, u8 opNumber);
 
 static Operator operators[OPERATOR_COUNT];
+
+static OperatorDefinition defaultOperatorDefinitions[OPERATOR_COUNT] =
+    {{1, 1, 35, 15, 2, 1, 5, 2, 1, 1},
+     {13, 0, 45, 2, 25, 0, 36, 2, 1, 1},
+     {3, 3, 38, 1, 31, 0, 5, 2, 1, 1},
+     {1, 0, 0, 2, 25, 0, 7, 2, 10, 6}};
 
 static FmParameter fmParameters[] = {
     {"G.LFO On ", 1, 1, 1, 1, updateGlobalLFO},
@@ -40,10 +45,9 @@ Operator *synth_operator(u8 opNumber)
 
 static void initOperators(void)
 {
-    for (u8 i = 0; i < 4; i++)
+    for (u8 i = 0; i < OPERATOR_COUNT; i++)
     {
-        Operator *op = &operators[i];
-        operator_init(op, i);
+        operator_init(&operators[i], i, &defaultOperatorDefinitions[i]);
     }
 }
 
@@ -66,41 +70,15 @@ void synth_init(void)
 void synth_playNote(void)
 {
     updateGlobalLFO();
-    updateOperatorParameter(OP_PARAMETER_MUL, 0);
-    updateOperatorParameter(OP_PARAMETER_MUL, 1);
-    updateOperatorParameter(OP_PARAMETER_MUL, 2);
-    updateOperatorParameter(OP_PARAMETER_MUL, 3);
-    updateOperatorParameter(OP_PARAMETER_TL, 0);
-    updateOperatorParameter(OP_PARAMETER_TL, 1);
-    updateOperatorParameter(OP_PARAMETER_TL, 2);
-    updateOperatorParameter(OP_PARAMETER_TL, 3);
-    updateOperatorParameter(OP_PARAMETER_RS, 0);
-    updateOperatorParameter(OP_PARAMETER_RS, 1);
-    updateOperatorParameter(OP_PARAMETER_RS, 2);
-    updateOperatorParameter(OP_PARAMETER_RS, 3);
-    updateOperatorParameter(OP_PARAMETER_AM, 0);
-    updateOperatorParameter(OP_PARAMETER_AM, 1);
-    updateOperatorParameter(OP_PARAMETER_AM, 2);
-    updateOperatorParameter(OP_PARAMETER_AM, 3);
-    updateOperatorParameter(OP_PARAMETER_D2R, 0);
-    updateOperatorParameter(OP_PARAMETER_D2R, 1);
-    updateOperatorParameter(OP_PARAMETER_D2R, 2);
-    updateOperatorParameter(OP_PARAMETER_D2R, 3);
-    updateOperatorParameter(OP_PARAMETER_D1L, 0);
-    updateOperatorParameter(OP_PARAMETER_D1L, 1);
-    updateOperatorParameter(OP_PARAMETER_D1L, 2);
-    updateOperatorParameter(OP_PARAMETER_D1L, 3);
+    for (int i = 0; i < OPERATOR_COUNT; i++)
+    {
+        operator_update(&operators[i]);
+    }
     updateAlgorithmAndFeedback();
     updateStereoAndLFO();
     YM2612_writeReg(0, 0x28, 0x00); // Key off
     updateFreqAndOctave();
     YM2612_writeReg(0, 0x28, 0xF0); // Key On
-}
-
-static void updateOperatorParameter(OpParameters opParameter, u8 opNumber)
-{
-    Operator op = operators[opNumber];
-    op.parameters[opParameter].onUpdate(&op);
 }
 
 void synth_stopNote(void)
