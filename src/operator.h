@@ -32,7 +32,7 @@ struct OperatorParameter
 struct Operator
 {
     u8 opNumber;
-    OperatorParameter parameters[OPERATOR_PARAMETER_COUNT];
+    OperatorParameter *parameters;
     u16 parameterValue[OPERATOR_PARAMETER_COUNT];
 };
 

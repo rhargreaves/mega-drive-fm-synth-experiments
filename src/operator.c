@@ -14,21 +14,22 @@ static void setAmD1r(u8 opNum, u8 am, u8 d1r);
 static void setD2r(u8 opNum, u8 d2r);
 static void setD1lRr(u8 opNum, u8 d1l, u8 rr);
 
+static OperatorParameter parameters[OPERATOR_PARAMETER_COUNT] = {
+    {"Multiple", 2, 15, 1, updateMulDt1},
+    {"Detune", 1, 7, 1, updateMulDt1},
+    {"Total Lvl", 3, 127, 1, updateTotalLevel},
+    {"Rate Scale", 1, 2, 1, updateRsAr},
+    {"Atck Rate", 2, 31, 1, updateRsAr},
+    {"Amp Mode?", 1, 1, 1, updateAmD1r},
+    {"1st Decay", 2, 31, 1, updateAmD1r},
+    {"2nd Decay", 2, 31, 1, updateD2r},
+    {"Sub Level", 2, 15, 1, updateD1lRr},
+    {"Rel Rate", 2, 15, 1, updateD1lRr}};
+
 void operator_init(Operator *op, u8 opNumber)
 {
     op->opNumber = opNumber;
-    OperatorParameter paras[OPERATOR_PARAMETER_COUNT] = {
-        {"Multiple", 2, 15, 1, updateMulDt1},
-        {"Detune", 1, 7, 1, updateMulDt1},
-        {"Total Lvl", 3, 127, 1, updateTotalLevel},
-        {"Rate Scale", 1, 2, 1, updateRsAr},
-        {"Atck Rate", 2, 31, 1, updateRsAr},
-        {"Amp Mode?", 1, 1, 1, updateAmD1r},
-        {"1st Decay", 2, 31, 1, updateAmD1r},
-        {"2nd Decay", 2, 31, 1, updateD2r},
-        {"Sub Level", 2, 15, 1, updateD1lRr},
-        {"Rel Rate", 2, 15, 1, updateD1lRr}};
-    memcpy(&op->parameters, &paras, sizeof paras);
+    op->parameters = &parameters;
     switch (opNumber)
     {
     case 0:
