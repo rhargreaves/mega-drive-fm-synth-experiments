@@ -5,7 +5,7 @@
 int main(void)
 {
     VDP_setTextPalette(PAL2);
-    VDP_drawText("Yahama 2612 Test", 11, 0);
+    VDP_drawText("Yamaha 2612 Test", 11, 0);
     synth_init();
     ui_draw();
     while (TRUE)
