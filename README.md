@@ -2,6 +2,8 @@
 
 Various experiments mostly centred around the Yamaha YM2612 FM Synthesis & PSG chips.
 
+<p align="center"><img src="docs/wip.png" width="700px" /></p>
+
 ## Table of Contents
 
 1. Experiments in [68000 Assembly](assembly-only)
