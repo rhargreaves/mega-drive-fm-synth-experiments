@@ -20,11 +20,8 @@ typedef enum {
 
 typedef struct
 {
-    const char name[10];
-    const u16 minSize;
     u16 value;
     const u16 maxValue;
-    const u8 step;
     void (*onUpdate)(void);
 } FmParameter;
 

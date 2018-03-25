@@ -27,7 +27,7 @@ struct Operator
     u16 parameterValues[OPERATOR_PARAMETER_COUNT];
 };
 
-void operator_init(Operator *op, u8 opNumber, u16 parameterValue[OPERATOR_PARAMETER_COUNT]);
+void operator_init(Operator *op, u8 opNumber, const u16 parameterValue[OPERATOR_PARAMETER_COUNT]);
 u16 operator_parameterValue(Operator *op, OpParameters parameter);
 const char *operator_parameterName(Operator *op, OpParameters parameter);
 void operator_parameterUpdate(Operator *op, OpParameters parameter);

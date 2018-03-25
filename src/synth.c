@@ -22,16 +22,16 @@ static u16 defaultOperatorValues[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT] =
      {1, 0, 0, 2, 25, 0, 7, 2, 10, 6}};
 
 static FmParameter fmParameters[] = {
-    {"Glob LFO ", 1, 1, 1, 1, updateGlobalLFO},
-    {"LFO Freq ", 1, 3, 7, 1, updateGlobalLFO},
-    {"Note     ", 2, 1, 11, 1, updateNote},
-    {"Freq Num ", 4, 653, 2047, 4, updateFreqAndOctave},
-    {"Octave   ", 1, 4, 7, 1, updateFreqAndOctave},
-    {"Algorithm", 1, 0, 7, 1, updateAlgorithmAndFeedback},
-    {"Feedback ", 1, 0, 7, 1, updateAlgorithmAndFeedback},
-    {"LFO AMS  ", 1, 0, 3, 1, updateStereoAndLFO},
-    {"LFO FMS  ", 1, 0, 7, 1, updateStereoAndLFO},
-    {"Stereo   ", 1, 3, 3, 1, updateStereoAndLFO}};
+    {1, 1, updateGlobalLFO},
+    {3, 7, updateGlobalLFO},
+    {1, 11, updateNote},
+    {653, 2047, updateFreqAndOctave},
+    {4, 7, updateFreqAndOctave},
+    {0, 7, updateAlgorithmAndFeedback},
+    {0, 7, updateAlgorithmAndFeedback},
+    {0, 3, updateStereoAndLFO},
+    {0, 7, updateStereoAndLFO},
+    {3, 3, updateStereoAndLFO}};
 
 FmParameter *synth_fmParameter(FmParameters parameter)
 {

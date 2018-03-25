@@ -29,13 +29,13 @@ static OperatorParameter parameters[OPERATOR_PARAMETER_COUNT] = {
     {"Total Lvl", 3, 127, 1, updateTotalLevel},
     {"Rate Scale", 1, 2, 1, updateRsAr},
     {"Atck Rate", 2, 31, 1, updateRsAr},
-    {"Amp Mode?", 1, 1, 1, updateAmD1r},
+    {"Ampl Mode", 1, 1, 1, updateAmD1r},
     {"1st Decay", 2, 31, 1, updateAmD1r},
     {"2nd Decay", 2, 31, 1, updateD2r},
     {"Sub Level", 2, 15, 1, updateD1lRr},
     {"Rel Rate", 2, 15, 1, updateD1lRr}};
 
-void operator_init(Operator *op, u8 opNumber, u16 parameterValues[OPERATOR_PARAMETER_COUNT])
+void operator_init(Operator *op, u8 opNumber, const u16 parameterValues[OPERATOR_PARAMETER_COUNT])
 {
     op->opNumber = opNumber;
     op->parameters = &parameters[0];

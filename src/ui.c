@@ -10,6 +10,26 @@
 typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
+typedef struct
+{
+    const char name[10];
+    const u16 minSize;
+    const u8 step;
+    FmParameter *fmParameter;
+} FmParameterUi;
+
+static FmParameterUi fmParameterUis[] = {
+    {"Glob LFO ", 1, 1},
+    {"LFO Freq ", 1, 1},
+    {"Note     ", 2, 1},
+    {"Freq Num ", 4, 4},
+    {"Octave   ", 1, 1},
+    {"Algorithm", 1, 1},
+    {"Feedback ", 1, 1},
+    {"LFO AMS  ", 1, 1},
+    {"LFO FMS  ", 1, 1},
+    {"Stereo   ", 1, 1}};
+
 static void updateUiIfRequired(void);
 static void requestUiUpdate(void);
 static void debounce(_debouncedFunc func, u16 joyState);
@@ -21,6 +41,7 @@ static void printNote(u16 index, u16 row);
 static void printOnOff(u16 index, u16 row);
 static void printLFOFreq(u16 index, u16 row);
 static void printLookup(u16 index, const char *text, u16 row);
+static void printFmParameter(u16 value, u16 minSize, u16 index, u16 row);
 static void updateOpParameter(u16 joyState);
 static void updateFmParameter(u16 joyState);
 static void printFmParameters(void);
@@ -34,6 +55,14 @@ static void printFms(u16 index, u16 row);
 
 static u8 selection = 0;
 static bool drawUi = false;
+
+void ui_init(void)
+{
+    for (int i = 0; i < FM_PARAMETER_COUNT; i++)
+    {
+        fmParameterUis[i].fmParameter = synth_fmParameter(i);
+    }
+}
 
 void ui_draw(void)
 {
@@ -57,45 +86,50 @@ static void printFmParameters(void)
     {
         const u16 TOP_ROW = 3;
         u16 row = index + TOP_ROW;
-        FmParameter *p = synth_fmParameter(index);
+        FmParameterUi *p = &fmParameterUis[index];
         VDP_setTextPalette(PAL2);
         VDP_drawText(p->name, 0, row);
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
-        if (index == PARAMETER_NOTE)
-        {
-            printNote(p->value, row);
-        }
-        else if (index == PARAMETER_G_LFO_FREQ)
-        {
-            printLFOFreq(p->value, row);
-        }
-        else if (index == PARAMETER_G_LFO_ON)
-        {
-            printOnOff(p->value, row);
-        }
-        else if (index == PARAMETER_STEREO)
-        {
-            printStereo(p->value, row);
-        }
-        else if (index == PARAMETER_ALGORITHM)
-        {
-            printAlgorithm(p->value, row);
-        }
-        else if (index == PARAMETER_LFO_AMS)
-        {
-            printAms(p->value, row);
-        }
-        else if (index == PARAMETER_LFO_FMS)
-        {
-            printFms(p->value, row);
-        }
-        else
-        {
-            printNumber(p->value,
-                        p->minSize,
-                        10,
-                        row);
-        }
+        printFmParameter(p->fmParameter->value, p->minSize, index, row);
+    }
+}
+
+static void printFmParameter(u16 value, u16 minSize, u16 index, u16 row)
+{
+    if (index == PARAMETER_NOTE)
+    {
+        printNote(value, row);
+    }
+    else if (index == PARAMETER_G_LFO_FREQ)
+    {
+        printLFOFreq(value, row);
+    }
+    else if (index == PARAMETER_G_LFO_ON)
+    {
+        printOnOff(value, row);
+    }
+    else if (index == PARAMETER_STEREO)
+    {
+        printStereo(value, row);
+    }
+    else if (index == PARAMETER_ALGORITHM)
+    {
+        printAlgorithm(value, row);
+    }
+    else if (index == PARAMETER_LFO_AMS)
+    {
+        printAms(value, row);
+    }
+    else if (index == PARAMETER_LFO_FMS)
+    {
+        printFms(value, row);
+    }
+    else
+    {
+        printNumber(value,
+                    minSize,
+                    10,
+                    row);
     }
 }
 
@@ -161,7 +195,7 @@ static void printOperators(void)
 static void printOperatorHeader(Operator *op)
 {
     VDP_setTextPalette(PAL2);
-    char opHeader[5];
+    char opHeader[4];
     sprintf(opHeader, "Op%u", op->opNumber + 1);
     VDP_drawText(opHeader, OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN, OPERATOR_TOP_ROW);
     VDP_setTextPalette(PAL0);
@@ -254,14 +288,15 @@ static void checkValueChangeButtons(u16 joyState)
 
 static void updateFmParameter(u16 joyState)
 {
-    FmParameter *parameter = synth_fmParameter(selection);
+    FmParameterUi *uiParameter = &fmParameterUis[selection];
+    FmParameter *parameter = uiParameter->fmParameter;
     if (joyState & BUTTON_RIGHT)
     {
-        parameter->value += parameter->step;
+        parameter->value += uiParameter->step;
     }
     else if (joyState & BUTTON_LEFT)
     {
-        parameter->value -= parameter->step;
+        parameter->value -= uiParameter->step;
     }
     else
     {
