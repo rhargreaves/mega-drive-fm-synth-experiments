@@ -1,6 +1,7 @@
 #include <genesis.h>
 #include <stdbool.h>
 #include <synth.h>
+#include <channel.h>
 
 #define OPERATOR_VALUE_COLUMN 11
 #define OPERATOR_VALUE_WIDTH 6
@@ -86,7 +87,7 @@ void ui_init(void)
     }
     for (int i = 0; i < FM_PARAMETER_COUNT; i++)
     {
-        fmParameterUis[i].fmParameter = synth_fmParameter(i);
+        fmParameterUis[i].fmParameter = channel_fmParameter(i);
     }
 }
 
@@ -208,7 +209,7 @@ static void printOperators(void)
 {
     for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
     {
-        Operator *op = synth_operator(opIndex);
+        Operator *op = channel_operator(opIndex);
         printOperatorHeader(op);
         printOperator(op);
     }
@@ -260,14 +261,14 @@ static void checkPlayNoteButton(u16 joyState)
     {
         if (!playing)
         {
-            synth_playNote();
+            channel_playNote();
         }
         playing = true;
     }
     else
     {
         playing = false;
-        synth_stopNote();
+        channel_stopNote();
     }
 }
 
@@ -370,7 +371,7 @@ static void updateFmParameter(u16 joyState, u16 index)
 
 static void updateOpParameter(u16 joyState, u16 index)
 {
-    Operator *op = synth_operator(index / OPERATOR_PARAMETER_COUNT);
+    Operator *op = channel_operator(index / OPERATOR_PARAMETER_COUNT);
     OpParameters opParameter = index % OPERATOR_PARAMETER_COUNT;
     u16 value = operator_parameterValue(op, opParameter);
     u16 step = opParameterUis[opParameter].step;
