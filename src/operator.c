@@ -35,20 +35,14 @@ static OperatorParameter parameters[OPERATOR_PARAMETER_COUNT] = {
     {"Sub Level", 2, 15, 1, updateD1lRr},
     {"Rel Rate", 2, 15, 1, updateD1lRr}};
 
-void operator_init(Operator *op, u8 opNumber, OperatorDefinition *definition)
+void operator_init(Operator *op, u8 opNumber, u16 parameterValues[OPERATOR_PARAMETER_COUNT])
 {
     op->opNumber = opNumber;
     op->parameters = &parameters[0];
-    op->parameterValue[OP_PARAMETER_DT1] = definition->detune;
-    op->parameterValue[OP_PARAMETER_MUL] = definition->multiple;
-    op->parameterValue[OP_PARAMETER_TL] = definition->totalLevel;
-    op->parameterValue[OP_PARAMETER_RS] = definition->rateScale;
-    op->parameterValue[OP_PARAMETER_AR] = definition->attackRate;
-    op->parameterValue[OP_PARAMETER_AM] = definition->ampMode;
-    op->parameterValue[OP_PARAMETER_D1R] = definition->firstDecay;
-    op->parameterValue[OP_PARAMETER_D2R] = definition->secondDecay;
-    op->parameterValue[OP_PARAMETER_D1L] = definition->subLevel;
-    op->parameterValue[OP_PARAMETER_RR] = definition->releaseRate;
+    for (int i = 0; i < OPERATOR_PARAMETER_COUNT; i++)
+    {
+        op->parameterValue[i] = parameterValues[i];
+    }
 }
 
 u16 operator_parameterValue(Operator *op, OpParameters parameter)
