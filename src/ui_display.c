@@ -51,14 +51,6 @@ static OperatorParameterUi opParameterUis[] = {
 
 static bool drawUi = false;
 
-void display_init(Channel *chan)
-{
-    for (int i = 0; i < FM_PARAMETER_COUNT; i++)
-    {
-        fmParameterUis[i].fmParameter = channel_fmParameter(chan, i);
-    }
-}
-
 void display_draw(Channel *chan, u8 selection)
 {
     printGlobalParameters(selection);

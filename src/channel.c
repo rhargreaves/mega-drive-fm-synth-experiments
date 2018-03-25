@@ -78,6 +78,7 @@ void channel_setParameterValue(Channel *chan, FmParameters parameter, u16 value)
         value = 0;
     }
     fmParameter->value = value;
+    fmParameter->onUpdate(chan);
 }
 
 u16 channel_parameterValue(Channel *chan, FmParameters parameter)
