@@ -18,7 +18,6 @@ typedef enum {
 
 typedef struct Operator Operator;
 typedef struct OperatorParameter OperatorParameter;
-typedef void *updateFunc;
 
 struct Operator
 {

@@ -120,7 +120,7 @@ static void updateD1lRr(Operator *op)
 
 static void setMulDt1(u8 opNum, u8 mul, u8 dt1)
 {
-    YM2612_writeReg(0, 0x30 + (opNum * 4), mul + (dt1 << 4));
+    YM2612_writeReg(0, 0x30 + (opNum * 4), mul | (dt1 << 4));
 }
 
 static void setTotalLevel(u8 opNum, u8 totalLevel)
@@ -130,12 +130,12 @@ static void setTotalLevel(u8 opNum, u8 totalLevel)
 
 static void setRsAr(u8 opNum, u8 rs, u8 ar)
 {
-    YM2612_writeReg(0, 0x50 + (opNum * 4), ar + (rs << 6));
+    YM2612_writeReg(0, 0x50 + (opNum * 4), ar | (rs << 6));
 }
 
 static void setAmD1r(u8 opNum, u8 am, u8 d1r)
 {
-    YM2612_writeReg(0, 0x60 + (opNum * 4), (am << 7) + d1r);
+    YM2612_writeReg(0, 0x60 + (opNum * 4), (am << 7) | d1r);
 }
 
 static void setD2r(u8 opNum, u8 d2r)
@@ -145,5 +145,5 @@ static void setD2r(u8 opNum, u8 d2r)
 
 static void setD1lRr(u8 opNum, u8 d1l, u8 rr)
 {
-    YM2612_writeReg(0, 0x80 + (opNum * 4), rr + (d1l << 4));
+    YM2612_writeReg(0, 0x80 + (opNum * 4), rr | (d1l << 4));
 }

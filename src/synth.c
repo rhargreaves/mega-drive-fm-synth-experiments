@@ -88,23 +88,23 @@ void synth_stopNote(void)
 
 static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms)
 {
-    YM2612_writeReg(0, 0xB4, (stereo << 6) + (ams << 4) + fms);
+    YM2612_writeReg(0, 0xB4, (stereo << 6) | (ams << 4) | fms);
 }
 
 static void setGlobalLFO(u8 enable, u8 freq)
 {
-    YM2612_writeReg(0, 0x22, (enable << 3) + freq);
+    YM2612_writeReg(0, 0x22, (enable << 3) | freq);
 }
 
 static void setFrequency(u16 freq, u8 octave)
 {
-    YM2612_writeReg(0, 0xA4, (freq >> 8) + (octave << 3));
+    YM2612_writeReg(0, 0xA4, (freq >> 8) | (octave << 3));
     YM2612_writeReg(0, 0xA0, freq);
 }
 
 static void setAlgorithm(u8 algorithm, u8 feedback)
 {
-    YM2612_writeReg(0, 0xB0, algorithm + (feedback << 3));
+    YM2612_writeReg(0, 0xB0, algorithm | (feedback << 3));
 }
 
 static void updateNote(void)
