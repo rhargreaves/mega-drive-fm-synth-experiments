@@ -36,8 +36,10 @@ static void printNote(u16 index, u16 row);
 static void printOnOff(u16 index, u16 row);
 static void printLFOFreq(u16 index, u16 row);
 static void printLookup(u16 index, const char *text, u16 row);
-static void updateOpParameter(u16 joyState);
-static void updateFmParameter(u16 joyState);
+static void updateGlobalParameter(u16 joyState, u16 index);
+static void updateOpParameter(u16 joyState, u16 index);
+static void updateFmParameter(u16 joyState, u16 index);
+static void printGlobalParameters(void);
 static void printFmParameters(void);
 static void printOperators(void);
 static void printOperator(Operator *op);
@@ -47,9 +49,11 @@ static void printAlgorithm(u16 index, u16 row);
 static void printAms(u16 index, u16 row);
 static void printFms(u16 index, u16 row);
 
-static FmParameterUi fmParameterUis[] = {
+static FmParameterUi globalParameterUis[] = {
     {"Glob LFO", 1, 1, NULL, printOnOff},
-    {"LFO Freq", 1, 1, NULL, printLFOFreq},
+    {"LFO Freq", 1, 1, NULL, printLFOFreq}};
+
+static FmParameterUi fmParameterUis[] = {
     {"Note", 2, 1, NULL, printNote},
     {"Freq Num", 4, 4, NULL, NULL},
     {"Octave", 1, 1, NULL, NULL},
@@ -76,6 +80,10 @@ static bool drawUi = false;
 
 void ui_init(void)
 {
+    for (int i = 0; i < GLOBAL_PARAMETER_COUNT; i++)
+    {
+        globalParameterUis[i].fmParameter = synth_globalParameter(i);
+    }
     for (int i = 0; i < FM_PARAMETER_COUNT; i++)
     {
         fmParameterUis[i].fmParameter = synth_fmParameter(i);
@@ -84,6 +92,7 @@ void ui_init(void)
 
 void ui_draw(void)
 {
+    printGlobalParameters();
     printFmParameters();
     printOperators();
     VDP_setTextPalette(PAL0);
@@ -98,16 +107,40 @@ void ui_checkInput(void)
     updateUiIfRequired();
 }
 
+static void printGlobalParameters(void)
+{
+    for (u16 index = 0; index < GLOBAL_PARAMETER_COUNT; index++)
+    {
+        const u16 TOP_ROW = 3;
+        u16 row = index + TOP_ROW;
+        FmParameterUi *p = &globalParameterUis[index];
+        VDP_setTextPalette(PAL2);
+        VDP_drawText(p->name, 0, row);
+        VDP_setTextPalette(selection == index ? PAL3 : PAL0);
+        if (p->printFunc != NULL)
+        {
+            p->printFunc(p->fmParameter->value, row);
+        }
+        else
+        {
+            printNumber(p->fmParameter->value,
+                        p->minSize,
+                        10,
+                        row);
+        }
+    }
+}
+
 static void printFmParameters(void)
 {
     for (u16 index = 0; index < FM_PARAMETER_COUNT; index++)
     {
-        const u16 TOP_ROW = 3;
+        const u16 TOP_ROW = 5;
         u16 row = index + TOP_ROW;
         FmParameterUi *p = &fmParameterUis[index];
         VDP_setTextPalette(PAL2);
         VDP_drawText(p->name, 0, row);
-        VDP_setTextPalette(selection == index ? PAL3 : PAL0);
+        VDP_setTextPalette(selection == index + GLOBAL_PARAMETER_COUNT ? PAL3 : PAL0);
         if (p->printFunc != NULL)
         {
             p->printFunc(p->fmParameter->value, row);
@@ -201,7 +234,7 @@ static void printOperator(Operator *op)
             VDP_drawText(opParameterUis[index].name, 0, row);
             VDP_setTextPalette(PAL0);
         }
-        if (selection - FM_PARAMETER_COUNT == index + op->opNumber * OPERATOR_PARAMETER_COUNT)
+        if (selection - FM_PARAMETER_COUNT == GLOBAL_PARAMETER_COUNT + index + op->opNumber * OPERATOR_PARAMETER_COUNT)
         {
             VDP_setTextPalette(PAL3);
         }
@@ -265,19 +298,23 @@ static void checkSelectionChangeButtons(u16 joyState)
 
 static void checkValueChangeButtons(u16 joyState)
 {
-    if (selection < FM_PARAMETER_COUNT)
+    if (selection < GLOBAL_PARAMETER_COUNT)
     {
-        updateFmParameter(joyState);
+        updateGlobalParameter(joyState, selection);
+    }
+    else if (selection < GLOBAL_PARAMETER_COUNT + FM_PARAMETER_COUNT)
+    {
+        updateFmParameter(joyState, selection - GLOBAL_PARAMETER_COUNT);
     }
     else
     {
-        updateOpParameter(joyState);
+        updateOpParameter(joyState, selection - GLOBAL_PARAMETER_COUNT - FM_PARAMETER_COUNT);
     }
 }
 
-static void updateFmParameter(u16 joyState)
+static void updateGlobalParameter(u16 joyState, u16 index)
 {
-    FmParameterUi *uiParameter = &fmParameterUis[selection];
+    FmParameterUi *uiParameter = &globalParameterUis[index];
     FmParameter *parameter = uiParameter->fmParameter;
     if (joyState & BUTTON_RIGHT)
     {
@@ -303,11 +340,38 @@ static void updateFmParameter(u16 joyState)
     requestUiUpdate();
 }
 
-static void updateOpParameter(u16 joyState)
+static void updateFmParameter(u16 joyState, u16 index)
 {
-    u16 opParaIndex = selection - FM_PARAMETER_COUNT;
-    Operator *op = synth_operator(opParaIndex / OPERATOR_PARAMETER_COUNT);
-    OpParameters opParameter = opParaIndex % OPERATOR_PARAMETER_COUNT;
+    FmParameterUi *uiParameter = &fmParameterUis[index];
+    FmParameter *parameter = uiParameter->fmParameter;
+    if (joyState & BUTTON_RIGHT)
+    {
+        parameter->value += uiParameter->step;
+    }
+    else if (joyState & BUTTON_LEFT)
+    {
+        parameter->value -= uiParameter->step;
+    }
+    else
+    {
+        return;
+    }
+    if (parameter->value == (u16)-1)
+    {
+        parameter->value = parameter->maxValue;
+    }
+    if (parameter->value > parameter->maxValue)
+    {
+        parameter->value = 0;
+    }
+    parameter->onUpdate();
+    requestUiUpdate();
+}
+
+static void updateOpParameter(u16 joyState, u16 index)
+{
+    Operator *op = synth_operator(index / OPERATOR_PARAMETER_COUNT);
+    OpParameters opParameter = index % OPERATOR_PARAMETER_COUNT;
     u16 value = operator_parameterValue(op, opParameter);
     u16 step = opParameterUis[opParameter].step;
     if (joyState & BUTTON_RIGHT)

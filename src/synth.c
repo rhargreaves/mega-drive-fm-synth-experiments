@@ -21,9 +21,11 @@ static const u16 defaultOperatorValues[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT]
      {3, 3, 38, 1, 31, 0, 5, 2, 1, 1},
      {1, 0, 0, 2, 25, 0, 7, 2, 10, 6}};
 
-static FmParameter fmParameters[] = {
+static FmParameter globalParameters[] = {
     {1, 1, updateGlobalLFO},
-    {3, 7, updateGlobalLFO},
+    {3, 7, updateGlobalLFO}};
+
+static FmParameter fmParameters[] = {
     {1, 11, updateNote},
     {653, 2047, updateFreqAndOctave},
     {4, 7, updateFreqAndOctave},
@@ -32,6 +34,11 @@ static FmParameter fmParameters[] = {
     {0, 3, updateStereoAndLFO},
     {0, 7, updateStereoAndLFO},
     {3, 3, updateStereoAndLFO}};
+
+FmParameter *synth_globalParameter(GlobalParameters parameter)
+{
+    return &globalParameters[parameter];
+}
 
 FmParameter *synth_fmParameter(FmParameters parameter)
 {
@@ -134,8 +141,8 @@ static void updateFreqAndOctave(void)
 static void updateGlobalLFO(void)
 {
     setGlobalLFO(
-        fmParameters[PARAMETER_G_LFO_ON].value,
-        fmParameters[PARAMETER_G_LFO_FREQ].value);
+        globalParameters[PARAMETER_G_LFO_ON].value,
+        globalParameters[PARAMETER_G_LFO_FREQ].value);
 }
 
 static void updateAlgorithmAndFeedback(void)
