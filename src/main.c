@@ -8,7 +8,6 @@ int main(void)
     VDP_drawText("Yamaha 2612 Test", 11, 0);
     synth_init();
     ui_init();
-    ui_draw();
     while (TRUE)
     {
         VDP_showFPS(FALSE);

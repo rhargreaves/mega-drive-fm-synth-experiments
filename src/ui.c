@@ -2,102 +2,29 @@
 #include <stdbool.h>
 #include <synth.h>
 #include <channel.h>
+#include <ui.h>
+#include <ui_display.h>
 
-#define OPERATOR_VALUE_COLUMN 11
-#define OPERATOR_VALUE_WIDTH 6
-#define OPERATOR_TOP_ROW 14
 #define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
 
 typedef void DebouncedFunc(u16 joyState, u8 selection);
 
-typedef struct
-{
-    const char name[10];
-    const u16 minSize;
-    const u8 step;
-    FmParameter *fmParameter;
-    void (*printFunc)(u16 index, u16 row);
-} FmParameterUi;
-
-typedef struct
-{
-    const char name[10];
-    const u16 minSize;
-    const u8 step;
-} OperatorParameterUi;
-
-static void updateUiIfRequired(void);
-static void requestUiUpdate(void);
 static void debounce(DebouncedFunc func, u16 joyState, u8 selection);
 static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState, u8 selection);
 static void checkValueChangeButtons(u16 joyState, u8 selection);
-static void printNumber(u16 number, u16 minSize, u16 x, u16 y);
-static void printNote(u16 index, u16 row);
-static void printOnOff(u16 index, u16 row);
-static void printLFOFreq(u16 index, u16 row);
-static void printLookup(u16 index, const char *text, u16 row);
 static void updateGlobalParameter(u16 joyState, u16 index);
 static void updateOpParameter(u16 joyState, u16 index);
 static void updateFmParameter(u16 joyState, u16 index);
-static void printGlobalParameters(u8 selection);
-static void printFmParameters(u8 selection);
-static void printOperators(u8 selection);
-static void printOperator(Operator *op, u8 selection);
-static void printOperatorHeader(Operator *op);
-static void printStereo(u16 index, u16 row);
-static void printAlgorithm(u16 index, u16 row);
-static void printAms(u16 index, u16 row);
-static void printFms(u16 index, u16 row);
-
-static FmParameterUi globalParameterUis[] = {
-    {"Glob LFO", 1, 1, NULL, printOnOff},
-    {"LFO Freq", 1, 1, NULL, printLFOFreq}};
-
-static FmParameterUi fmParameterUis[] = {
-    {"Note", 2, 1, NULL, printNote},
-    {"Freq Num", 4, 4, NULL, NULL},
-    {"Octave", 1, 1, NULL, NULL},
-    {"Algorithm", 1, 1, NULL, printAlgorithm},
-    {"Feedback", 1, 1, NULL, NULL},
-    {"LFO AMS", 1, 1, NULL, printAms},
-    {"LFO FMS", 1, 1, NULL, printFms},
-    {"Stereo", 1, 1, NULL, printStereo}};
-
-static OperatorParameterUi opParameterUis[] = {
-    {"Multiple", 2, 1},
-    {"Detune", 1, 1},
-    {"Total Lvl", 3, 1},
-    {"Rate Scale", 1, 1},
-    {"Atck Rate", 2, 1},
-    {"Ampl Mode", 1, 1},
-    {"1st Decay", 2, 1},
-    {"2nd Decay", 2, 1},
-    {"Sub Level", 2, 1},
-    {"Rel Rate", 2, 1}};
 
 static u8 currentSelection = 0;
-static bool drawUi = false;
+static Channel *currentChannel;
 
 void ui_init(void)
 {
-    Channel *chan = synth_channel();
-    for (int i = 0; i < GLOBAL_PARAMETER_COUNT; i++)
-    {
-        globalParameterUis[i].fmParameter = synth_globalParameter(i);
-    }
-    for (int i = 0; i < FM_PARAMETER_COUNT; i++)
-    {
-        fmParameterUis[i].fmParameter = channel_fmParameter(chan, i);
-    }
-}
-
-void ui_draw(void)
-{
-    printGlobalParameters(currentSelection);
-    printFmParameters(currentSelection);
-    printOperators(currentSelection);
-    VDP_setTextPalette(PAL0);
+    currentChannel = synth_channel();
+    display_init(currentChannel);
+    display_draw(currentSelection);
 }
 
 void ui_checkInput(void)
@@ -106,154 +33,7 @@ void ui_checkInput(void)
     checkPlayNoteButton(joyState);
     debounce(checkSelectionChangeButtons, joyState, currentSelection);
     debounce(checkValueChangeButtons, joyState, currentSelection);
-    updateUiIfRequired();
-}
-
-static void printGlobalParameters(u8 selection)
-{
-    for (u16 index = 0; index < GLOBAL_PARAMETER_COUNT; index++)
-    {
-        const u16 TOP_ROW = 3;
-        u16 row = index + TOP_ROW;
-        FmParameterUi *p = &globalParameterUis[index];
-        VDP_setTextPalette(PAL2);
-        VDP_drawText(p->name, 0, row);
-        VDP_setTextPalette(selection == index ? PAL3 : PAL0);
-        if (p->printFunc != NULL)
-        {
-            p->printFunc(p->fmParameter->value, row);
-        }
-        else
-        {
-            printNumber(p->fmParameter->value,
-                        p->minSize,
-                        10,
-                        row);
-        }
-    }
-}
-
-static void printFmParameters(u8 selection)
-{
-    for (u16 index = 0; index < FM_PARAMETER_COUNT; index++)
-    {
-        const u16 TOP_ROW = 5;
-        u16 row = index + TOP_ROW;
-        FmParameterUi *p = &fmParameterUis[index];
-        VDP_setTextPalette(PAL2);
-        VDP_drawText(p->name, 0, row);
-        VDP_setTextPalette(selection == index + GLOBAL_PARAMETER_COUNT ? PAL3 : PAL0);
-        if (p->printFunc != NULL)
-        {
-            p->printFunc(p->fmParameter->value, row);
-        }
-        else
-        {
-            printNumber(p->fmParameter->value,
-                        p->minSize,
-                        10,
-                        row);
-        }
-    }
-}
-
-static void printLFOFreq(u16 index, u16 row)
-{
-    const char TEXT[][8] = {"3.98Hz", "5.56Hz", "6.02Hz", "6.37Hz", "6.88Hz", "9.63Hz", "48.1Hz", "72.2Hz"};
-    printLookup(index, TEXT[index], row);
-}
-
-static void printOnOff(u16 index, u16 row)
-{
-    const char TEXT[][4] = {"Off", "On"};
-    printLookup(index, TEXT[index], row);
-}
-
-static void printNote(u16 index, u16 row)
-{
-    const char TEXT[][3] = {"B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#"};
-    printLookup(index, TEXT[index], row);
-}
-
-static void printStereo(u16 index, u16 row)
-{
-    const char TEXT[][4] = {"Off", "R", "L", "LR"};
-    printLookup(index, TEXT[index], row);
-}
-
-static void printAlgorithm(u16 index, u16 row)
-{
-    const char TEXT[][8] = {"1-2-3-4", "1/2-3-4", "1/23-4", "12/3-4", "1/3-2/4", "1-2/3/4", "12/3/4", "1/2/3/4"};
-    printLookup(index, TEXT[index], row);
-}
-
-static void printAms(u16 index, u16 row)
-{
-    const char TEXT[][7] = {"0", "1.4dB", "5.9dB", "11.8dB"};
-    printLookup(index, TEXT[index], row);
-}
-
-static void printFms(u16 index, u16 row)
-{
-    const char TEXT[][4] = {"0", "3.4", "6.7", "10", "14", "20", "40", "80"};
-    printLookup(index, TEXT[index], row);
-}
-
-static void printLookup(u16 index, const char *text, u16 row)
-{
-    char buffer[25];
-    sprintf(buffer, "%s (%u)     ", text, index);
-    VDP_drawText(buffer, 10, row);
-}
-
-static void printOperators(u8 selection)
-{
-    Channel *chan = synth_channel();
-    for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
-    {
-        Operator *op = channel_operator(chan, opIndex);
-        printOperatorHeader(op);
-        printOperator(op, selection);
-    }
-}
-
-static void printOperatorHeader(Operator *op)
-{
-    VDP_setTextPalette(PAL2);
-    char opHeader[4];
-    sprintf(opHeader, "Op%u", op->opNumber + 1);
-    VDP_drawText(opHeader, OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN, OPERATOR_TOP_ROW);
-    VDP_setTextPalette(PAL0);
-}
-
-static void printOperator(Operator *op, u8 selection)
-{
-    for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
-    {
-        u16 row = index + OPERATOR_TOP_ROW + 1;
-        if (op->opNumber == 0)
-        {
-            VDP_setTextPalette(PAL2);
-            VDP_drawText(opParameterUis[index].name, 0, row);
-            VDP_setTextPalette(PAL0);
-        }
-        if (selection - FM_PARAMETER_COUNT == GLOBAL_PARAMETER_COUNT + index + op->opNumber * OPERATOR_PARAMETER_COUNT)
-        {
-            VDP_setTextPalette(PAL3);
-        }
-        printNumber(operator_parameterValue(op, index),
-                    opParameterUis[index].minSize,
-                    OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN,
-                    row);
-        VDP_setTextPalette(PAL0);
-    }
-}
-
-static void printNumber(u16 number, u16 minSize, u16 x, u16 y)
-{
-    char str[5];
-    uintToStr(number, str, minSize);
-    VDP_drawText(str, x, y);
+    display_updateUiIfRequired(currentSelection);
 }
 
 static void checkPlayNoteButton(u16 joyState)
@@ -298,7 +78,7 @@ static void checkSelectionChangeButtons(u16 joyState, u8 selection)
         selection = 0;
     }
     currentSelection = selection;
-    requestUiUpdate();
+    display_requestUiUpdate();
 }
 
 static void checkValueChangeButtons(u16 joyState, u8 index)
@@ -320,15 +100,15 @@ static void checkValueChangeButtons(u16 joyState, u8 index)
 
 static void updateGlobalParameter(u16 joyState, u16 index)
 {
-    FmParameterUi *uiParameter = &globalParameterUis[index];
-    FmParameter *parameter = uiParameter->fmParameter;
+    Channel *chan = synth_channel();
+    FmParameter *parameter = synth_globalParameter(index);
     if (joyState & BUTTON_RIGHT)
     {
-        parameter->value += uiParameter->step;
+        parameter->value += 1;
     }
     else if (joyState & BUTTON_LEFT)
     {
-        parameter->value -= uiParameter->step;
+        parameter->value -= 1;
     }
     else
     {
@@ -342,22 +122,21 @@ static void updateGlobalParameter(u16 joyState, u16 index)
     {
         parameter->value = 0;
     }
-    Channel *chan = synth_channel();
     parameter->onUpdate(chan);
-    requestUiUpdate();
+    display_requestUiUpdate();
 }
 
 static void updateFmParameter(u16 joyState, u16 index)
 {
-    FmParameterUi *uiParameter = &fmParameterUis[index];
-    FmParameter *parameter = uiParameter->fmParameter;
+    Channel *chan = synth_channel();
+    FmParameter *parameter = channel_fmParameter(chan, index);
     if (joyState & BUTTON_RIGHT)
     {
-        parameter->value += uiParameter->step;
+        parameter->value += 1;
     }
     else if (joyState & BUTTON_LEFT)
     {
-        parameter->value -= uiParameter->step;
+        parameter->value -= 1;
     }
     else
     {
@@ -371,9 +150,8 @@ static void updateFmParameter(u16 joyState, u16 index)
     {
         parameter->value = 0;
     }
-    Channel *chan = synth_channel();
     parameter->onUpdate(chan);
-    requestUiUpdate();
+    display_requestUiUpdate();
 }
 
 static void updateOpParameter(u16 joyState, u16 index)
@@ -382,21 +160,20 @@ static void updateOpParameter(u16 joyState, u16 index)
     Operator *op = channel_operator(chan, index / OPERATOR_PARAMETER_COUNT);
     OpParameters opParameter = index % OPERATOR_PARAMETER_COUNT;
     u16 value = operator_parameterValue(op, opParameter);
-    u16 step = opParameterUis[opParameter].step;
     if (joyState & BUTTON_RIGHT)
     {
-        value += step;
+        value += 1;
     }
     else if (joyState & BUTTON_LEFT)
     {
-        value -= step;
+        value -= 1;
     }
     else
     {
         return;
     }
     operator_setParameterValue(op, opParameter, value);
-    requestUiUpdate();
+    display_requestUiUpdate();
 }
 
 static void debounce(DebouncedFunc func, u16 joyState, u8 selection)
@@ -420,19 +197,5 @@ static void debounce(DebouncedFunc func, u16 joyState, u8 selection)
     if (counter == 0)
     {
         func(joyState, selection);
-    }
-}
-
-static void requestUiUpdate(void)
-{
-    drawUi = true;
-}
-
-static void updateUiIfRequired(void)
-{
-    if (drawUi)
-    {
-        drawUi = false;
-        ui_draw();
     }
 }
