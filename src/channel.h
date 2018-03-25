@@ -1,5 +1,7 @@
+#pragma once
 #include <synth.h>
 
+#define OPERATOR_COUNT 4
 #define FM_PARAMETER_COUNT 8
 
 typedef enum {

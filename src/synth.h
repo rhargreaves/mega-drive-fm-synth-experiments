@@ -2,7 +2,6 @@
 #include <genesis.h>
 #include <operator.h>
 
-#define OPERATOR_COUNT 4
 #define GLOBAL_PARAMETER_COUNT 2
 
 typedef enum {
