@@ -29,7 +29,7 @@ static FmParameter fmParameters[] = {
     {"Octave   ", 1, 4, 7, 1, updateFreqAndOctave},
     {"Algorithm", 1, 0, 7, 1, updateAlgorithmAndFeedback},
     {"Feedback ", 1, 0, 7, 1, updateAlgorithmAndFeedback},
-    {"LFO AMS  ", 1, 0, 7, 1, updateStereoAndLFO},
+    {"LFO AMS  ", 1, 0, 3, 1, updateStereoAndLFO},
     {"LFO FMS  ", 1, 0, 7, 1, updateStereoAndLFO},
     {"Stereo   ", 1, 3, 3, 1, updateStereoAndLFO}};
 
@@ -88,7 +88,7 @@ void synth_stopNote(void)
 
 static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms)
 {
-    YM2612_writeReg(0, 0xB4, (stereo << 6) + (ams << 3) + fms);
+    YM2612_writeReg(0, 0xB4, (stereo << 6) + (ams << 4) + fms);
 }
 
 static void setGlobalLFO(u8 enable, u8 freq)

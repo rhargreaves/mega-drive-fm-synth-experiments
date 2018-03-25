@@ -29,6 +29,8 @@ static void printOperator(Operator *op);
 static void printOperatorHeader(Operator *op);
 static void printStereo(u16 index, u16 row);
 static void printAlgorithm(u16 index, u16 row);
+static void printAms(u16 index, u16 row);
+static void printFms(u16 index, u16 row);
 
 static u8 selection = 0;
 static bool drawUi = false;
@@ -79,6 +81,14 @@ static void printFmParameters(void)
         {
             printAlgorithm(p->value, row);
         }
+        else if (index == PARAMETER_LFO_AMS)
+        {
+            printAms(p->value, row);
+        }
+        else if (index == PARAMETER_LFO_FMS)
+        {
+            printFms(p->value, row);
+        }
         else
         {
             printNumber(p->value,
@@ -119,10 +129,22 @@ static void printAlgorithm(u16 index, u16 row)
     printLookup(index, TEXT[index], row);
 }
 
+static void printAms(u16 index, u16 row)
+{
+    const char TEXT[][7] = {"0", "1.4dB", "5.9dB", "11.8dB"};
+    printLookup(index, TEXT[index], row);
+}
+
+static void printFms(u16 index, u16 row)
+{
+    const char TEXT[][4] = {"0", "3.4", "6.7", "10", "14", "20", "40", "80"};
+    printLookup(index, TEXT[index], row);
+}
+
 static void printLookup(u16 index, const char *text, u16 row)
 {
-    char buffer[20];
-    sprintf(buffer, "%s (%u)  ", text, index);
+    char buffer[25];
+    sprintf(buffer, "%s (%u)     ", text, index);
     VDP_drawText(buffer, 10, row);
 }
 
