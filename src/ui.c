@@ -38,20 +38,19 @@ void ui_checkInput(void)
 
 static void checkPlayNoteButton(u16 joyState)
 {
-    Channel *chan = synth_channel();
     static bool playing = false;
     if (joyState & BUTTON_A)
     {
         if (!playing)
         {
-            channel_playNote(chan);
+            channel_playNote(currentChannel);
         }
         playing = true;
     }
     else
     {
         playing = false;
-        channel_stopNote(chan);
+        channel_stopNote(currentChannel);
     }
 }
 
@@ -100,7 +99,6 @@ static void checkValueChangeButtons(u16 joyState, u8 index)
 
 static void updateGlobalParameter(u16 joyState, u16 index)
 {
-    Channel *chan = synth_channel();
     FmParameter *parameter = synth_globalParameter(index);
     if (joyState & BUTTON_RIGHT)
     {
@@ -122,14 +120,13 @@ static void updateGlobalParameter(u16 joyState, u16 index)
     {
         parameter->value = 0;
     }
-    parameter->onUpdate(chan);
+    parameter->onUpdate(currentChannel);
     display_requestUiUpdate();
 }
 
 static void updateFmParameter(u16 joyState, u16 index)
 {
-    Channel *chan = synth_channel();
-    FmParameter *parameter = channel_fmParameter(chan, index);
+    FmParameter *parameter = channel_fmParameter(currentChannel, index);
     if (joyState & BUTTON_RIGHT)
     {
         parameter->value += 1;
@@ -150,14 +147,13 @@ static void updateFmParameter(u16 joyState, u16 index)
     {
         parameter->value = 0;
     }
-    parameter->onUpdate(chan);
+    parameter->onUpdate(currentChannel);
     display_requestUiUpdate();
 }
 
 static void updateOpParameter(u16 joyState, u16 index)
 {
-    Channel *chan = synth_channel();
-    Operator *op = channel_operator(chan, index / OPERATOR_PARAMETER_COUNT);
+    Operator *op = channel_operator(currentChannel, index / OPERATOR_PARAMETER_COUNT);
     OpParameters opParameter = index % OPERATOR_PARAMETER_COUNT;
     u16 value = operator_parameterValue(op, opParameter);
     if (joyState & BUTTON_RIGHT)
