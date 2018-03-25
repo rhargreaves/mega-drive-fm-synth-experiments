@@ -23,7 +23,7 @@ static Channel *currentChannel;
 
 void ui_init(void)
 {
-    currentChannel = synth_channel();
+    currentChannel = synth_channel(0);
     display_draw(currentChannel, currentSelection);
 }
 

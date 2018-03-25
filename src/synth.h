@@ -2,6 +2,7 @@
 #include <genesis.h>
 #include <channel.h>
 
+#define CHANNEL_COUNT 6
 #define GLOBAL_PARAMETER_COUNT 2
 
 typedef enum {
@@ -17,7 +18,7 @@ typedef struct Preset
 } Preset;
 
 void synth_init(void);
-Channel *synth_channel(void);
+Channel *synth_channel(u8 number);
 void synth_setGlobalParameterValue(GlobalParameters parameter, u16 value);
 u16 synth_globalParameterValue(GlobalParameters parameter);
 void synth_preset(const Preset *preset);
