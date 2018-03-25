@@ -5,7 +5,6 @@
 
 int main(void)
 {
-    VDP_setPalette(PAL0, font_pal_lib.data);
     VDP_setPaletteColor((PAL1 * 16) + 15, 0x0C55);
     VDP_setPaletteColor((PAL2 * 16) + 15, 0x00DE);
     VDP_setTextPalette(PAL2);
