@@ -14,6 +14,7 @@ static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState, u8 selection);
 static void checkValueChangeButtons(u16 joyState, u8 selection);
 static void updateGlobalParameter(u16 joyState, u16 index);
+static void updateParameter(u16 joyState, FmParameter *parameter);
 static void updateOpParameter(u16 joyState, u16 index);
 static void updateFmParameter(u16 joyState, u16 index);
 
@@ -99,34 +100,16 @@ static void checkValueChangeButtons(u16 joyState, u8 index)
 
 static void updateGlobalParameter(u16 joyState, u16 index)
 {
-    FmParameter *parameter = synth_globalParameter(index);
-    if (joyState & BUTTON_RIGHT)
-    {
-        parameter->value += 1;
-    }
-    else if (joyState & BUTTON_LEFT)
-    {
-        parameter->value -= 1;
-    }
-    else
-    {
-        return;
-    }
-    if (parameter->value == (u16)-1)
-    {
-        parameter->value = parameter->maxValue;
-    }
-    if (parameter->value > parameter->maxValue)
-    {
-        parameter->value = 0;
-    }
-    parameter->onUpdate(currentChannel);
-    display_requestUiUpdate();
+    updateParameter(joyState, synth_globalParameter(index));
 }
 
 static void updateFmParameter(u16 joyState, u16 index)
 {
-    FmParameter *parameter = channel_fmParameter(currentChannel, index);
+    updateParameter(joyState, channel_fmParameter(currentChannel, index));
+}
+
+static void updateParameter(u16 joyState, FmParameter *parameter)
+{
     if (joyState & BUTTON_RIGHT)
     {
         parameter->value += 1;
