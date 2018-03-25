@@ -3,7 +3,7 @@
 #include <operator.h>
 #include <channel.h>
 
-static void updateGlobalLFO(void);
+static void updateGlobalLFO(Channel *chan);
 static void setGlobalLFO(u8 enable, u8 freq);
 
 static Channel channel;
@@ -14,8 +14,8 @@ static FmParameter globalParameters[] = {
 
 void synth_init(void)
 {
-    channel_init(&channel);
-    updateGlobalLFO();
+    channel_init(&channel, 0);
+    updateGlobalLFO(&channel);
     YM2612_writeReg(0, 0x27, 0); // Ch 3 Normal
     YM2612_writeReg(0, 0x28, 0); // All channels off
     YM2612_writeReg(0, 0x28, 1);
@@ -44,7 +44,7 @@ static void setGlobalLFO(u8 enable, u8 freq)
     YM2612_writeReg(0, 0x22, (enable << 3) | freq);
 }
 
-static void updateGlobalLFO(void)
+static void updateGlobalLFO(Channel *chan)
 {
     setGlobalLFO(
         globalParameters[PARAMETER_G_LFO_ON].value,

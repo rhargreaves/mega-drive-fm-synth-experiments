@@ -17,6 +17,7 @@ struct FmParameter
 
 struct Channel
 {
+    u8 number;
     Operator operators[OPERATOR_COUNT];
     FmParameter fmParameters[FM_PARAMETER_COUNT];
 };
@@ -32,7 +33,7 @@ typedef enum {
     PARAMETER_STEREO
 } FmParameters;
 
-void channel_init(Channel *chan);
+void channel_init(Channel *chan, u8 number);
 FmParameter *channel_fmParameter(Channel *chan, FmParameters parameter);
 void channel_update(Channel *chan);
 Operator *channel_operator(Channel *chan, u8 opNumber);

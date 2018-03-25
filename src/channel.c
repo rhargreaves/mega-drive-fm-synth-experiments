@@ -24,8 +24,9 @@ Operator *channel_operator(Channel *chan, u8 opNumber)
     return &chan->operators[opNumber];
 }
 
-void channel_init(Channel *chan)
+void channel_init(Channel *chan, u8 number)
 {
+    chan->number = number;
     FmParameter fmParas[] = {
         {1, 11, updateNote},
         {653, 2047, updateFreqAndOctave},
