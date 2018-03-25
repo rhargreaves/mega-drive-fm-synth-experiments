@@ -12,12 +12,14 @@ typedef void DebouncedFunc(u16 joyState, u8 selection);
 static bool modifyValue(u16 joyState, u16 *value);
 static void debounce(DebouncedFunc func, u16 joyState, u8 selection);
 static void checkPlayNoteButton(u16 joyState);
+static void checkPlaySecondNoteButton(u16 joyState);
 static void checkChannelSwitch(u16 joyState, u8 selection);
 static void checkSelectionChangeButtons(u16 joyState, u8 selection);
 static void checkValueChangeButtons(u16 joyState, u8 selection);
 static void updateGlobalParameter(u16 joyState, u16 index);
 static void updateOpParameter(u16 joyState, u16 index);
 static void updateFmParameter(u16 joyState, u16 index);
+static u8 nextChannelNumber(u8 chanNum);
 
 static u8 currentSelection = 0;
 static Channel *currentChannel;
@@ -32,6 +34,7 @@ void ui_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
+    checkPlaySecondNoteButton(joyState);
     debounce(checkSelectionChangeButtons, joyState, currentSelection);
     debounce(checkValueChangeButtons, joyState, currentSelection);
     checkChannelSwitch(joyState, currentSelection);
@@ -42,14 +45,18 @@ static void checkChannelSwitch(u16 joyState, u8 selection)
 {
     if (joyState & BUTTON_START)
     {
-        u8 chanNum = (currentChannel->number) + 1;
-        if (chanNum == CHANNEL_COUNT)
-        {
-            chanNum = 0;
-        }
-        currentChannel = synth_channel(chanNum);
+        currentChannel = synth_channel(nextChannelNumber(currentChannel->number));
         display_requestUiUpdate();
     }
+}
+
+static u8 nextChannelNumber(u8 chanNum)
+{
+    if (++chanNum == CHANNEL_COUNT)
+    {
+        chanNum = 0;
+    }
+    return chanNum;
 }
 
 static void checkPlayNoteButton(u16 joyState)
@@ -67,6 +74,25 @@ static void checkPlayNoteButton(u16 joyState)
     {
         playing = false;
         channel_stopNote(currentChannel);
+    }
+}
+
+static void checkPlaySecondNoteButton(u16 joyState)
+{
+    static bool playing = false;
+    Channel *chan = synth_channel(nextChannelNumber(currentChannel->number));
+    if (joyState & BUTTON_B)
+    {
+        if (!playing)
+        {
+            channel_playNote(chan);
+        }
+        playing = true;
+    }
+    else
+    {
+        playing = false;
+        channel_stopNote(chan);
     }
 }
 
