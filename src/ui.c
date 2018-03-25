@@ -32,9 +32,9 @@ void ui_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
-    debounce(checkChannelSwitch, joyState, currentSelection);
     debounce(checkSelectionChangeButtons, joyState, currentSelection);
     debounce(checkValueChangeButtons, joyState, currentSelection);
+    checkChannelSwitch(joyState, currentSelection);
     display_updateUiIfRequired(currentChannel, currentSelection);
 }
 
