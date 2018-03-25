@@ -43,10 +43,19 @@ void ui_checkInput(void)
 
 static void checkChannelSwitch(u16 joyState, u8 selection)
 {
+    static bool scrolling = false;
     if (joyState & BUTTON_START)
     {
-        currentChannel = synth_channel(nextChannelNumber(currentChannel->number));
-        display_requestUiUpdate();
+        if (!scrolling)
+        {
+            currentChannel = synth_channel(nextChannelNumber(currentChannel->number));
+            display_requestUiUpdate();
+        }
+        scrolling = true;
+    }
+    else
+    {
+        scrolling = false;
     }
 }
 
