@@ -1,14 +1,12 @@
 #include <channel.h>
 
-static void updateAlgorithmAndFeedback(void);
-static void updateStereoAndLFO(void);
-static void updateFreqAndOctave(void);
-static void updateNote(void);
+static void updateAlgorithmAndFeedback(Channel *chan);
+static void updateStereoAndLFO(Channel *chan);
+static void updateFreqAndOctave(Channel *chan);
+static void updateNote(Channel *chan);
 static void setFrequency(u16 freq, u8 octave);
 static void setAlgorithm(u8 algorithm, u8 feedback);
 static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
-
-static Operator operators[OPERATOR_COUNT];
 
 static const u16 defaultOperatorValues[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT] =
     {{1, 1, 35, 1, 2, 1, 5, 2, 1, 1},
@@ -16,53 +14,53 @@ static const u16 defaultOperatorValues[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT]
      {3, 3, 38, 1, 31, 0, 5, 2, 1, 1},
      {1, 0, 0, 2, 25, 0, 7, 2, 10, 6}};
 
-static FmParameter fmParameters[] = {
-    {1, 11, updateNote},
-    {653, 2047, updateFreqAndOctave},
-    {4, 7, updateFreqAndOctave},
-    {0, 7, updateAlgorithmAndFeedback},
-    {0, 7, updateAlgorithmAndFeedback},
-    {0, 3, updateStereoAndLFO},
-    {0, 7, updateStereoAndLFO},
-    {3, 3, updateStereoAndLFO}};
-
-FmParameter *channel_fmParameter(FmParameters parameter)
+FmParameter *channel_fmParameter(Channel *chan, FmParameters parameter)
 {
-    return &fmParameters[parameter];
+    return &chan->fmParameters[parameter];
 }
 
-Operator *channel_operator(u8 opNumber)
+Operator *channel_operator(Channel *chan, u8 opNumber)
 {
-    return &operators[opNumber];
+    return &chan->operators[opNumber];
 }
 
-void channel_init(void)
+void channel_init(Channel *chan)
 {
+    FmParameter fmParas[] = {
+        {1, 11, updateNote},
+        {653, 2047, updateFreqAndOctave},
+        {4, 7, updateFreqAndOctave},
+        {0, 7, updateAlgorithmAndFeedback},
+        {0, 7, updateAlgorithmAndFeedback},
+        {0, 3, updateStereoAndLFO},
+        {0, 7, updateStereoAndLFO},
+        {3, 3, updateStereoAndLFO}};
+    memcpy(&chan->fmParameters[0], &fmParas, sizeof(FmParameter) * FM_PARAMETER_COUNT);
     for (u8 i = 0; i < OPERATOR_COUNT; i++)
     {
-        operator_init(&operators[i], i, &defaultOperatorValues[i][0]);
+        operator_init(&chan->operators[i], i, &defaultOperatorValues[i][0]);
     }
 }
 
-void channel_update(void)
+void channel_update(Channel *chan)
 {
     for (int i = 0; i < OPERATOR_COUNT; i++)
     {
-        operator_update(&operators[i]);
+        operator_update(&chan->operators[i]);
     }
-    updateAlgorithmAndFeedback();
-    updateStereoAndLFO();
-    updateFreqAndOctave();
+    updateAlgorithmAndFeedback(chan);
+    updateStereoAndLFO(chan);
+    updateFreqAndOctave(chan);
 }
 
-void channel_playNote(void)
+void channel_playNote(Channel *chan)
 {
     YM2612_writeReg(0, 0x28, 0x00); // Key off
-    channel_update();
+    channel_update(chan);
     YM2612_writeReg(0, 0x28, 0xF0); // Key On
 }
 
-void channel_stopNote(void)
+void channel_stopNote(Channel *chan)
 {
     YM2612_writeReg(0, 0x28, 0x00); // Key Off
 }
@@ -83,33 +81,33 @@ static void setAlgorithm(u8 algorithm, u8 feedback)
     YM2612_writeReg(0, 0xB0, algorithm | (feedback << 3));
 }
 
-static void updateNote(void)
+static void updateNote(Channel *chan)
 {
     const u16 notes_freq[] = {617, 653, 692, 733, 777, 823, 872, 924, 979, 1037, 1099, 1164};
-    u16 note_index = fmParameters[PARAMETER_NOTE].value;
+    u16 note_index = chan->fmParameters[PARAMETER_NOTE].value;
     u16 note_freq = notes_freq[note_index];
-    fmParameters[PARAMETER_FREQ].value = note_freq;
-    fmParameters[PARAMETER_FREQ].onUpdate();
+    chan->fmParameters[PARAMETER_FREQ].value = note_freq;
+    chan->fmParameters[PARAMETER_FREQ].onUpdate(chan);
 }
 
-static void updateStereoAndLFO(void)
+static void updateStereoAndLFO(Channel *chan)
 {
     setStereoAndLFO(
-        fmParameters[PARAMETER_STEREO].value,
-        fmParameters[PARAMETER_LFO_AMS].value,
-        fmParameters[PARAMETER_LFO_FMS].value);
+        chan->fmParameters[PARAMETER_STEREO].value,
+        chan->fmParameters[PARAMETER_LFO_AMS].value,
+        chan->fmParameters[PARAMETER_LFO_FMS].value);
 }
 
-static void updateFreqAndOctave(void)
+static void updateFreqAndOctave(Channel *chan)
 {
     setFrequency(
-        fmParameters[PARAMETER_FREQ].value,
-        fmParameters[PARAMETER_OCTAVE].value);
+        chan->fmParameters[PARAMETER_FREQ].value,
+        chan->fmParameters[PARAMETER_OCTAVE].value);
 }
 
-static void updateAlgorithmAndFeedback(void)
+static void updateAlgorithmAndFeedback(Channel *chan)
 {
     setAlgorithm(
-        fmParameters[PARAMETER_ALGORITHM].value,
-        fmParameters[PARAMETER_FEEDBACK].value);
+        chan->fmParameters[PARAMETER_ALGORITHM].value,
+        chan->fmParameters[PARAMETER_FEEDBACK].value);
 }

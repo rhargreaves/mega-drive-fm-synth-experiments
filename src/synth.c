@@ -6,13 +6,15 @@
 static void updateGlobalLFO(void);
 static void setGlobalLFO(u8 enable, u8 freq);
 
+static Channel channel;
+
 static FmParameter globalParameters[] = {
     {1, 1, updateGlobalLFO},
     {3, 7, updateGlobalLFO}};
 
 void synth_init(void)
 {
-    channel_init();
+    channel_init(&channel);
     updateGlobalLFO();
     YM2612_writeReg(0, 0x27, 0); // Ch 3 Normal
     YM2612_writeReg(0, 0x28, 0); // All channels off
@@ -25,6 +27,11 @@ void synth_init(void)
     YM2612_writeReg(0, 0x94, 0);
     YM2612_writeReg(0, 0x98, 0);
     YM2612_writeReg(0, 0x9C, 0);
+}
+
+Channel *synth_channel(void)
+{
+    return &channel;
 }
 
 FmParameter *synth_globalParameter(GlobalParameters parameter)

@@ -1,8 +1,25 @@
 #pragma once
-#include <synth.h>
+#include <genesis.h>
+#include <operator.h>
 
 #define OPERATOR_COUNT 4
 #define FM_PARAMETER_COUNT 8
+
+typedef struct Channel Channel;
+typedef struct FmParameter FmParameter;
+
+struct FmParameter
+{
+    u16 value;
+    const u16 maxValue;
+    void (*onUpdate)(Channel *chan);
+};
+
+struct Channel
+{
+    Operator operators[OPERATOR_COUNT];
+    FmParameter fmParameters[FM_PARAMETER_COUNT];
+};
 
 typedef enum {
     PARAMETER_NOTE,
@@ -15,9 +32,9 @@ typedef enum {
     PARAMETER_STEREO
 } FmParameters;
 
-void channel_init(void);
-FmParameter *channel_fmParameter(FmParameters parameter);
-void channel_update(void);
-Operator *channel_operator(u8 opNumber);
-void channel_playNote(void);
-void channel_stopNote(void);
+void channel_init(Channel *chan);
+FmParameter *channel_fmParameter(Channel *chan, FmParameters parameter);
+void channel_update(Channel *chan);
+Operator *channel_operator(Channel *chan, u8 opNumber);
+void channel_playNote(Channel *chan);
+void channel_stopNote(Channel *chan);

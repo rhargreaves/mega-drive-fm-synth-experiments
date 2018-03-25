@@ -81,13 +81,14 @@ static bool drawUi = false;
 
 void ui_init(void)
 {
+    Channel *chan = synth_channel();
     for (int i = 0; i < GLOBAL_PARAMETER_COUNT; i++)
     {
         globalParameterUis[i].fmParameter = synth_globalParameter(i);
     }
     for (int i = 0; i < FM_PARAMETER_COUNT; i++)
     {
-        fmParameterUis[i].fmParameter = channel_fmParameter(i);
+        fmParameterUis[i].fmParameter = channel_fmParameter(chan, i);
     }
 }
 
@@ -205,11 +206,12 @@ static void printLookup(u16 index, const char *text, u16 row)
     VDP_drawText(buffer, 10, row);
 }
 
-static void printOperators(void)
+static void printOperators()
 {
+    Channel *chan = synth_channel();
     for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
     {
-        Operator *op = channel_operator(opIndex);
+        Operator *op = channel_operator(chan, opIndex);
         printOperatorHeader(op);
         printOperator(op);
     }
@@ -256,19 +258,20 @@ static void printNumber(u16 number, u16 minSize, u16 x, u16 y)
 
 static void checkPlayNoteButton(u16 joyState)
 {
+    Channel *chan = synth_channel();
     static bool playing = false;
     if (joyState & BUTTON_A)
     {
         if (!playing)
         {
-            channel_playNote();
+            channel_playNote(chan);
         }
         playing = true;
     }
     else
     {
         playing = false;
-        channel_stopNote();
+        channel_stopNote(chan);
     }
 }
 
@@ -337,7 +340,8 @@ static void updateGlobalParameter(u16 joyState, u16 index)
     {
         parameter->value = 0;
     }
-    parameter->onUpdate();
+    Channel *chan = synth_channel();
+    parameter->onUpdate(chan);
     requestUiUpdate();
 }
 
@@ -365,13 +369,15 @@ static void updateFmParameter(u16 joyState, u16 index)
     {
         parameter->value = 0;
     }
-    parameter->onUpdate();
+    Channel *chan = synth_channel();
+    parameter->onUpdate(chan);
     requestUiUpdate();
 }
 
 static void updateOpParameter(u16 joyState, u16 index)
 {
-    Operator *op = channel_operator(index / OPERATOR_PARAMETER_COUNT);
+    Channel *chan = synth_channel();
+    Operator *op = channel_operator(chan, index / OPERATOR_PARAMETER_COUNT);
     OpParameters opParameter = index % OPERATOR_PARAMETER_COUNT;
     u16 value = operator_parameterValue(op, opParameter);
     u16 step = opParameterUis[opParameter].step;
