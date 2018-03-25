@@ -1,5 +1,6 @@
 #include <operator.h>
 #include <genesis.h>
+#include <megadrive.h>
 
 static void updateMulDt1(Operator *op);
 static void updateTotalLevel(Operator *op);
@@ -13,7 +14,6 @@ static void setRsAr(Operator *op, u8 rs, u8 ar);
 static void setAmD1r(Operator *op, u8 am, u8 d1r);
 static void setD2r(Operator *op, u8 d2r);
 static void setD1lRr(Operator *op, u8 d1l, u8 rr);
-static void writeReg(Operator *op, u8 baseReg, u8 data);
 
 struct OperatorParameter
 {
@@ -122,35 +122,30 @@ static void updateD1lRr(Operator *op)
 
 static void setMulDt1(Operator *op, u8 mul, u8 dt1)
 {
-    writeReg(op, 0x30 + (op->opNumber * 4), mul | (dt1 << 4));
+    megadrive_writeToYm2612(op->chanNumber, 0x30 + (op->opNumber * 4), mul | (dt1 << 4));
 }
 
 static void setTotalLevel(Operator *op, u8 totalLevel)
 {
-    writeReg(op, 0x40 + (op->opNumber * 4), totalLevel);
+    megadrive_writeToYm2612(op->chanNumber, 0x40 + (op->opNumber * 4), totalLevel);
 }
 
 static void setRsAr(Operator *op, u8 rs, u8 ar)
 {
-    writeReg(op, 0x50 + (op->opNumber * 4), ar | (rs << 6));
+    megadrive_writeToYm2612(op->chanNumber, 0x50 + (op->opNumber * 4), ar | (rs << 6));
 }
 
 static void setAmD1r(Operator *op, u8 am, u8 d1r)
 {
-    writeReg(op, 0x60 + (op->opNumber * 4), (am << 7) | d1r);
+    megadrive_writeToYm2612(op->chanNumber, 0x60 + (op->opNumber * 4), (am << 7) | d1r);
 }
 
 static void setD2r(Operator *op, u8 d2r)
 {
-    writeReg(op, 0x70 + (op->opNumber * 4), d2r);
+    megadrive_writeToYm2612(op->chanNumber, 0x70 + (op->opNumber * 4), d2r);
 }
 
 static void setD1lRr(Operator *op, u8 d1l, u8 rr)
 {
-    writeReg(op, 0x80 + (op->opNumber * 4), rr | (d1l << 4));
-}
-
-static void writeReg(Operator *op, u8 baseReg, u8 data)
-{
-    YM2612_writeReg(op->chanNumber > 2 ? 1 : 0, baseReg + (op->chanNumber % 3), data);
+    megadrive_writeToYm2612(op->chanNumber, 0x80 + (op->opNumber * 4), rr | (d1l << 4));
 }

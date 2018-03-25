@@ -1,4 +1,5 @@
 #include <channel.h>
+#include <megadrive.h>
 
 static void updateAlgorithmAndFeedback(Channel *chan);
 static void updateStereoAndLFO(Channel *chan);
@@ -7,7 +8,6 @@ static void updateNote(Channel *chan);
 static void setFrequency(Channel *chan, u16 freq, u8 octave);
 static void setAlgorithm(Channel *chan, u8 algorithm, u8 feedback);
 static void setStereoAndLFO(Channel *chan, u8 stereo, u8 ams, u8 fms);
-static void writeReg(Channel *chan, u8 baseReg, u8 data);
 static void keyOn(Channel *chan);
 static void keyOff(Channel *chan);
 static u8 keyRegValue(Channel *chan);
@@ -109,18 +109,18 @@ static u8 keyRegValue(Channel *chan)
 
 static void setStereoAndLFO(Channel *chan, u8 stereo, u8 ams, u8 fms)
 {
-    writeReg(chan, 0xB4, (stereo << 6) | (ams << 4) | fms);
+    megadrive_writeToYm2612(chan->number, 0xB4, (stereo << 6) | (ams << 4) | fms);
 }
 
 static void setFrequency(Channel *chan, u16 freq, u8 octave)
 {
-    writeReg(chan, 0xA4, (freq >> 8) | (octave << 3));
-    writeReg(chan, 0xA0, freq);
+    megadrive_writeToYm2612(chan->number, 0xA4, (freq >> 8) | (octave << 3));
+    megadrive_writeToYm2612(chan->number, 0xA0, freq);
 }
 
 static void setAlgorithm(Channel *chan, u8 algorithm, u8 feedback)
 {
-    writeReg(chan, 0xB0, algorithm | (feedback << 3));
+    megadrive_writeToYm2612(chan->number, 0xB0, algorithm | (feedback << 3));
 }
 
 static void updateNote(Channel *chan)
@@ -152,9 +152,4 @@ static void updateAlgorithmAndFeedback(Channel *chan)
     setAlgorithm(chan,
                  chan->fmParameters[PARAMETER_ALGORITHM].value,
                  chan->fmParameters[PARAMETER_FEEDBACK].value);
-}
-
-static void writeReg(Channel *chan, u8 baseReg, u8 data)
-{
-    YM2612_writeReg(chan->number > 2 ? 1 : 0, baseReg + (chan->number % 3), data);
 }
