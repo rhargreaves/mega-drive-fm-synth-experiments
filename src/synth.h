@@ -11,4 +11,5 @@ typedef enum {
 
 void synth_init(void);
 Channel *synth_channel(void);
-FmParameter *synth_globalParameter(GlobalParameters parameter);
+void synth_setGlobalParameterValue(GlobalParameters parameter, u16 value);
+u16 synth_globalParameterValue(GlobalParameters parameter);

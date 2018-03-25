@@ -34,8 +34,9 @@ typedef enum {
 } FmParameters;
 
 void channel_init(Channel *chan, u8 number);
-FmParameter *channel_fmParameter(Channel *chan, FmParameters parameter);
 void channel_update(Channel *chan);
 Operator *channel_operator(Channel *chan, u8 opNumber);
 void channel_playNote(Channel *chan);
 void channel_stopNote(Channel *chan);
+void channel_setParameterValue(Channel *chan, FmParameters parameter, u16 value);
+u16 channel_parameterValue(Channel *chan, FmParameters parameter);

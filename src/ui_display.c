@@ -14,8 +14,8 @@ static void printOnOff(u16 index, u16 row);
 static void printLFOFreq(u16 index, u16 row);
 static void printLookup(u16 index, const char *text, u16 row);
 static void printGlobalParameters(u8 selection);
-static void printFmParameters(u8 selection);
-static void printOperators(u8 selection);
+static void printFmParameters(Channel *chan, u8 selection);
+static void printOperators(Channel *chan, u8 selection);
 static void printOperator(Operator *op, u8 selection);
 static void printOperatorHeader(Operator *op);
 static void printStereo(u16 index, u16 row);
@@ -53,21 +53,17 @@ static bool drawUi = false;
 
 void display_init(Channel *chan)
 {
-    for (int i = 0; i < GLOBAL_PARAMETER_COUNT; i++)
-    {
-        globalParameterUis[i].fmParameter = synth_globalParameter(i);
-    }
     for (int i = 0; i < FM_PARAMETER_COUNT; i++)
     {
         fmParameterUis[i].fmParameter = channel_fmParameter(chan, i);
     }
 }
 
-void display_draw(u8 selection)
+void display_draw(Channel *chan, u8 selection)
 {
     printGlobalParameters(selection);
-    printFmParameters(selection);
-    printOperators(selection);
+    printFmParameters(chan, selection);
+    printOperators(chan, selection);
     VDP_setTextPalette(PAL0);
 }
 
@@ -76,12 +72,12 @@ void display_requestUiUpdate(void)
     drawUi = true;
 }
 
-void display_updateUiIfRequired(u8 selection)
+void display_updateUiIfRequired(Channel *chan, u8 selection)
 {
     if (drawUi)
     {
         drawUi = false;
-        display_draw(selection);
+        display_draw(chan, selection);
     }
 }
 
@@ -95,13 +91,14 @@ static void printGlobalParameters(u8 selection)
         VDP_setTextPalette(PAL2);
         VDP_drawText(p->name, 0, row);
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
+        u16 value = synth_globalParameterValue(index);
         if (p->printFunc != NULL)
         {
-            p->printFunc(p->fmParameter->value, row);
+            p->printFunc(value, row);
         }
         else
         {
-            printNumber(p->fmParameter->value,
+            printNumber(value,
                         p->minSize,
                         10,
                         row);
@@ -109,7 +106,7 @@ static void printGlobalParameters(u8 selection)
     }
 }
 
-static void printFmParameters(u8 selection)
+static void printFmParameters(Channel *chan, u8 selection)
 {
     for (u16 index = 0; index < FM_PARAMETER_COUNT; index++)
     {
@@ -119,17 +116,60 @@ static void printFmParameters(u8 selection)
         VDP_setTextPalette(PAL2);
         VDP_drawText(p->name, 0, row);
         VDP_setTextPalette(selection == index + GLOBAL_PARAMETER_COUNT ? PAL3 : PAL0);
+        u16 value = channel_parameterValue(chan, index);
         if (p->printFunc != NULL)
         {
-            p->printFunc(p->fmParameter->value, row);
+            p->printFunc(value, row);
         }
         else
         {
-            printNumber(p->fmParameter->value,
+            printNumber(value,
                         p->minSize,
                         10,
                         row);
         }
+    }
+}
+
+static void printOperators(Channel *chan, u8 selection)
+{
+    for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
+    {
+        Operator *op = channel_operator(chan, opIndex);
+        printOperatorHeader(op);
+        printOperator(op, selection);
+    }
+}
+
+static void printOperatorHeader(Operator *op)
+{
+    VDP_setTextPalette(PAL2);
+    char opHeader[4];
+    sprintf(opHeader, "Op%u", op->opNumber + 1);
+    VDP_drawText(opHeader, OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN, OPERATOR_TOP_ROW);
+    VDP_setTextPalette(PAL0);
+}
+
+static void printOperator(Operator *op, u8 selection)
+{
+    for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
+    {
+        u16 row = index + OPERATOR_TOP_ROW + 1;
+        if (op->opNumber == 0)
+        {
+            VDP_setTextPalette(PAL2);
+            VDP_drawText(opParameterUis[index].name, 0, row);
+            VDP_setTextPalette(PAL0);
+        }
+        if (selection - FM_PARAMETER_COUNT == GLOBAL_PARAMETER_COUNT + index + op->opNumber * OPERATOR_PARAMETER_COUNT)
+        {
+            VDP_setTextPalette(PAL3);
+        }
+        printNumber(operator_parameterValue(op, index),
+                    opParameterUis[index].minSize,
+                    OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN,
+                    row);
+        VDP_setTextPalette(PAL0);
     }
 }
 
@@ -180,49 +220,6 @@ static void printLookup(u16 index, const char *text, u16 row)
     char buffer[25];
     sprintf(buffer, "%s (%u)     ", text, index);
     VDP_drawText(buffer, 10, row);
-}
-
-static void printOperators(u8 selection)
-{
-    Channel *chan = synth_channel();
-    for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
-    {
-        Operator *op = channel_operator(chan, opIndex);
-        printOperatorHeader(op);
-        printOperator(op, selection);
-    }
-}
-
-static void printOperatorHeader(Operator *op)
-{
-    VDP_setTextPalette(PAL2);
-    char opHeader[4];
-    sprintf(opHeader, "Op%u", op->opNumber + 1);
-    VDP_drawText(opHeader, OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN, OPERATOR_TOP_ROW);
-    VDP_setTextPalette(PAL0);
-}
-
-static void printOperator(Operator *op, u8 selection)
-{
-    for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
-    {
-        u16 row = index + OPERATOR_TOP_ROW + 1;
-        if (op->opNumber == 0)
-        {
-            VDP_setTextPalette(PAL2);
-            VDP_drawText(opParameterUis[index].name, 0, row);
-            VDP_setTextPalette(PAL0);
-        }
-        if (selection - FM_PARAMETER_COUNT == GLOBAL_PARAMETER_COUNT + index + op->opNumber * OPERATOR_PARAMETER_COUNT)
-        {
-            VDP_setTextPalette(PAL3);
-        }
-        printNumber(operator_parameterValue(op, index),
-                    opParameterUis[index].minSize,
-                    OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN,
-                    row);
-        VDP_setTextPalette(PAL0);
-    }
 }
 
 static void printNumber(u16 number, u16 minSize, u16 x, u16 y)

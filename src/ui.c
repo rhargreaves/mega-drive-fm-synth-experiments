@@ -14,7 +14,6 @@ static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState, u8 selection);
 static void checkValueChangeButtons(u16 joyState, u8 selection);
 static void updateGlobalParameter(u16 joyState, u16 index);
-static void updateParameter(u16 joyState, FmParameter *parameter);
 static void updateOpParameter(u16 joyState, u16 index);
 static void updateFmParameter(u16 joyState, u16 index);
 
@@ -25,7 +24,7 @@ void ui_init(void)
 {
     currentChannel = synth_channel();
     display_init(currentChannel);
-    display_draw(currentSelection);
+    display_draw(currentChannel, currentSelection);
 }
 
 void ui_checkInput(void)
@@ -34,7 +33,7 @@ void ui_checkInput(void)
     checkPlayNoteButton(joyState);
     debounce(checkSelectionChangeButtons, joyState, currentSelection);
     debounce(checkValueChangeButtons, joyState, currentSelection);
-    display_updateUiIfRequired(currentSelection);
+    display_updateUiIfRequired(currentChannel, currentSelection);
 }
 
 static void checkPlayNoteButton(u16 joyState)
@@ -100,37 +99,39 @@ static void checkValueChangeButtons(u16 joyState, u8 index)
 
 static void updateGlobalParameter(u16 joyState, u16 index)
 {
-    updateParameter(joyState, synth_globalParameter(index));
-}
-
-static void updateFmParameter(u16 joyState, u16 index)
-{
-    updateParameter(joyState, channel_fmParameter(currentChannel, index));
-}
-
-static void updateParameter(u16 joyState, FmParameter *parameter)
-{
+    u16 value = synth_globalParameterValue(index);
     if (joyState & BUTTON_RIGHT)
     {
-        parameter->value += 1;
+        value++;
     }
     else if (joyState & BUTTON_LEFT)
     {
-        parameter->value -= 1;
+        value--;
     }
     else
     {
         return;
     }
-    if (parameter->value == (u16)-1)
+    synth_setGlobalParameterValue(index, value);
+    display_requestUiUpdate();
+}
+
+static void updateFmParameter(u16 joyState, u16 index)
+{
+    u16 value = channel_parameterValue(currentChannel, index);
+    if (joyState & BUTTON_RIGHT)
     {
-        parameter->value = parameter->maxValue;
+        value++;
     }
-    if (parameter->value > parameter->maxValue)
+    else if (joyState & BUTTON_LEFT)
     {
-        parameter->value = 0;
+        value--;
     }
-    parameter->onUpdate(currentChannel);
+    else
+    {
+        return;
+    }
+    channel_setParameterValue(currentChannel, index, value);
     display_requestUiUpdate();
 }
 

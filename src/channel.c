@@ -66,6 +66,25 @@ void channel_stopNote(Channel *chan)
     YM2612_writeReg(0, 0x28, 0x00); // Key Off
 }
 
+void channel_setParameterValue(Channel *chan, FmParameters parameter, u16 value)
+{
+    FmParameter *fmParameter = &chan->fmParameters[parameter];
+    if (value == (u16)-1)
+    {
+        value = fmParameter->maxValue;
+    }
+    if (value > fmParameter->maxValue)
+    {
+        value = 0;
+    }
+    fmParameter->value = value;
+}
+
+u16 channel_parameterValue(Channel *chan, FmParameters parameter)
+{
+    return chan->fmParameters[parameter].value;
+}
+
 static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms)
 {
     YM2612_writeReg(0, 0xB4, (stereo << 6) | (ams << 4) | fms);

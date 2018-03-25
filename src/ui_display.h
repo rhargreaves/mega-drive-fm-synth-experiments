@@ -17,6 +17,6 @@ typedef struct
 } OperatorParameterUi;
 
 void display_init(Channel *chan);
-void display_draw(u8 selection);
-void display_updateUiIfRequired(u8 selection);
+void display_draw(Channel *chan, u8 selection);
+void display_updateUiIfRequired(Channel *chan, u8 selection);
 void display_requestUiUpdate(void);

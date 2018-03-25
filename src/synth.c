@@ -39,6 +39,26 @@ FmParameter *synth_globalParameter(GlobalParameters parameter)
     return &globalParameters[parameter];
 }
 
+void synth_setGlobalParameterValue(GlobalParameters parameter, u16 value)
+{
+    FmParameter *fmParameter = &globalParameters[parameter];
+    if (value == (u16)-1)
+    {
+        value = fmParameter->maxValue;
+    }
+    if (value > fmParameter->maxValue)
+    {
+        value = 0;
+    }
+    fmParameter->value = value;
+    fmParameter->onUpdate(NULL);
+}
+
+u16 synth_globalParameterValue(GlobalParameters parameter)
+{
+    return globalParameters[parameter].value;
+}
+
 static void setGlobalLFO(u8 enable, u8 freq)
 {
     YM2612_writeReg(0, 0x22, (enable << 3) | freq);
