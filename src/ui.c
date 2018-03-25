@@ -16,19 +16,8 @@ typedef struct
     const u16 minSize;
     const u8 step;
     FmParameter *fmParameter;
+    void (*printFunc)(u16 index, u16 row);
 } FmParameterUi;
-
-static FmParameterUi fmParameterUis[] = {
-    {"Glob LFO ", 1, 1},
-    {"LFO Freq ", 1, 1},
-    {"Note     ", 2, 1},
-    {"Freq Num ", 4, 4},
-    {"Octave   ", 1, 1},
-    {"Algorithm", 1, 1},
-    {"Feedback ", 1, 1},
-    {"LFO AMS  ", 1, 1},
-    {"LFO FMS  ", 1, 1},
-    {"Stereo   ", 1, 1}};
 
 static void updateUiIfRequired(void);
 static void requestUiUpdate(void);
@@ -41,7 +30,6 @@ static void printNote(u16 index, u16 row);
 static void printOnOff(u16 index, u16 row);
 static void printLFOFreq(u16 index, u16 row);
 static void printLookup(u16 index, const char *text, u16 row);
-static void printFmParameter(u16 value, u16 minSize, u16 index, u16 row);
 static void updateOpParameter(u16 joyState);
 static void updateFmParameter(u16 joyState);
 static void printFmParameters(void);
@@ -52,6 +40,18 @@ static void printStereo(u16 index, u16 row);
 static void printAlgorithm(u16 index, u16 row);
 static void printAms(u16 index, u16 row);
 static void printFms(u16 index, u16 row);
+
+static FmParameterUi fmParameterUis[] = {
+    {"Glob LFO ", 1, 1, NULL, printOnOff},
+    {"LFO Freq ", 1, 1, NULL, printLFOFreq},
+    {"Note     ", 2, 1, NULL, printNote},
+    {"Freq Num ", 4, 4, NULL, NULL},
+    {"Octave   ", 1, 1, NULL, NULL},
+    {"Algorithm", 1, 1, NULL, printAlgorithm},
+    {"Feedback ", 1, 1, NULL, NULL},
+    {"LFO AMS  ", 1, 1, NULL, printAms},
+    {"LFO FMS  ", 1, 1, NULL, printFms},
+    {"Stereo   ", 1, 1, NULL, printStereo}};
 
 static u8 selection = 0;
 static bool drawUi = false;
@@ -90,46 +90,17 @@ static void printFmParameters(void)
         VDP_setTextPalette(PAL2);
         VDP_drawText(p->name, 0, row);
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
-        printFmParameter(p->fmParameter->value, p->minSize, index, row);
-    }
-}
-
-static void printFmParameter(u16 value, u16 minSize, u16 index, u16 row)
-{
-    if (index == PARAMETER_NOTE)
-    {
-        printNote(value, row);
-    }
-    else if (index == PARAMETER_G_LFO_FREQ)
-    {
-        printLFOFreq(value, row);
-    }
-    else if (index == PARAMETER_G_LFO_ON)
-    {
-        printOnOff(value, row);
-    }
-    else if (index == PARAMETER_STEREO)
-    {
-        printStereo(value, row);
-    }
-    else if (index == PARAMETER_ALGORITHM)
-    {
-        printAlgorithm(value, row);
-    }
-    else if (index == PARAMETER_LFO_AMS)
-    {
-        printAms(value, row);
-    }
-    else if (index == PARAMETER_LFO_FMS)
-    {
-        printFms(value, row);
-    }
-    else
-    {
-        printNumber(value,
-                    minSize,
-                    10,
-                    row);
+        if (p->printFunc != NULL)
+        {
+            p->printFunc(p->fmParameter->value, row);
+        }
+        else
+        {
+            printNumber(p->fmParameter->value,
+                        p->minSize,
+                        10,
+                        row);
+        }
     }
 }
 
