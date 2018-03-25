@@ -50,13 +50,13 @@ u16 operator_parameterValue(Operator *op, OpParameters parameter)
 void operator_setParameterValue(Operator *op, OpParameters parameter, u16 value)
 {
     const OperatorParameter *p = &op->parameters[parameter];
-    if (value > p->maxValue)
-    {
-        value = 0;
-    }
     if (value == (u16)-1)
     {
         value = p->maxValue;
+    }
+    if (value > p->maxValue)
+    {
+        value = 0;
     }
     op->parameterValues[parameter] = value;
     op->parameters[parameter].onUpdate(op);

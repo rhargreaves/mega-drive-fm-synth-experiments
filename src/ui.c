@@ -8,7 +8,7 @@
 #define OPERATOR_TOP_ROW 14
 #define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
 
-typedef void _debouncedFunc(u16 joyState);
+typedef void DebouncedFunc(u16 joyState, u8 selection);
 
 typedef struct
 {
@@ -28,10 +28,10 @@ typedef struct
 
 static void updateUiIfRequired(void);
 static void requestUiUpdate(void);
-static void debounce(_debouncedFunc func, u16 joyState);
+static void debounce(DebouncedFunc func, u16 joyState, u8 selection);
 static void checkPlayNoteButton(u16 joyState);
-static void checkSelectionChangeButtons(u16 joyState);
-static void checkValueChangeButtons(u16 joyState);
+static void checkSelectionChangeButtons(u16 joyState, u8 selection);
+static void checkValueChangeButtons(u16 joyState, u8 selection);
 static void printNumber(u16 number, u16 minSize, u16 x, u16 y);
 static void printNote(u16 index, u16 row);
 static void printOnOff(u16 index, u16 row);
@@ -40,10 +40,10 @@ static void printLookup(u16 index, const char *text, u16 row);
 static void updateGlobalParameter(u16 joyState, u16 index);
 static void updateOpParameter(u16 joyState, u16 index);
 static void updateFmParameter(u16 joyState, u16 index);
-static void printGlobalParameters(void);
-static void printFmParameters(void);
-static void printOperators(void);
-static void printOperator(Operator *op);
+static void printGlobalParameters(u8 selection);
+static void printFmParameters(u8 selection);
+static void printOperators(u8 selection);
+static void printOperator(Operator *op, u8 selection);
 static void printOperatorHeader(Operator *op);
 static void printStereo(u16 index, u16 row);
 static void printAlgorithm(u16 index, u16 row);
@@ -76,7 +76,7 @@ static OperatorParameterUi opParameterUis[] = {
     {"Sub Level", 2, 1},
     {"Rel Rate", 2, 1}};
 
-static u8 selection = 0;
+static u8 currentSelection = 0;
 static bool drawUi = false;
 
 void ui_init(void)
@@ -94,9 +94,9 @@ void ui_init(void)
 
 void ui_draw(void)
 {
-    printGlobalParameters();
-    printFmParameters();
-    printOperators();
+    printGlobalParameters(currentSelection);
+    printFmParameters(currentSelection);
+    printOperators(currentSelection);
     VDP_setTextPalette(PAL0);
 }
 
@@ -104,12 +104,12 @@ void ui_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
-    debounce(checkSelectionChangeButtons, joyState);
-    debounce(checkValueChangeButtons, joyState);
+    debounce(checkSelectionChangeButtons, joyState, currentSelection);
+    debounce(checkValueChangeButtons, joyState, currentSelection);
     updateUiIfRequired();
 }
 
-static void printGlobalParameters(void)
+static void printGlobalParameters(u8 selection)
 {
     for (u16 index = 0; index < GLOBAL_PARAMETER_COUNT; index++)
     {
@@ -133,7 +133,7 @@ static void printGlobalParameters(void)
     }
 }
 
-static void printFmParameters(void)
+static void printFmParameters(u8 selection)
 {
     for (u16 index = 0; index < FM_PARAMETER_COUNT; index++)
     {
@@ -206,14 +206,14 @@ static void printLookup(u16 index, const char *text, u16 row)
     VDP_drawText(buffer, 10, row);
 }
 
-static void printOperators()
+static void printOperators(u8 selection)
 {
     Channel *chan = synth_channel();
     for (u16 opIndex = 0; opIndex < OPERATOR_COUNT; opIndex++)
     {
         Operator *op = channel_operator(chan, opIndex);
         printOperatorHeader(op);
-        printOperator(op);
+        printOperator(op, selection);
     }
 }
 
@@ -226,7 +226,7 @@ static void printOperatorHeader(Operator *op)
     VDP_setTextPalette(PAL0);
 }
 
-static void printOperator(Operator *op)
+static void printOperator(Operator *op, u8 selection)
 {
     for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
     {
@@ -275,7 +275,7 @@ static void checkPlayNoteButton(u16 joyState)
     }
 }
 
-static void checkSelectionChangeButtons(u16 joyState)
+static void checkSelectionChangeButtons(u16 joyState, u8 selection)
 {
     if (joyState & BUTTON_DOWN)
     {
@@ -297,23 +297,25 @@ static void checkSelectionChangeButtons(u16 joyState)
     {
         selection = 0;
     }
+    currentSelection = selection;
     requestUiUpdate();
 }
 
-static void checkValueChangeButtons(u16 joyState)
+static void checkValueChangeButtons(u16 joyState, u8 index)
 {
-    if (selection < GLOBAL_PARAMETER_COUNT)
+    if (index < GLOBAL_PARAMETER_COUNT)
     {
-        updateGlobalParameter(joyState, selection);
+        updateGlobalParameter(joyState, index);
+        return;
     }
-    else if (selection < GLOBAL_PARAMETER_COUNT + FM_PARAMETER_COUNT)
+    index -= GLOBAL_PARAMETER_COUNT;
+    if (index < FM_PARAMETER_COUNT)
     {
-        updateFmParameter(joyState, selection - GLOBAL_PARAMETER_COUNT);
+        updateFmParameter(joyState, index);
+        return;
     }
-    else
-    {
-        updateOpParameter(joyState, selection - GLOBAL_PARAMETER_COUNT - FM_PARAMETER_COUNT);
-    }
+    index -= FM_PARAMETER_COUNT;
+    updateOpParameter(joyState, index);
 }
 
 static void updateGlobalParameter(u16 joyState, u16 index)
@@ -397,7 +399,7 @@ static void updateOpParameter(u16 joyState, u16 index)
     requestUiUpdate();
 }
 
-static void debounce(_debouncedFunc func, u16 joyState)
+static void debounce(DebouncedFunc func, u16 joyState, u8 selection)
 {
     const u8 REPEAT_RATE = 2;
     static u16 counter;
@@ -417,7 +419,7 @@ static void debounce(_debouncedFunc func, u16 joyState)
     }
     if (counter == 0)
     {
-        func(joyState);
+        func(joyState, selection);
     }
 }
 
