@@ -22,8 +22,8 @@ static OperatorDefinition defaultOperatorDefinitions[OPERATOR_COUNT] =
      {1, 0, 0, 2, 25, 0, 7, 2, 10, 6}};
 
 static FmParameter fmParameters[] = {
-    {"G.LFO On ", 1, 1, 1, 1, updateGlobalLFO},
-    {"G.LFO Frq", 1, 3, 7, 1, updateGlobalLFO},
+    {"Glob LFO ", 1, 1, 1, 1, updateGlobalLFO},
+    {"LFO Freq ", 1, 3, 7, 1, updateGlobalLFO},
     {"Note     ", 2, 1, 11, 1, updateNote},
     {"Freq Num ", 4, 653, 2047, 4, updateFreqAndOctave},
     {"Octave   ", 1, 4, 7, 1, updateFreqAndOctave},

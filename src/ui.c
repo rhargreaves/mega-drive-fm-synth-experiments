@@ -17,13 +17,18 @@ static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState);
 static void checkValueChangeButtons(u16 joyState);
 static void printNumber(u16 number, u16 minSize, u16 x, u16 y);
-static void printNote(const char *name, u16 index, u16 row);
+static void printNote(u16 index, u16 row);
+static void printOnOff(u16 index, u16 row);
+static void printLFOFreq(u16 index, u16 row);
+static void printLookup(u16 index, const char *text, u16 row);
 static void updateOpParameter(u16 joyState);
 static void updateFmParameter(u16 joyState);
 static void printFmParameters(void);
 static void printOperators(void);
 static void printOperator(Operator *op);
 static void printOperatorHeader(Operator *op);
+static void printStereo(u16 index, u16 row);
+static void printAlgorithm(u16 index, u16 row);
 
 static u8 selection = 0;
 static bool drawUi = false;
@@ -56,7 +61,23 @@ static void printFmParameters(void)
         VDP_setTextPalette(selection == index ? PAL3 : PAL0);
         if (index == PARAMETER_NOTE)
         {
-            printNote(p->name, p->value, row);
+            printNote(p->value, row);
+        }
+        else if (index == PARAMETER_G_LFO_FREQ)
+        {
+            printLFOFreq(p->value, row);
+        }
+        else if (index == PARAMETER_G_LFO_ON)
+        {
+            printOnOff(p->value, row);
+        }
+        else if (index == PARAMETER_STEREO)
+        {
+            printStereo(p->value, row);
+        }
+        else if (index == PARAMETER_ALGORITHM)
+        {
+            printAlgorithm(p->value, row);
         }
         else
         {
@@ -68,11 +89,41 @@ static void printFmParameters(void)
     }
 }
 
-static void printNote(const char *name, u16 index, u16 row)
+static void printLFOFreq(u16 index, u16 row)
 {
-    const char NOTES_TEXT[][3] = {"B ", "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#"};
-    const char *noteText = NOTES_TEXT[index];
-    VDP_drawText(noteText, 10, row);
+    const char TEXT[][8] = {"3.98Hz", "5.56Hz", "6.02Hz", "6.37Hz", "6.88Hz", "9.63Hz", "48.1Hz", "72.2Hz"};
+    printLookup(index, TEXT[index], row);
+}
+
+static void printOnOff(u16 index, u16 row)
+{
+    const char TEXT[][4] = {"Off", "On"};
+    printLookup(index, TEXT[index], row);
+}
+
+static void printNote(u16 index, u16 row)
+{
+    const char TEXT[][3] = {"B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#"};
+    printLookup(index, TEXT[index], row);
+}
+
+static void printStereo(u16 index, u16 row)
+{
+    const char TEXT[][4] = {"Off", "R", "L", "LR"};
+    printLookup(index, TEXT[index], row);
+}
+
+static void printAlgorithm(u16 index, u16 row)
+{
+    const char TEXT[][8] = {"1-2-3-4", "1/2-3-4", "1/23-4", "12/3-4", "1/3-2/4", "1-2/3/4", "12/3/4", "1/2/3/4"};
+    printLookup(index, TEXT[index], row);
+}
+
+static void printLookup(u16 index, const char *text, u16 row)
+{
+    char buffer[20];
+    sprintf(buffer, "%s (%u)  ", text, index);
+    VDP_drawText(buffer, 10, row);
 }
 
 static void printOperators(void)
