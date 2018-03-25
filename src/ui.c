@@ -7,7 +7,6 @@
 #define OPERATOR_TOP_ROW 14
 #define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
 
-typedef void _changeValueFunc();
 typedef void _debouncedFunc(u16 joyState);
 
 typedef struct
