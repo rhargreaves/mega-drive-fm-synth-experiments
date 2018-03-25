@@ -31,7 +31,7 @@ static void printAms(u16 index, u16 row);
 static void printFms(u16 index, u16 row);
 
 static FmParameterUi globalParameterUis[] = {
-    {"Glob LFO", 1, NULL, printOnOff},
+    {"Globl LFO", 1, NULL, printOnOff},
     {"LFO Freq", 1, NULL, printLFOFreq}};
 
 static FmParameterUi fmParameterUis[] = {
