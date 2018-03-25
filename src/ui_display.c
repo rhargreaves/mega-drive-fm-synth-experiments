@@ -4,9 +4,15 @@
 #include <stdbool.h>
 #include <ui_display.h>
 
-#define OPERATOR_VALUE_COLUMN 11
+#define PAL_HEADING PAL1
+#define PAL_SELECTION PAL2
+
+#define GLOBAL_PARAMETERS_TOP_ROW 2
+#define FM_PARAMETERS_VALUE_COLUMN 10
+#define FM_PARAMETERS_TOP_ROW 6
+#define OPERATOR_VALUE_COLUMN 10
 #define OPERATOR_VALUE_WIDTH 6
-#define OPERATOR_TOP_ROW 14
+#define OPERATOR_TOP_ROW 15
 
 static void printNumber(u16 number, u16 minSize, u16 x, u16 y);
 static void printNote(u16 index, u16 row);
@@ -14,6 +20,7 @@ static void printOnOff(u16 index, u16 row);
 static void printLFOFreq(u16 index, u16 row);
 static void printLookup(u16 index, const char *text, u16 row);
 static void printGlobalParameters(u8 selection);
+static void printFmHeader(Channel *chan);
 static void printFmParameters(Channel *chan, u8 selection);
 static void printOperators(Channel *chan, u8 selection);
 static void printOperator(Operator *op, u8 selection);
@@ -41,7 +48,7 @@ static OperatorParameterUi opParameterUis[] = {
     {"Detune", 1},
     {"Multiple", 2},
     {"Total Lvl", 3},
-    {"Rate Scale", 1},
+    {"Rate Scl", 1},
     {"Atck Rate", 2},
     {"Ampl Mode", 1},
     {"1st Decay", 2},
@@ -77,12 +84,11 @@ static void printGlobalParameters(u8 selection)
 {
     for (u16 index = 0; index < GLOBAL_PARAMETER_COUNT; index++)
     {
-        const u16 TOP_ROW = 3;
-        u16 row = index + TOP_ROW;
+        u16 row = index + GLOBAL_PARAMETERS_TOP_ROW;
         FmParameterUi *p = &globalParameterUis[index];
-        VDP_setTextPalette(PAL2);
+        VDP_setTextPalette(PAL_HEADING);
         VDP_drawText(p->name, 0, row);
-        VDP_setTextPalette(selection == index ? PAL3 : PAL0);
+        VDP_setTextPalette(selection == index ? PAL_SELECTION : PAL0);
         u16 value = synth_globalParameterValue(index);
         if (p->printFunc != NULL)
         {
@@ -92,7 +98,7 @@ static void printGlobalParameters(u8 selection)
         {
             printNumber(value,
                         p->minSize,
-                        10,
+                        FM_PARAMETERS_VALUE_COLUMN,
                         row);
         }
     }
@@ -100,14 +106,14 @@ static void printGlobalParameters(u8 selection)
 
 static void printFmParameters(Channel *chan, u8 selection)
 {
+    printFmHeader(chan);
     for (u16 index = 0; index < FM_PARAMETER_COUNT; index++)
     {
-        const u16 TOP_ROW = 5;
-        u16 row = index + TOP_ROW;
+        u16 row = index + FM_PARAMETERS_TOP_ROW;
         FmParameterUi *p = &fmParameterUis[index];
-        VDP_setTextPalette(PAL2);
+        VDP_setTextPalette(PAL_HEADING);
         VDP_drawText(p->name, 0, row);
-        VDP_setTextPalette(selection == index + GLOBAL_PARAMETER_COUNT ? PAL3 : PAL0);
+        VDP_setTextPalette(selection == index + GLOBAL_PARAMETER_COUNT ? PAL_SELECTION : PAL0);
         u16 value = channel_parameterValue(chan, index);
         if (p->printFunc != NULL)
         {
@@ -117,7 +123,7 @@ static void printFmParameters(Channel *chan, u8 selection)
         {
             printNumber(value,
                         p->minSize,
-                        10,
+                        FM_PARAMETERS_VALUE_COLUMN,
                         row);
         }
     }
@@ -133,9 +139,18 @@ static void printOperators(Channel *chan, u8 selection)
     }
 }
 
+static void printFmHeader(Channel *chan)
+{
+    VDP_setTextPalette(PAL_HEADING);
+    char opHeader[4];
+    sprintf(opHeader, "Ch%u", chan->number + 1);
+    VDP_drawText(opHeader, FM_PARAMETERS_VALUE_COLUMN, FM_PARAMETERS_TOP_ROW - 1);
+    VDP_setTextPalette(PAL0);
+}
+
 static void printOperatorHeader(Operator *op)
 {
-    VDP_setTextPalette(PAL2);
+    VDP_setTextPalette(PAL_HEADING);
     char opHeader[4];
     sprintf(opHeader, "Op%u", op->opNumber + 1);
     VDP_drawText(opHeader, OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN, OPERATOR_TOP_ROW);
@@ -149,13 +164,13 @@ static void printOperator(Operator *op, u8 selection)
         u16 row = index + OPERATOR_TOP_ROW + 1;
         if (op->opNumber == 0)
         {
-            VDP_setTextPalette(PAL2);
+            VDP_setTextPalette(PAL_HEADING);
             VDP_drawText(opParameterUis[index].name, 0, row);
             VDP_setTextPalette(PAL0);
         }
         if (selection - FM_PARAMETER_COUNT == GLOBAL_PARAMETER_COUNT + index + op->opNumber * OPERATOR_PARAMETER_COUNT)
         {
-            VDP_setTextPalette(PAL3);
+            VDP_setTextPalette(PAL_SELECTION);
         }
         printNumber(operator_parameterValue(op, index),
                     opParameterUis[index].minSize,
@@ -217,6 +232,7 @@ static void printLookup(u16 index, const char *text, u16 row)
 static void printNumber(u16 number, u16 minSize, u16 x, u16 y)
 {
     char str[5];
+    //sprintf(str, "%u  ", number);
     uintToStr(number, str, minSize);
     VDP_drawText(str, x, y);
 }
