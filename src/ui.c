@@ -9,6 +9,7 @@
 
 typedef void DebouncedFunc(u16 joyState, u8 selection);
 
+static bool modifyValue(u16 joyState, u16 *value);
 static void debounce(DebouncedFunc func, u16 joyState, u8 selection);
 static void checkPlayNoteButton(u16 joyState);
 static void checkSelectionChangeButtons(u16 joyState, u8 selection);
@@ -99,15 +100,7 @@ static void checkValueChangeButtons(u16 joyState, u8 index)
 static void updateGlobalParameter(u16 joyState, u16 index)
 {
     u16 value = synth_globalParameterValue(index);
-    if (joyState & BUTTON_RIGHT)
-    {
-        value++;
-    }
-    else if (joyState & BUTTON_LEFT)
-    {
-        value--;
-    }
-    else
+    if (!modifyValue(joyState, &value))
     {
         return;
     }
@@ -118,15 +111,7 @@ static void updateGlobalParameter(u16 joyState, u16 index)
 static void updateFmParameter(u16 joyState, u16 index)
 {
     u16 value = channel_parameterValue(currentChannel, index);
-    if (joyState & BUTTON_RIGHT)
-    {
-        value++;
-    }
-    else if (joyState & BUTTON_LEFT)
-    {
-        value--;
-    }
-    else
+    if (!modifyValue(joyState, &value))
     {
         return;
     }
@@ -139,20 +124,29 @@ static void updateOpParameter(u16 joyState, u16 index)
     Operator *op = channel_operator(currentChannel, index / OPERATOR_PARAMETER_COUNT);
     OpParameters opParameter = index % OPERATOR_PARAMETER_COUNT;
     u16 value = operator_parameterValue(op, opParameter);
-    if (joyState & BUTTON_RIGHT)
-    {
-        value += 1;
-    }
-    else if (joyState & BUTTON_LEFT)
-    {
-        value -= 1;
-    }
-    else
+    if (!modifyValue(joyState, &value))
     {
         return;
     }
     operator_setParameterValue(op, opParameter, value);
     display_requestUiUpdate();
+}
+
+static bool modifyValue(u16 joyState, u16 *value)
+{
+    if (joyState & BUTTON_RIGHT)
+    {
+        (*value)++;
+    }
+    else if (joyState & BUTTON_LEFT)
+    {
+        (*value)--;
+    }
+    else
+    {
+        return false;
+    }
+    return true;
 }
 
 static void debounce(DebouncedFunc func, u16 joyState, u8 selection)
