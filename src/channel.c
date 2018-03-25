@@ -4,9 +4,13 @@ static void updateAlgorithmAndFeedback(Channel *chan);
 static void updateStereoAndLFO(Channel *chan);
 static void updateFreqAndOctave(Channel *chan);
 static void updateNote(Channel *chan);
-static void setFrequency(u16 freq, u8 octave);
-static void setAlgorithm(u8 algorithm, u8 feedback);
-static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
+static void setFrequency(Channel *chan, u16 freq, u8 octave);
+static void setAlgorithm(Channel *chan, u8 algorithm, u8 feedback);
+static void setStereoAndLFO(Channel *chan, u8 stereo, u8 ams, u8 fms);
+static void writeReg(Channel *chan, u8 baseReg, u8 data);
+static void keyOn(Channel *chan);
+static void keyOff(Channel *chan);
+static u8 keyRegValue(Channel *chan);
 
 static const u16 defaultOperatorValues[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT] =
     {{1, 1, 35, 1, 2, 1, 5, 2, 1, 1},
@@ -39,7 +43,7 @@ void channel_init(Channel *chan, u8 number)
     memcpy(&chan->fmParameters[0], &fmParas, sizeof(FmParameter) * FM_PARAMETER_COUNT);
     for (u8 i = 0; i < OPERATOR_COUNT; i++)
     {
-        operator_init(&chan->operators[i], i, &defaultOperatorValues[i][0]);
+        operator_init(&chan->operators[i], i, chan->number, &defaultOperatorValues[i][0]);
     }
 }
 
@@ -56,14 +60,14 @@ void channel_update(Channel *chan)
 
 void channel_playNote(Channel *chan)
 {
-    YM2612_writeReg(0, 0x28, 0x00); // Key off
+    keyOff(chan);
     channel_update(chan);
-    YM2612_writeReg(0, 0x28, 0xF0); // Key On
+    keyOn(chan);
 }
 
 void channel_stopNote(Channel *chan)
 {
-    YM2612_writeReg(0, 0x28, 0x00); // Key Off
+    keyOff(chan);
 }
 
 void channel_setParameterValue(Channel *chan, FmParameters parameter, u16 value)
@@ -86,20 +90,37 @@ u16 channel_parameterValue(Channel *chan, FmParameters parameter)
     return chan->fmParameters[parameter].value;
 }
 
-static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms)
+static void keyOn(Channel *chan)
 {
-    YM2612_writeReg(0, 0xB4, (stereo << 6) | (ams << 4) | fms);
+    u8 chanRegValue = keyRegValue(chan);
+    YM2612_writeReg(0, 0x28, 0xF0 | chanRegValue);
+}
+static void keyOff(Channel *chan)
+{
+    u8 chanRegValue = keyRegValue(chan);
+    YM2612_writeReg(0, 0x28, 0x00 | chanRegValue);
 }
 
-static void setFrequency(u16 freq, u8 octave)
+static u8 keyRegValue(Channel *chan)
 {
-    YM2612_writeReg(0, 0xA4, (freq >> 8) | (octave << 3));
-    YM2612_writeReg(0, 0xA0, freq);
+    u8 channelReg = chan->number;
+    return (chan->number > 2) ? channelReg + 1 : channelReg;
 }
 
-static void setAlgorithm(u8 algorithm, u8 feedback)
+static void setStereoAndLFO(Channel *chan, u8 stereo, u8 ams, u8 fms)
 {
-    YM2612_writeReg(0, 0xB0, algorithm | (feedback << 3));
+    writeReg(chan, 0xB4, (stereo << 6) | (ams << 4) | fms);
+}
+
+static void setFrequency(Channel *chan, u16 freq, u8 octave)
+{
+    writeReg(chan, 0xA4, (freq >> 8) | (octave << 3));
+    writeReg(chan, 0xA0, freq);
+}
+
+static void setAlgorithm(Channel *chan, u8 algorithm, u8 feedback)
+{
+    writeReg(chan, 0xB0, algorithm | (feedback << 3));
 }
 
 static void updateNote(Channel *chan)
@@ -113,22 +134,27 @@ static void updateNote(Channel *chan)
 
 static void updateStereoAndLFO(Channel *chan)
 {
-    setStereoAndLFO(
-        chan->fmParameters[PARAMETER_STEREO].value,
-        chan->fmParameters[PARAMETER_LFO_AMS].value,
-        chan->fmParameters[PARAMETER_LFO_FMS].value);
+    setStereoAndLFO(chan,
+                    chan->fmParameters[PARAMETER_STEREO].value,
+                    chan->fmParameters[PARAMETER_LFO_AMS].value,
+                    chan->fmParameters[PARAMETER_LFO_FMS].value);
 }
 
 static void updateFreqAndOctave(Channel *chan)
 {
-    setFrequency(
-        chan->fmParameters[PARAMETER_FREQ].value,
-        chan->fmParameters[PARAMETER_OCTAVE].value);
+    setFrequency(chan,
+                 chan->fmParameters[PARAMETER_FREQ].value,
+                 chan->fmParameters[PARAMETER_OCTAVE].value);
 }
 
 static void updateAlgorithmAndFeedback(Channel *chan)
 {
-    setAlgorithm(
-        chan->fmParameters[PARAMETER_ALGORITHM].value,
-        chan->fmParameters[PARAMETER_FEEDBACK].value);
+    setAlgorithm(chan,
+                 chan->fmParameters[PARAMETER_ALGORITHM].value,
+                 chan->fmParameters[PARAMETER_FEEDBACK].value);
+}
+
+static void writeReg(Channel *chan, u8 baseReg, u8 data)
+{
+    YM2612_writeReg(chan->number > 2 ? 1 : 0, baseReg + (chan->number % 3), data);
 }
