@@ -16,7 +16,7 @@ static void setStereoAndLFO(u8 stereo, u8 ams, u8 fms);
 static Operator operators[OPERATOR_COUNT];
 
 static u16 defaultOperatorValues[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT] =
-    {{1, 1, 35, 15, 2, 1, 5, 2, 1, 1},
+    {{1, 1, 35, 1, 2, 1, 5, 2, 1, 1},
      {13, 0, 45, 2, 25, 0, 36, 2, 1, 1},
      {3, 3, 38, 1, 31, 0, 5, 2, 1, 1},
      {1, 0, 0, 2, 25, 0, 7, 2, 10, 6}};

@@ -16,24 +16,21 @@ static void setD1lRr(u8 opNum, u8 d1l, u8 rr);
 
 struct OperatorParameter
 {
-    const char name[12];
-    const u16 minSize;
     const u16 maxValue;
-    const u8 step;
     void (*onUpdate)(Operator *op);
 };
 
-static OperatorParameter parameters[OPERATOR_PARAMETER_COUNT] = {
-    {"Multiple", 2, 15, 1, updateMulDt1},
-    {"Detune", 1, 7, 1, updateMulDt1},
-    {"Total Lvl", 3, 127, 1, updateTotalLevel},
-    {"Rate Scale", 1, 2, 1, updateRsAr},
-    {"Atck Rate", 2, 31, 1, updateRsAr},
-    {"Ampl Mode", 1, 1, 1, updateAmD1r},
-    {"1st Decay", 2, 31, 1, updateAmD1r},
-    {"2nd Decay", 2, 31, 1, updateD2r},
-    {"Sub Level", 2, 15, 1, updateD1lRr},
-    {"Rel Rate", 2, 15, 1, updateD1lRr}};
+static const OperatorParameter parameters[OPERATOR_PARAMETER_COUNT] = {
+    {15, updateMulDt1},
+    {7, updateMulDt1},
+    {127, updateTotalLevel},
+    {3, updateRsAr},
+    {31, updateRsAr},
+    {1, updateAmD1r},
+    {31, updateAmD1r},
+    {31, updateD2r},
+    {15, updateD1lRr},
+    {15, updateD1lRr}};
 
 void operator_init(Operator *op, u8 opNumber, const u16 parameterValues[OPERATOR_PARAMETER_COUNT])
 {
@@ -50,24 +47,9 @@ u16 operator_parameterValue(Operator *op, OpParameters parameter)
     return op->parameterValues[parameter];
 }
 
-const char *operator_parameterName(Operator *op, OpParameters parameter)
-{
-    return &op->parameters[parameter].name[0];
-}
-
-u16 operator_parameterMinSize(Operator *op, OpParameters parameter)
-{
-    return op->parameters[parameter].minSize;
-}
-
-u8 operator_parameterStep(Operator *op, OpParameters parameter)
-{
-    return op->parameters[parameter].step;
-}
-
 void operator_setParameterValue(Operator *op, OpParameters parameter, u16 value)
 {
-    OperatorParameter *p = &op->parameters[parameter];
+    const OperatorParameter *p = &op->parameters[parameter];
     if (value > p->maxValue)
     {
         value = 0;

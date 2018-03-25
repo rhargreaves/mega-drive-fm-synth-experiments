@@ -18,6 +18,13 @@ typedef struct
     void (*printFunc)(u16 index, u16 row);
 } FmParameterUi;
 
+typedef struct
+{
+    const char name[10];
+    const u16 minSize;
+    const u8 step;
+} OperatorParameterUi;
+
 static void updateUiIfRequired(void);
 static void requestUiUpdate(void);
 static void debounce(_debouncedFunc func, u16 joyState);
@@ -41,16 +48,28 @@ static void printAms(u16 index, u16 row);
 static void printFms(u16 index, u16 row);
 
 static FmParameterUi fmParameterUis[] = {
-    {"Glob LFO ", 1, 1, NULL, printOnOff},
-    {"LFO Freq ", 1, 1, NULL, printLFOFreq},
-    {"Note     ", 2, 1, NULL, printNote},
-    {"Freq Num ", 4, 4, NULL, NULL},
-    {"Octave   ", 1, 1, NULL, NULL},
+    {"Glob LFO", 1, 1, NULL, printOnOff},
+    {"LFO Freq", 1, 1, NULL, printLFOFreq},
+    {"Note", 2, 1, NULL, printNote},
+    {"Freq Num", 4, 4, NULL, NULL},
+    {"Octave", 1, 1, NULL, NULL},
     {"Algorithm", 1, 1, NULL, printAlgorithm},
-    {"Feedback ", 1, 1, NULL, NULL},
-    {"LFO AMS  ", 1, 1, NULL, printAms},
-    {"LFO FMS  ", 1, 1, NULL, printFms},
-    {"Stereo   ", 1, 1, NULL, printStereo}};
+    {"Feedback", 1, 1, NULL, NULL},
+    {"LFO AMS", 1, 1, NULL, printAms},
+    {"LFO FMS", 1, 1, NULL, printFms},
+    {"Stereo", 1, 1, NULL, printStereo}};
+
+static OperatorParameterUi opParameterUis[] = {
+    {"Multiple", 2, 1},
+    {"Detune", 1, 1},
+    {"Total Lvl", 3, 1},
+    {"Rate Scale", 1, 1},
+    {"Atck Rate", 2, 1},
+    {"Ampl Mode", 1, 1},
+    {"1st Decay", 2, 1},
+    {"2nd Decay", 2, 1},
+    {"Sub Level", 2, 1},
+    {"Rel Rate", 2, 1}};
 
 static u8 selection = 0;
 static bool drawUi = false;
@@ -179,7 +198,7 @@ static void printOperator(Operator *op)
         if (op->opNumber == 0)
         {
             VDP_setTextPalette(PAL2);
-            VDP_drawText(operator_parameterName(op, index), 0, row);
+            VDP_drawText(opParameterUis[index].name, 0, row);
             VDP_setTextPalette(PAL0);
         }
         if (selection - FM_PARAMETER_COUNT == index + op->opNumber * OPERATOR_PARAMETER_COUNT)
@@ -187,7 +206,7 @@ static void printOperator(Operator *op)
             VDP_setTextPalette(PAL3);
         }
         printNumber(operator_parameterValue(op, index),
-                    operator_parameterMinSize(op, index),
+                    opParameterUis[index].minSize,
                     OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN,
                     row);
         VDP_setTextPalette(PAL0);
@@ -290,7 +309,7 @@ static void updateOpParameter(u16 joyState)
     Operator *op = synth_operator(opParaIndex / OPERATOR_PARAMETER_COUNT);
     OpParameters opParameter = opParaIndex % OPERATOR_PARAMETER_COUNT;
     u16 value = operator_parameterValue(op, opParameter);
-    u16 step = operator_parameterStep(op, opParameter);
+    u16 step = opParameterUis[opParameter].step;
     if (joyState & BUTTON_RIGHT)
     {
         value += step;
