@@ -12,6 +12,7 @@ typedef void DebouncedFunc(u16 joyState, u8 selection);
 static bool modifyValue(u16 joyState, u16 *value);
 static void debounce(DebouncedFunc func, u16 joyState, u8 selection);
 static void checkPlayNoteButton(u16 joyState);
+static void checkChannelSwitch(u16 joyState, u8 selection);
 static void checkSelectionChangeButtons(u16 joyState, u8 selection);
 static void checkValueChangeButtons(u16 joyState, u8 selection);
 static void updateGlobalParameter(u16 joyState, u16 index);
@@ -31,9 +32,24 @@ void ui_checkInput(void)
 {
     u16 joyState = JOY_readJoypad(JOY_1);
     checkPlayNoteButton(joyState);
+    debounce(checkChannelSwitch, joyState, currentSelection);
     debounce(checkSelectionChangeButtons, joyState, currentSelection);
     debounce(checkValueChangeButtons, joyState, currentSelection);
     display_updateUiIfRequired(currentChannel, currentSelection);
+}
+
+static void checkChannelSwitch(u16 joyState, u8 selection)
+{
+    if (joyState & BUTTON_START)
+    {
+        u8 chanNum = (currentChannel->number) + 1;
+        if (chanNum == CHANNEL_COUNT)
+        {
+            chanNum = 0;
+        }
+        currentChannel = synth_channel(chanNum);
+        display_requestUiUpdate();
+    }
 }
 
 static void checkPlayNoteButton(u16 joyState)
