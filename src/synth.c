@@ -59,6 +59,26 @@ u16 synth_globalParameterValue(GlobalParameters parameter)
     return globalParameters[parameter].value;
 }
 
+void synth_preset(const Preset *preset)
+{
+    for (u16 p = 0; p < GLOBAL_PARAMETER_COUNT; p++)
+    {
+        synth_setGlobalParameterValue(p, preset->globalParameters[p]);
+    }
+    for (u16 p = 0; p < FM_PARAMETER_COUNT; p++)
+    {
+        channel_setParameterValue(&channel, p, preset->channelParameters[p]);
+    }
+    for (u16 o = 0; o < OPERATOR_COUNT; o++)
+    {
+        Operator *op = channel_operator(&channel, o);
+        for (u16 p = 0; p < OPERATOR_PARAMETER_COUNT; p++)
+        {
+            operator_setParameterValue(op, p, preset->operatorParameters[o][p]);
+        }
+    }
+}
+
 static void setGlobalLFO(u8 enable, u8 freq)
 {
     YM2612_writeReg(0, 0x22, (enable << 3) | freq);

@@ -38,8 +38,8 @@ static FmParameterUi fmParameterUis[] = {
     {"Stereo", 1, NULL, printStereo}};
 
 static OperatorParameterUi opParameterUis[] = {
-    {"Multiple", 2},
     {"Detune", 1},
+    {"Multiple", 2},
     {"Total Lvl", 3},
     {"Rate Scale", 1},
     {"Atck Rate", 2},
