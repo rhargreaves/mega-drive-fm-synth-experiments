@@ -41,13 +41,13 @@ void operator_init(Operator *op, u8 opNumber, u16 parameterValues[OPERATOR_PARAM
     op->parameters = &parameters[0];
     for (int i = 0; i < OPERATOR_PARAMETER_COUNT; i++)
     {
-        op->parameterValue[i] = parameterValues[i];
+        op->parameterValues[i] = parameterValues[i];
     }
 }
 
 u16 operator_parameterValue(Operator *op, OpParameters parameter)
 {
-    return op->parameterValue[parameter];
+    return op->parameterValues[parameter];
 }
 
 const char *operator_parameterName(Operator *op, OpParameters parameter)
@@ -76,7 +76,7 @@ void operator_setParameterValue(Operator *op, OpParameters parameter, u16 value)
     {
         value = p->maxValue;
     }
-    op->parameterValue[parameter] = value;
+    op->parameterValues[parameter] = value;
     op->parameters[parameter].onUpdate(op);
 }
 
@@ -94,46 +94,46 @@ static void updateMulDt1(Operator *op)
 {
     setMulDt1(
         op->opNumber,
-        op->parameterValue[OP_PARAMETER_MUL],
-        op->parameterValue[OP_PARAMETER_DT1]);
+        op->parameterValues[OP_PARAMETER_MUL],
+        op->parameterValues[OP_PARAMETER_DT1]);
 }
 
 static void updateTotalLevel(Operator *op)
 {
     setTotalLevel(
         op->opNumber,
-        op->parameterValue[OP_PARAMETER_TL]);
+        op->parameterValues[OP_PARAMETER_TL]);
 }
 
 static void updateRsAr(Operator *op)
 {
     setRsAr(
         op->opNumber,
-        op->parameterValue[OP_PARAMETER_RS],
-        op->parameterValue[OP_PARAMETER_AR]);
+        op->parameterValues[OP_PARAMETER_RS],
+        op->parameterValues[OP_PARAMETER_AR]);
 }
 
 static void updateAmD1r(Operator *op)
 {
     setAmD1r(
         op->opNumber,
-        op->parameterValue[OP_PARAMETER_AM],
-        op->parameterValue[OP_PARAMETER_D1R]);
+        op->parameterValues[OP_PARAMETER_AM],
+        op->parameterValues[OP_PARAMETER_D1R]);
 }
 
 static void updateD2r(Operator *op)
 {
     setD2r(
         op->opNumber,
-        op->parameterValue[OP_PARAMETER_D2R]);
+        op->parameterValues[OP_PARAMETER_D2R]);
 }
 
 static void updateD1lRr(Operator *op)
 {
     setD1lRr(
         op->opNumber,
-        op->parameterValue[OP_PARAMETER_D1L],
-        op->parameterValue[OP_PARAMETER_RR]);
+        op->parameterValues[OP_PARAMETER_D1L],
+        op->parameterValues[OP_PARAMETER_RR]);
 }
 
 static void setMulDt1(u8 opNum, u8 mul, u8 dt1)
