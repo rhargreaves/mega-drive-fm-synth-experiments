@@ -21,8 +21,8 @@ struct OperatorParameter
 };
 
 static const OperatorParameter parameters[OPERATOR_PARAMETER_COUNT] = {
-    {15, updateMulDt1},
     {7, updateMulDt1},
+    {15, updateMulDt1},
     {127, updateTotalLevel},
     {3, updateRsAr},
     {31, updateRsAr},

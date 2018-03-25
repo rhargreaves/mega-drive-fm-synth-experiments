@@ -8,7 +8,7 @@ int main(void)
     VDP_setTextPalette(PAL2);
     VDP_drawText("Yamaha 2612 Test", 11, 0);
     synth_init();
-    synth_preset(&PRESET_CASTLEVANIA);
+    synth_preset(&PRESET_CASTLEVANIA_2);
     ui_init();
     while (TRUE)
     {
