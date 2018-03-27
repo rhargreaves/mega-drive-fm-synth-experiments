@@ -16,6 +16,7 @@ typedef struct
     const u16 minSize;
 } OperatorParameterUi;
 
+void display_init(void);
 void display_draw(Channel *chan, u8 selection);
 void display_updateUiIfRequired(Channel *chan, u8 selection);
 void display_requestUiUpdate(void);

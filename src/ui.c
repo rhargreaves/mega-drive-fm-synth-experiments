@@ -6,14 +6,10 @@
 #include <ui_display.h>
 
 #define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
-
-typedef void DebouncedFunc(u16 joyState, u8 selection);
+#define INPUT_RESOLUTION 5
 
 static bool modifyValue(u16 joyState, u16 *value);
-static void debounce(DebouncedFunc func, u16 joyState, u8 selection);
-static void checkPlayNoteButton(u16 joyState);
-static void checkPlaySecondNoteButton(u16 joyState);
-static void checkChannelSwitch(u16 joyState, u8 selection);
+static void checkPlayButton(u16 joyState, u16 button, Channel *channel, u16 *lastJoyState);
 static void checkSelectionChangeButtons(u16 joyState, u8 selection);
 static void checkValueChangeButtons(u16 joyState, u8 selection);
 static void updateGlobalParameter(u16 joyState, u16 index);
@@ -26,37 +22,41 @@ static Channel *currentChannel;
 
 void ui_init(void)
 {
+    display_init();
     currentChannel = synth_channel(0);
     display_draw(currentChannel, currentSelection);
 }
 
 void ui_checkInput(void)
 {
+    static u16 lastJoyStateA, lastJoyStateB;
+    static u16 tick = 0;
     u16 joyState = JOY_readJoypad(JOY_1);
-    checkPlayNoteButton(joyState);
-    checkPlaySecondNoteButton(joyState);
-    debounce(checkSelectionChangeButtons, joyState, currentSelection);
-    debounce(checkValueChangeButtons, joyState, currentSelection);
-    checkChannelSwitch(joyState, currentSelection);
-    display_updateUiIfRequired(currentChannel, currentSelection);
-}
 
-static void checkChannelSwitch(u16 joyState, u8 selection)
-{
-    static bool scrolling = false;
-    if (joyState & BUTTON_START)
+    checkPlayButton(joyState, BUTTON_A,
+                    currentChannel, &lastJoyStateA);
+    checkPlayButton(joyState, BUTTON_B,
+                    synth_channel(nextChannelNumber(currentChannel->number)), &lastJoyStateB);
+
+    if (tick % INPUT_RESOLUTION == 0)
     {
-        if (!scrolling)
+        if (joyState & BUTTON_LEFT || joyState & BUTTON_RIGHT)
+        {
+            checkValueChangeButtons(joyState, currentSelection);
+        }
+        else if (joyState & BUTTON_UP || joyState & BUTTON_DOWN)
+        {
+            checkSelectionChangeButtons(joyState, currentSelection);
+        }
+        else if (joyState & BUTTON_START)
         {
             currentChannel = synth_channel(nextChannelNumber(currentChannel->number));
             display_requestUiUpdate();
         }
-        scrolling = true;
     }
-    else
-    {
-        scrolling = false;
-    }
+
+    display_updateUiIfRequired(currentChannel, currentSelection);
+    tick++;
 }
 
 static u8 nextChannelNumber(u8 chanNum)
@@ -68,41 +68,20 @@ static u8 nextChannelNumber(u8 chanNum)
     return chanNum;
 }
 
-static void checkPlayNoteButton(u16 joyState)
+static void checkPlayButton(u16 joyState, u16 button, Channel *channel, u16 *lastJoyState)
 {
-    static bool playing = false;
-    if (joyState & BUTTON_A)
+    if (joyState & button)
     {
-        if (!playing)
+        if (!(*lastJoyState & button))
         {
-            channel_playNote(currentChannel);
+            channel_playNote(channel);
         }
-        playing = true;
     }
     else
     {
-        playing = false;
-        channel_stopNote(currentChannel);
+        channel_stopNote(channel);
     }
-}
-
-static void checkPlaySecondNoteButton(u16 joyState)
-{
-    static bool playing = false;
-    Channel *chan = synth_channel(nextChannelNumber(currentChannel->number));
-    if (joyState & BUTTON_B)
-    {
-        if (!playing)
-        {
-            channel_playNote(chan);
-        }
-        playing = true;
-    }
-    else
-    {
-        playing = false;
-        channel_stopNote(chan);
-    }
+    *lastJoyState = joyState;
 }
 
 static void checkSelectionChangeButtons(u16 joyState, u8 selection)
@@ -198,28 +177,4 @@ static bool modifyValue(u16 joyState, u16 *value)
         return false;
     }
     return true;
-}
-
-static void debounce(DebouncedFunc func, u16 joyState, u8 selection)
-{
-    const u8 REPEAT_RATE = 2;
-    static u16 counter;
-    static u16 lastJoyState;
-    if (lastJoyState == joyState)
-    {
-        counter++;
-        if (counter > REPEAT_RATE)
-        {
-            counter = 0;
-        }
-    }
-    else
-    {
-        counter = 0;
-        lastJoyState = joyState;
-    }
-    if (counter == 0)
-    {
-        func(joyState, selection);
-    }
 }

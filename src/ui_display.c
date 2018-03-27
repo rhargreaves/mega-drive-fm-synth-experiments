@@ -58,6 +58,14 @@ static OperatorParameterUi opParameterUis[] = {
 
 static bool drawUi = false;
 
+void display_init(void)
+{
+    VDP_setPaletteColor((PAL1 * 16) + 15, 0x0C55);
+    VDP_setPaletteColor((PAL2 * 16) + 15, 0x00DE);
+    VDP_setTextPalette(PAL2);
+    VDP_drawText("Yamaha 2612 Test", 11, 0);
+}
+
 void display_draw(Channel *chan, u8 selection)
 {
     printGlobalParameters(selection);
