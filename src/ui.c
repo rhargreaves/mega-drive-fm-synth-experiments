@@ -8,13 +8,12 @@
 #define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
 #define INPUT_RESOLUTION 5
 
-static bool modifyValue(u16 joyState, u16 *value);
 static void checkPlayButton(u16 joyState, u16 button, Channel *channel, u16 *lastJoyState);
-static void checkSelectionChangeButtons(u16 joyState, u8 selection);
-static void checkValueChangeButtons(u16 joyState, u8 selection);
-static void updateGlobalParameter(u16 joyState, u16 index);
-static void updateOpParameter(u16 joyState, u16 index);
-static void updateFmParameter(u16 joyState, u16 index);
+static void modifySelection(u16 joyState, u8 selection, u8 change);
+static void modifyValue(u16 joyState, u8 selection, u8 change);
+static void updateGlobalParameter(u16 joyState, u16 index, u8 change);
+static void updateOpParameter(u16 joyState, u16 index, u8 change);
+static void updateFmParameter(u16 joyState, u16 index, u8 change);
 static u8 nextChannelNumber(u8 chanNum);
 
 static u8 currentSelection = 0;
@@ -40,13 +39,21 @@ void ui_checkInput(void)
 
     if (tick % INPUT_RESOLUTION == 0)
     {
-        if (joyState & BUTTON_LEFT || joyState & BUTTON_RIGHT)
+        if (joyState & BUTTON_LEFT)
         {
-            checkValueChangeButtons(joyState, currentSelection);
+            modifyValue(joyState, currentSelection, -1);
         }
-        else if (joyState & BUTTON_UP || joyState & BUTTON_DOWN)
+        else if (joyState & BUTTON_RIGHT)
         {
-            checkSelectionChangeButtons(joyState, currentSelection);
+            modifyValue(joyState, currentSelection, 1);
+        }
+        else if (joyState & BUTTON_UP)
+        {
+            modifySelection(joyState, currentSelection, -1);
+        }
+        else if (joyState & BUTTON_DOWN)
+        {
+            modifySelection(joyState, currentSelection, 1);
         }
         else if (joyState & BUTTON_START)
         {
@@ -84,20 +91,9 @@ static void checkPlayButton(u16 joyState, u16 button, Channel *channel, u16 *las
     *lastJoyState = joyState;
 }
 
-static void checkSelectionChangeButtons(u16 joyState, u8 selection)
+static void modifySelection(u16 joyState, u8 selection, u8 change)
 {
-    if (joyState & BUTTON_DOWN)
-    {
-        selection += 1;
-    }
-    else if (joyState & BUTTON_UP)
-    {
-        selection -= 1;
-    }
-    else
-    {
-        return;
-    }
+    selection += change;
     if (selection == (u8)-1)
     {
         selection = SELECTION_COUNT - 1;
@@ -110,71 +106,42 @@ static void checkSelectionChangeButtons(u16 joyState, u8 selection)
     display_requestUiUpdate();
 }
 
-static void checkValueChangeButtons(u16 joyState, u8 index)
+static void modifyValue(u16 joyState, u8 index, u8 change)
 {
     if (index < GLOBAL_PARAMETER_COUNT)
     {
-        updateGlobalParameter(joyState, index);
+        updateGlobalParameter(joyState, index, change);
         return;
     }
     index -= GLOBAL_PARAMETER_COUNT;
     if (index < FM_PARAMETER_COUNT)
     {
-        updateFmParameter(joyState, index);
+        updateFmParameter(joyState, index, change);
         return;
     }
     index -= FM_PARAMETER_COUNT;
-    updateOpParameter(joyState, index);
+    updateOpParameter(joyState, index, change);
 }
 
-static void updateGlobalParameter(u16 joyState, u16 index)
+static void updateGlobalParameter(u16 joyState, u16 index, u8 change)
 {
     u16 value = synth_globalParameterValue(index);
-    if (!modifyValue(joyState, &value))
-    {
-        return;
-    }
-    synth_setGlobalParameterValue(index, value);
+    synth_setGlobalParameterValue(index, value + change);
     display_requestUiUpdate();
 }
 
-static void updateFmParameter(u16 joyState, u16 index)
+static void updateFmParameter(u16 joyState, u16 index, u8 change)
 {
     u16 value = channel_parameterValue(currentChannel, index);
-    if (!modifyValue(joyState, &value))
-    {
-        return;
-    }
-    channel_setParameterValue(currentChannel, index, value);
+    channel_setParameterValue(currentChannel, index, value + change);
     display_requestUiUpdate();
 }
 
-static void updateOpParameter(u16 joyState, u16 index)
+static void updateOpParameter(u16 joyState, u16 index, u8 change)
 {
     Operator *op = channel_operator(currentChannel, index / OPERATOR_PARAMETER_COUNT);
     OpParameters opParameter = index % OPERATOR_PARAMETER_COUNT;
     u16 value = operator_parameterValue(op, opParameter);
-    if (!modifyValue(joyState, &value))
-    {
-        return;
-    }
-    operator_setParameterValue(op, opParameter, value);
+    operator_setParameterValue(op, opParameter, value + change);
     display_requestUiUpdate();
-}
-
-static bool modifyValue(u16 joyState, u16 *value)
-{
-    if (joyState & BUTTON_RIGHT)
-    {
-        (*value)++;
-    }
-    else if (joyState & BUTTON_LEFT)
-    {
-        (*value)--;
-    }
-    else
-    {
-        return false;
-    }
-    return true;
 }
