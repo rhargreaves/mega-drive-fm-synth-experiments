@@ -9,11 +9,11 @@
 #define INPUT_RESOLUTION 5
 
 static void checkPlayButton(u16 joyState, u16 button, Channel *channel, u16 *lastJoyState);
-static void modifySelection(u16 joyState, u8 selection, u8 change);
-static void modifyValue(u16 joyState, u8 selection, u8 change);
-static void updateGlobalParameter(u16 joyState, u16 index, u8 change);
-static void updateOpParameter(u16 joyState, u16 index, u8 change);
-static void updateFmParameter(u16 joyState, u16 index, u8 change);
+static void modifySelection(u16 joyState, u8 selection, s8 change);
+static void modifyValue(u16 joyState, u8 selection, s8 change);
+static void updateGlobalParameter(u16 joyState, u16 index, s8 change);
+static void updateOpParameter(u16 joyState, u16 index, s8 change);
+static void updateFmParameter(u16 joyState, u16 index, s8 change);
 static u8 nextChannelNumber(u8 chanNum);
 
 static u8 currentSelection = 0;
@@ -91,7 +91,7 @@ static void checkPlayButton(u16 joyState, u16 button, Channel *channel, u16 *las
     *lastJoyState = joyState;
 }
 
-static void modifySelection(u16 joyState, u8 selection, u8 change)
+static void modifySelection(u16 joyState, u8 selection, s8 change)
 {
     selection += change;
     if (selection == (u8)-1)
@@ -106,7 +106,7 @@ static void modifySelection(u16 joyState, u8 selection, u8 change)
     display_requestUiUpdate();
 }
 
-static void modifyValue(u16 joyState, u8 index, u8 change)
+static void modifyValue(u16 joyState, u8 index, s8 change)
 {
     if (index < GLOBAL_PARAMETER_COUNT)
     {
@@ -123,21 +123,21 @@ static void modifyValue(u16 joyState, u8 index, u8 change)
     updateOpParameter(joyState, index, change);
 }
 
-static void updateGlobalParameter(u16 joyState, u16 index, u8 change)
+static void updateGlobalParameter(u16 joyState, u16 index, s8 change)
 {
     u16 value = synth_globalParameterValue(index);
     synth_setGlobalParameterValue(index, value + change);
     display_requestUiUpdate();
 }
 
-static void updateFmParameter(u16 joyState, u16 index, u8 change)
+static void updateFmParameter(u16 joyState, u16 index, s8 change)
 {
     u16 value = channel_parameterValue(currentChannel, index);
     channel_setParameterValue(currentChannel, index, value + change);
     display_requestUiUpdate();
 }
 
-static void updateOpParameter(u16 joyState, u16 index, u8 change)
+static void updateOpParameter(u16 joyState, u16 index, s8 change)
 {
     Operator *op = channel_operator(currentChannel, index / OPERATOR_PARAMETER_COUNT);
     OpParameters opParameter = index % OPERATOR_PARAMETER_COUNT;
