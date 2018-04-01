@@ -5,7 +5,7 @@
 #include <ui_display.h>
 
 #define PAL_HEADING PAL1
-#define PAL_SELECTION PAL2
+#define PAL_SELECTION PAL3
 
 #define GLOBAL_PARAMETERS_TOP_ROW 2
 #define FM_PARAMETERS_VALUE_COLUMN 10
@@ -65,6 +65,7 @@ void display_init(void)
 {
     VDP_setPaletteColor((PAL1 * 16) + 15, 0x0C55);
     VDP_setPaletteColor((PAL2 * 16) + 15, 0x00DE);
+    VDP_setPaletteColor((PAL3 * 16) + 15, 0x00F0);
     VDP_setTextPalette(PAL2);
     VDP_drawText("Yamaha 2612 Test", 11, 0);
 }
