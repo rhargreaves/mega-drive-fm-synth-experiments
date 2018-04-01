@@ -7,10 +7,11 @@
 #define PAL_HEADING PAL1
 #define PAL_SELECTION PAL3
 
+#define LEFT_MARGIN 1
 #define GLOBAL_PARAMETERS_TOP_ROW 2
-#define FM_PARAMETERS_VALUE_COLUMN 10
+#define FM_PARAMETERS_VALUE_COLUMN LEFT_MARGIN + 10
 #define FM_PARAMETERS_TOP_ROW 5
-#define OPERATOR_VALUE_COLUMN 10
+#define OPERATOR_VALUE_COLUMN LEFT_MARGIN + 10
 #define OPERATOR_VALUE_WIDTH 6
 #define OPERATOR_TOP_ROW 14
 
@@ -96,8 +97,8 @@ static void printGlobalParameters(u8 selection)
 {
     u16 row = GLOBAL_PARAMETERS_TOP_ROW;
 
-    printParameter(0, 0, 10, row, selection);
-    printParameter(1, 21, 26, row, selection);
+    printParameter(0, LEFT_MARGIN, FM_PARAMETERS_VALUE_COLUMN, row, selection);
+    printParameter(1, 23, 28, row, selection);
 }
 
 static void printParameter(u16 index, u16 heading_x, u16 value_x, u16 y, u8 selection)
@@ -128,12 +129,14 @@ static void printFmParameters(Channel *chan, u8 selection)
         u16 row = index + FM_PARAMETERS_TOP_ROW;
         FmParameterUi *p = &fmParameterUis[index];
         VDP_setTextPalette(PAL_HEADING);
-        VDP_drawText(p->name, 0, row);
+        VDP_drawText(p->name, LEFT_MARGIN, row);
         VDP_setTextPalette(selection == index + GLOBAL_PARAMETER_COUNT ? PAL_SELECTION : PAL0);
         u16 value = channel_parameterValue(chan, index);
         if (p->printFunc != NULL)
         {
-            p->printFunc(value, 10, row);
+            p->printFunc(value,
+                         FM_PARAMETERS_VALUE_COLUMN,
+                         row);
         }
         else
         {
@@ -180,14 +183,14 @@ static void printOperator(Operator *op, u8 selection)
         u16 row = index + OPERATOR_TOP_ROW + 1;
         if (op->chanNumber != 2 && (index == OP_PARAMETER_CH3_FREQ || index == OP_PARAMETER_CH3_OCTAVE))
         {
-            VDP_clearText(0, row, 40);
+            VDP_clearText(LEFT_MARGIN, row, 40);
             continue;
         }
 
         if (op->opNumber == 0)
         {
             VDP_setTextPalette(PAL_HEADING);
-            VDP_drawText(opParameterUis[index].name, 0, row);
+            VDP_drawText(opParameterUis[index].name, LEFT_MARGIN, row);
             VDP_setTextPalette(PAL0);
         }
         if (selection - FM_PARAMETER_COUNT == GLOBAL_PARAMETER_COUNT + index + op->opNumber * OPERATOR_PARAMETER_COUNT)
