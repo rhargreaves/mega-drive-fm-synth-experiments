@@ -29,7 +29,7 @@ static void printStereo(u16 index,  u16 x, u16 y);
 static void printAlgorithm(u16 index,  u16 x, u16 y);
 static void printAms(u16 index,  u16 x, u16 y);
 static void printFms(u16 index,  u16 x, u16 y);
-static void printParameter(FmParameterUi *p, u16 heading_x, u16 value_x, u16 y, u16 value, bool selected);
+static void printParameter(u16 index, u16 heading_x, u16 value_x, u16 y, u8 selection);
 
 static FmParameterUi globalParameterUis[] = {
     {"Globl LFO", 1, NULL, printOnOff},
@@ -95,17 +95,17 @@ static void printGlobalParameters(u8 selection)
 {
     u16 row = GLOBAL_PARAMETERS_TOP_ROW;
 
-    printParameter(&globalParameterUis[0], 0, 10,
-        row, synth_globalParameterValue(0), selection == 0);
-    printParameter(&globalParameterUis[1], 20, 25,
-        row, synth_globalParameterValue(1), selection == 1);
+    printParameter(0, 0, 10,  row, selection);
+    printParameter(1, 20, 25, row, selection);
 }
 
-static void printParameter(FmParameterUi *p, u16 heading_x, u16 value_x, u16 y, u16 value, bool selected)
+static void printParameter(u16 index, u16 heading_x, u16 value_x, u16 y, u8 selection)
 {
+    FmParameterUi *p = &globalParameterUis[index];
+    u16 value = synth_globalParameterValue(index);
     VDP_setTextPalette(PAL_HEADING);
     VDP_drawText(p->name, heading_x, y);
-    VDP_setTextPalette(selected ? PAL_SELECTION : PAL0);
+    VDP_setTextPalette(selection == index ? PAL_SELECTION : PAL0);
     if (p->printFunc != NULL)
     {
         p->printFunc(value, value_x, y);
@@ -178,6 +178,13 @@ static void printOperator(Operator *op, u8 selection)
     for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
     {
         u16 row = index + OPERATOR_TOP_ROW + 1;
+        if(op->chanNumber != 2 && (
+            index == OP_PARAMETER_CH3_FREQ || index == OP_PARAMETER_CH3_OCTAVE))
+        {
+            VDP_clearText(0, row, 40);
+            continue;
+        }
+
         if (op->opNumber == 0)
         {
             VDP_setTextPalette(PAL_HEADING);
