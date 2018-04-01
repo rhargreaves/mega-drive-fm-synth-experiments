@@ -165,22 +165,25 @@ static void setD1lRr(Operator *op, u8 d1l, u8 rr)
 
 static void setFreqAndOctave(Operator *op, u8 octave, u16 freq)
 {
-    u8 lower_reg = 0xA2;
-    u8 upper_reg = 0xA6;
-    if(op->opNumber == 1)
+    u8 lower_reg, upper_reg;
+    if (op->opNumber == 1)
     {
         lower_reg = 0xA8;
         upper_reg = 0xAC;
     }
-    else if(op->opNumber == 2)
+    else if (op->opNumber == 2)
     {
         lower_reg = 0xA9;
         upper_reg = 0xAD;
     }
-    else if(op->opNumber == 3)
+    else if (op->opNumber == 3)
     {
         lower_reg = 0xAA;
         upper_reg = 0xAE;
+    }
+    else
+    {
+        return;
     }
     megadrive_writeToYm2612(0, upper_reg, (freq >> 8) | (octave << 3));
     megadrive_writeToYm2612(0, lower_reg, freq);

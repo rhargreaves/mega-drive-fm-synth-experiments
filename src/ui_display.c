@@ -15,20 +15,20 @@
 #define OPERATOR_TOP_ROW 14
 
 static void printNumber(u16 number, u16 minSize, u16 x, u16 y);
-static void printNote(u16 index,  u16 x, u16 y);
-static void printOnOff(u16 index,  u16 x, u16 y);
-static void printLFOFreq(u16 index,  u16 x, u16 y);
-static void printLookup(u16 index, const char *text,  u16 x, u16 y);
+static void printNote(u16 index, u16 x, u16 y);
+static void printOnOff(u16 index, u16 x, u16 y);
+static void printLFOFreq(u16 index, u16 x, u16 y);
+static void printLookup(u16 index, const char *text, u16 x, u16 y);
 static void printGlobalParameters(u8 selection);
 static void printFmHeader(Channel *chan);
 static void printFmParameters(Channel *chan, u8 selection);
 static void printOperators(Channel *chan, u8 selection);
 static void printOperator(Operator *op, u8 selection);
 static void printOperatorHeader(Operator *op);
-static void printStereo(u16 index,  u16 x, u16 y);
-static void printAlgorithm(u16 index,  u16 x, u16 y);
-static void printAms(u16 index,  u16 x, u16 y);
-static void printFms(u16 index,  u16 x, u16 y);
+static void printStereo(u16 index, u16 x, u16 y);
+static void printAlgorithm(u16 index, u16 x, u16 y);
+static void printAms(u16 index, u16 x, u16 y);
+static void printFms(u16 index, u16 x, u16 y);
 static void printParameter(u16 index, u16 heading_x, u16 value_x, u16 y, u8 selection);
 
 static FmParameterUi globalParameterUis[] = {
@@ -95,7 +95,7 @@ static void printGlobalParameters(u8 selection)
 {
     u16 row = GLOBAL_PARAMETERS_TOP_ROW;
 
-    printParameter(0, 0, 10,  row, selection);
+    printParameter(0, 0, 10, row, selection);
     printParameter(1, 20, 25, row, selection);
 }
 
@@ -118,7 +118,6 @@ static void printParameter(u16 index, u16 heading_x, u16 value_x, u16 y, u8 sele
                     y);
     }
 }
-
 
 static void printFmParameters(Channel *chan, u8 selection)
 {
@@ -178,8 +177,7 @@ static void printOperator(Operator *op, u8 selection)
     for (u16 index = 0; index < OPERATOR_PARAMETER_COUNT; index++)
     {
         u16 row = index + OPERATOR_TOP_ROW + 1;
-        if(op->chanNumber != 2 && (
-            index == OP_PARAMETER_CH3_FREQ || index == OP_PARAMETER_CH3_OCTAVE))
+        if (op->chanNumber != 2 && (index == OP_PARAMETER_CH3_FREQ || index == OP_PARAMETER_CH3_OCTAVE))
         {
             VDP_clearText(0, row, 40);
             continue;
@@ -203,46 +201,46 @@ static void printOperator(Operator *op, u8 selection)
     }
 }
 
-static void printLFOFreq(u16 index,  u16 x, u16 y)
+static void printLFOFreq(u16 index, u16 x, u16 y)
 {
     const char TEXT[][8] = {"3.98Hz", "5.56Hz", "6.02Hz", "6.37Hz", "6.88Hz", "9.63Hz", "48.1Hz", "72.2Hz"};
-    printLookup(index, TEXT[index], x,y);
+    printLookup(index, TEXT[index], x, y);
 }
 
-static void printOnOff(u16 index,  u16 x, u16 y)
+static void printOnOff(u16 index, u16 x, u16 y)
 {
     const char TEXT[][4] = {"Off", "On"};
-    printLookup(index, TEXT[index], x,y);
+    printLookup(index, TEXT[index], x, y);
 }
 
-static void printNote(u16 index,  u16 x, u16 y)
+static void printNote(u16 index, u16 x, u16 y)
 {
     const char TEXT[][3] = {"B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#"};
-    printLookup(index, TEXT[index], x,y);
+    printLookup(index, TEXT[index], x, y);
 }
 
-static void printStereo(u16 index,  u16 x, u16 y)
+static void printStereo(u16 index, u16 x, u16 y)
 {
     const char TEXT[][4] = {"Off", "R", "L", "LR"};
-    printLookup(index, TEXT[index], x,y);
+    printLookup(index, TEXT[index], x, y);
 }
 
-static void printAlgorithm(u16 index,  u16 x, u16 y)
+static void printAlgorithm(u16 index, u16 x, u16 y)
 {
     const char TEXT[][8] = {"1-2-3-4", "1/2-3-4", "1/23-4", "12/3-4", "1/3-2/4", "1-2/3/4", "12/3/4", "1/2/3/4"};
-    printLookup(index, TEXT[index], x,y);
+    printLookup(index, TEXT[index], x, y);
 }
 
-static void printAms(u16 index,  u16 x, u16 y)
+static void printAms(u16 index, u16 x, u16 y)
 {
     const char TEXT[][7] = {"0", "1.4dB", "5.9dB", "11.8dB"};
-    printLookup(index, TEXT[index], x,y);
+    printLookup(index, TEXT[index], x, y);
 }
 
-static void printFms(u16 index,  u16 x, u16 y)
+static void printFms(u16 index, u16 x, u16 y)
 {
     const char TEXT[][4] = {"0", "3.4", "6.7", "10", "14", "20", "40", "80"};
-    printLookup(index, TEXT[index], x,y);
+    printLookup(index, TEXT[index], x, y);
 }
 
 static void printLookup(u16 index, const char *text, u16 x, u16 y)

@@ -134,6 +134,20 @@ static void updateFmParameter(u16 joyState, u16 index, s8 change)
 {
     u16 value = channel_parameterValue(currentChannel, index);
     channel_setParameterValue(currentChannel, index, value + change);
+    if (index == PARAMETER_FREQ || index == PARAMETER_NOTE)
+    {
+        operator_setParameterValue(
+            channel_operator(currentChannel, 0),
+            OP_PARAMETER_CH3_FREQ,
+            channel_parameterValue(currentChannel, PARAMETER_FREQ));
+    }
+    else if (index == PARAMETER_OCTAVE)
+    {
+        operator_setParameterValue(
+            channel_operator(currentChannel, 0),
+            OP_PARAMETER_CH3_OCTAVE,
+            channel_parameterValue(currentChannel, PARAMETER_OCTAVE));
+    }
     display_requestUiUpdate();
 }
 
@@ -143,5 +157,18 @@ static void updateOpParameter(u16 joyState, u16 index, s8 change)
     OpParameters opParameter = index % OPERATOR_PARAMETER_COUNT;
     u16 value = operator_parameterValue(op, opParameter);
     operator_setParameterValue(op, opParameter, value + change);
+
+    if (op->opNumber == 0)
+    {
+        if (index == OP_PARAMETER_CH3_FREQ)
+        {
+            channel_setParameterValue(currentChannel, PARAMETER_FREQ, value + change);
+        }
+        else if (index == OP_PARAMETER_CH3_OCTAVE)
+        {
+            channel_setParameterValue(currentChannel, PARAMETER_OCTAVE, value + change);
+        }
+    }
+
     display_requestUiUpdate();
 }
