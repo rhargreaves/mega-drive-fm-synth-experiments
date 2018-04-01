@@ -96,7 +96,7 @@ static void printGlobalParameters(u8 selection)
     u16 row = GLOBAL_PARAMETERS_TOP_ROW;
 
     printParameter(0, 0, 10, row, selection);
-    printParameter(1, 20, 25, row, selection);
+    printParameter(1, 21, 26, row, selection);
 }
 
 static void printParameter(u16 index, u16 heading_x, u16 value_x, u16 y, u8 selection)
@@ -246,7 +246,7 @@ static void printFms(u16 index, u16 x, u16 y)
 static void printLookup(u16 index, const char *text, u16 x, u16 y)
 {
     char buffer[25];
-    sprintf(buffer, "%s (%u)    ", text, index);
+    sprintf(buffer, "%s (%u)     ", text, index);
     VDP_drawText(buffer, x, y);
 }
 
