@@ -31,7 +31,9 @@ static const OperatorParameter parameters[OPERATOR_PARAMETER_COUNT] = {
     {31, updateAmD1r},
     {31, updateD2r},
     {15, updateD1lRr},
-    {15, updateD1lRr}};
+    {15, updateD1lRr},
+    {7, updateD1lRr},
+    {2047, updateD1lRr}};
 
 void operator_init(Operator *op, u8 opNumber, u8 chanNumber, const u16 parameterValues[OPERATOR_PARAMETER_COUNT])
 {

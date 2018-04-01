@@ -9,30 +9,31 @@
 
 #define GLOBAL_PARAMETERS_TOP_ROW 2
 #define FM_PARAMETERS_VALUE_COLUMN 10
-#define FM_PARAMETERS_TOP_ROW 6
+#define FM_PARAMETERS_TOP_ROW 5
 #define OPERATOR_VALUE_COLUMN 10
 #define OPERATOR_VALUE_WIDTH 6
-#define OPERATOR_TOP_ROW 15
+#define OPERATOR_TOP_ROW 14
 
 static void printNumber(u16 number, u16 minSize, u16 x, u16 y);
-static void printNote(u16 index, u16 row);
-static void printOnOff(u16 index, u16 row);
-static void printLFOFreq(u16 index, u16 row);
-static void printLookup(u16 index, const char *text, u16 row);
+static void printNote(u16 index,  u16 x, u16 y);
+static void printOnOff(u16 index,  u16 x, u16 y);
+static void printLFOFreq(u16 index,  u16 x, u16 y);
+static void printLookup(u16 index, const char *text,  u16 x, u16 y);
 static void printGlobalParameters(u8 selection);
 static void printFmHeader(Channel *chan);
 static void printFmParameters(Channel *chan, u8 selection);
 static void printOperators(Channel *chan, u8 selection);
 static void printOperator(Operator *op, u8 selection);
 static void printOperatorHeader(Operator *op);
-static void printStereo(u16 index, u16 row);
-static void printAlgorithm(u16 index, u16 row);
-static void printAms(u16 index, u16 row);
-static void printFms(u16 index, u16 row);
+static void printStereo(u16 index,  u16 x, u16 y);
+static void printAlgorithm(u16 index,  u16 x, u16 y);
+static void printAms(u16 index,  u16 x, u16 y);
+static void printFms(u16 index,  u16 x, u16 y);
+static void printParameter(FmParameterUi *p, u16 heading_x, u16 value_x, u16 y, u16 value, bool selected);
 
 static FmParameterUi globalParameterUis[] = {
     {"Globl LFO", 1, NULL, printOnOff},
-    {"LFO Freq", 1, NULL, printLFOFreq}};
+    {"Freq", 1, NULL, printLFOFreq}};
 
 static FmParameterUi fmParameterUis[] = {
     {"Note", 2, NULL, printNote},
@@ -54,7 +55,9 @@ static OperatorParameterUi opParameterUis[] = {
     {"1st Decay", 2},
     {"2nd Decay", 2},
     {"Sub Level", 2},
-    {"Rel Rate", 2}};
+    {"Rel Rate", 2},
+    {"Octave", 1},
+    {"Freq Num", 4}};
 
 static bool drawUi = false;
 
@@ -90,27 +93,32 @@ void display_updateUiIfRequired(Channel *chan, u8 selection)
 
 static void printGlobalParameters(u8 selection)
 {
-    for (u16 index = 0; index < GLOBAL_PARAMETER_COUNT; index++)
+    u16 row = GLOBAL_PARAMETERS_TOP_ROW;
+
+    printParameter(&globalParameterUis[0], 0, 10,
+        row, synth_globalParameterValue(0), selection == 0);
+    printParameter(&globalParameterUis[1], 20, 25,
+        row, synth_globalParameterValue(1), selection == 1);
+}
+
+static void printParameter(FmParameterUi *p, u16 heading_x, u16 value_x, u16 y, u16 value, bool selected)
+{
+    VDP_setTextPalette(PAL_HEADING);
+    VDP_drawText(p->name, heading_x, y);
+    VDP_setTextPalette(selected ? PAL_SELECTION : PAL0);
+    if (p->printFunc != NULL)
     {
-        u16 row = index + GLOBAL_PARAMETERS_TOP_ROW;
-        FmParameterUi *p = &globalParameterUis[index];
-        VDP_setTextPalette(PAL_HEADING);
-        VDP_drawText(p->name, 0, row);
-        VDP_setTextPalette(selection == index ? PAL_SELECTION : PAL0);
-        u16 value = synth_globalParameterValue(index);
-        if (p->printFunc != NULL)
-        {
-            p->printFunc(value, row);
-        }
-        else
-        {
-            printNumber(value,
-                        p->minSize,
-                        FM_PARAMETERS_VALUE_COLUMN,
-                        row);
-        }
+        p->printFunc(value, value_x, y);
+    }
+    else
+    {
+        printNumber(value,
+                    p->minSize,
+                    value_x,
+                    y);
     }
 }
+
 
 static void printFmParameters(Channel *chan, u8 selection)
 {
@@ -125,7 +133,7 @@ static void printFmParameters(Channel *chan, u8 selection)
         u16 value = channel_parameterValue(chan, index);
         if (p->printFunc != NULL)
         {
-            p->printFunc(value, row);
+            p->printFunc(value, 10, row);
         }
         else
         {
@@ -188,59 +196,58 @@ static void printOperator(Operator *op, u8 selection)
     }
 }
 
-static void printLFOFreq(u16 index, u16 row)
+static void printLFOFreq(u16 index,  u16 x, u16 y)
 {
     const char TEXT[][8] = {"3.98Hz", "5.56Hz", "6.02Hz", "6.37Hz", "6.88Hz", "9.63Hz", "48.1Hz", "72.2Hz"};
-    printLookup(index, TEXT[index], row);
+    printLookup(index, TEXT[index], x,y);
 }
 
-static void printOnOff(u16 index, u16 row)
+static void printOnOff(u16 index,  u16 x, u16 y)
 {
     const char TEXT[][4] = {"Off", "On"};
-    printLookup(index, TEXT[index], row);
+    printLookup(index, TEXT[index], x,y);
 }
 
-static void printNote(u16 index, u16 row)
+static void printNote(u16 index,  u16 x, u16 y)
 {
     const char TEXT[][3] = {"B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#"};
-    printLookup(index, TEXT[index], row);
+    printLookup(index, TEXT[index], x,y);
 }
 
-static void printStereo(u16 index, u16 row)
+static void printStereo(u16 index,  u16 x, u16 y)
 {
     const char TEXT[][4] = {"Off", "R", "L", "LR"};
-    printLookup(index, TEXT[index], row);
+    printLookup(index, TEXT[index], x,y);
 }
 
-static void printAlgorithm(u16 index, u16 row)
+static void printAlgorithm(u16 index,  u16 x, u16 y)
 {
     const char TEXT[][8] = {"1-2-3-4", "1/2-3-4", "1/23-4", "12/3-4", "1/3-2/4", "1-2/3/4", "12/3/4", "1/2/3/4"};
-    printLookup(index, TEXT[index], row);
+    printLookup(index, TEXT[index], x,y);
 }
 
-static void printAms(u16 index, u16 row)
+static void printAms(u16 index,  u16 x, u16 y)
 {
     const char TEXT[][7] = {"0", "1.4dB", "5.9dB", "11.8dB"};
-    printLookup(index, TEXT[index], row);
+    printLookup(index, TEXT[index], x,y);
 }
 
-static void printFms(u16 index, u16 row)
+static void printFms(u16 index,  u16 x, u16 y)
 {
     const char TEXT[][4] = {"0", "3.4", "6.7", "10", "14", "20", "40", "80"};
-    printLookup(index, TEXT[index], row);
+    printLookup(index, TEXT[index], x,y);
 }
 
-static void printLookup(u16 index, const char *text, u16 row)
+static void printLookup(u16 index, const char *text, u16 x, u16 y)
 {
     char buffer[25];
-    sprintf(buffer, "%s (%u)     ", text, index);
-    VDP_drawText(buffer, 10, row);
+    sprintf(buffer, "%s (%u)    ", text, index);
+    VDP_drawText(buffer, x, y);
 }
 
 static void printNumber(u16 number, u16 minSize, u16 x, u16 y)
 {
     char str[5];
-    //sprintf(str, "%u  ", number);
     uintToStr(number, str, minSize);
     VDP_drawText(str, x, y);
 }

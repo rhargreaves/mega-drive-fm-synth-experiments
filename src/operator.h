@@ -1,7 +1,7 @@
 #pragma once
 #include <genesis.h>
 
-#define OPERATOR_PARAMETER_COUNT 10
+#define OPERATOR_PARAMETER_COUNT 12
 
 typedef enum {
     OP_PARAMETER_DT1,
@@ -13,7 +13,9 @@ typedef enum {
     OP_PARAMETER_D1R,
     OP_PARAMETER_D2R,
     OP_PARAMETER_D1L,
-    OP_PARAMETER_RR
+    OP_PARAMETER_RR,
+    OP_PARAMETER_CH3_OCTAVE,
+    OP_PARAMETER_CH3_FREQ,
 } OpParameters;
 
 typedef struct Operator Operator;

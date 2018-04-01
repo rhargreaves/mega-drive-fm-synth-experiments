@@ -7,7 +7,7 @@ typedef struct
     const char name[10];
     const u16 minSize;
     FmParameter *fmParameter;
-    void (*printFunc)(u16 index, u16 row);
+    void (*printFunc)(u16 index, u16 x, u16 y);
 } FmParameterUi;
 
 typedef struct
