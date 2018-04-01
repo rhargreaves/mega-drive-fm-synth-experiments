@@ -19,7 +19,7 @@ void synth_init(void)
         channel_init(&channels[i], i);
     }
     updateGlobalLFO(NULL);
-    YM2612_writeReg(0, 0x27, 1 << 6); // Ch 3 Special
+    YM2612_writeReg(0, 0x27, 1 << 6); // Ch 3 Special Mode
     YM2612_writeReg(0, 0x28, 0); // All channels off
     YM2612_writeReg(0, 0x28, 1);
     YM2612_writeReg(0, 0x28, 2);

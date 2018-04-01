@@ -5,7 +5,7 @@
 #include <ui.h>
 #include <ui_display.h>
 
-#define SELECTION_COUNT FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
+#define SELECTION_COUNT GLOBAL_PARAMETER_COUNT + FM_PARAMETER_COUNT + (OPERATOR_PARAMETER_COUNT * OPERATOR_COUNT)
 #define INPUT_RESOLUTION 5
 
 static void checkPlayButton(u16 joyState, u16 button, Channel *channel, u16 *lastJoyState);

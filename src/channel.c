@@ -13,10 +13,10 @@ static void keyOff(Channel *chan);
 static u8 keyRegValue(Channel *chan);
 
 static const u16 defaultOperatorValues[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT] =
-    {{1, 1, 35, 1, 2, 1, 5, 2, 1, 1, 0, 0},
-     {0, 13, 45, 2, 25, 0, 36, 2, 1, 1, 0, 0},
-     {3, 3, 38, 1, 31, 0, 5, 2, 1, 1, 0, 0},
-     {0, 1, 0, 2, 25, 0, 7, 2, 10, 6, 0, 0}};
+    {{1, 1, 35, 1, 2, 1, 5, 2, 1, 1, 4, 653},
+     {0, 13, 45, 2, 25, 0, 36, 2, 1, 1, 4, 400},
+     {3, 3, 38, 1, 31, 0, 5, 2, 1, 1, 4, 200},
+     {0, 1, 0, 2, 25, 0, 7, 2, 10, 6, 4, 800}};
 
 FmParameter *channel_fmParameter(Channel *chan, FmParameters parameter)
 {
@@ -142,9 +142,12 @@ static void updateStereoAndLFO(Channel *chan)
 
 static void updateFreqAndOctave(Channel *chan)
 {
-    setFrequency(chan,
-                 chan->fmParameters[PARAMETER_FREQ].value,
-                 chan->fmParameters[PARAMETER_OCTAVE].value);
+    if(chan->number != 2)
+    {
+        setFrequency(chan,
+                    chan->fmParameters[PARAMETER_FREQ].value,
+                    chan->fmParameters[PARAMETER_OCTAVE].value);
+    }
 }
 
 static void updateAlgorithmAndFeedback(Channel *chan)
