@@ -95,10 +95,8 @@ void display_updateUiIfRequired(Channel *chan, u8 selection)
 
 static void printGlobalParameters(u8 selection)
 {
-    u16 row = GLOBAL_PARAMETERS_TOP_ROW;
-
-    printParameter(0, LEFT_MARGIN, FM_PARAMETERS_VALUE_COLUMN, row, selection);
-    printParameter(1, 23, 28, row, selection);
+    printParameter(0, LEFT_MARGIN, FM_PARAMETERS_VALUE_COLUMN, GLOBAL_PARAMETERS_TOP_ROW, selection);
+    printParameter(1, 23, 28, GLOBAL_PARAMETERS_TOP_ROW, selection);
 }
 
 static void printParameter(u16 index, u16 heading_x, u16 value_x, u16 y, u8 selection)
