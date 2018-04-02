@@ -8,10 +8,10 @@ static void setGlobalLFO(u8 enable, u8 freq);
 
 static Channel channels[6];
 
-static FmParameter globalParameters[] = {{1, 1, updateGlobalLFO},
-                                         {3, 7, updateGlobalLFO}};
+static FmParameter globalParameters[] = {{1, 1, updateGlobalLFO}, {3, 7, updateGlobalLFO}};
 
 static void loadChannelPreset(ChannelPreset *chanPreset, Channel *chan);
+static void loadOperatorPreset(Operator *op, u16 operatorParameters[OPERATOR_PARAMETER_COUNT]);
 
 void synth_init(void)
 {
@@ -83,18 +83,19 @@ static void loadChannelPreset(ChannelPreset *chanPreset, Channel *chan)
     for (u16 o = 0; o < OPERATOR_COUNT; o++)
     {
         Operator *op = channel_operator(chan, o);
-        for (u16 p = 0; p < OPERATOR_PARAMETER_COUNT; p++)
-        {
-            operator_setParameterValue(op, p,
-                                       chanPreset->operatorParameters[o][p]);
-        }
+        loadOperatorPreset(op, chanPreset->operatorParameters[o]);
     }
 }
 
-static void setGlobalLFO(u8 enable, u8 freq)
+static void loadOperatorPreset(Operator *op, u16 operatorParameters[OPERATOR_PARAMETER_COUNT])
 {
-    YM2612_writeReg(0, 0x22, (enable << 3) | freq);
+    for (u16 p = 0; p < OPERATOR_PARAMETER_COUNT; p++)
+    {
+        operator_setParameterValue(op, p, operatorParameters[p]);
+    }
 }
+
+static void setGlobalLFO(u8 enable, u8 freq) { YM2612_writeReg(0, 0x22, (enable << 3) | freq); }
 
 static void updateGlobalLFO(Channel *chan)
 {
