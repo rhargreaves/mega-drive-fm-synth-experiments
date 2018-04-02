@@ -12,7 +12,7 @@ static void keyOn(Channel *chan);
 static void keyOff(Channel *chan);
 static u8 keyRegValue(Channel *chan);
 
-static const u16 defaultOperatorValues[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT] = {0};
+static const u16 defaultOperatorValues[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT];
 
 FmParameter *channel_fmParameter(Channel *chan, FmParameters parameter)
 {
