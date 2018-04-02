@@ -1,16 +1,17 @@
-#include <genesis.h>
-#include <synth.h>
-#include <operator.h>
 #include <channel.h>
+#include <genesis.h>
+#include <operator.h>
+#include <synth.h>
 
 static void updateGlobalLFO(Channel *chan);
 static void setGlobalLFO(u8 enable, u8 freq);
 
 static Channel channels[6];
 
-static FmParameter globalParameters[] = {
-    {1, 1, updateGlobalLFO},
-    {3, 7, updateGlobalLFO}};
+static FmParameter globalParameters[] = {{1, 1, updateGlobalLFO},
+                                         {3, 7, updateGlobalLFO}};
+
+static void loadChannelPreset(ChannelPreset *chanPreset, Channel *chan);
 
 void synth_init(void)
 {
@@ -20,7 +21,7 @@ void synth_init(void)
     }
     updateGlobalLFO(NULL);
     YM2612_writeReg(0, 0x27, 1 << 6); // Ch 3 Special Mode
-    YM2612_writeReg(0, 0x28, 0); // All channels off
+    YM2612_writeReg(0, 0x28, 0);      // All channels off
     YM2612_writeReg(0, 0x28, 1);
     YM2612_writeReg(0, 0x28, 2);
     YM2612_writeReg(0, 0x28, 4);
@@ -32,10 +33,7 @@ void synth_init(void)
     YM2612_writeReg(0, 0x9C, 0);
 }
 
-Channel *synth_channel(u8 number)
-{
-    return &channels[number];
-}
+Channel *synth_channel(u8 number) { return &channels[number]; }
 
 FmParameter *synth_globalParameter(GlobalParameters parameter)
 {
@@ -68,16 +66,27 @@ void synth_preset(const Preset *preset)
     {
         synth_setGlobalParameterValue(p, preset->globalParameters[p]);
     }
+    for (u16 c = 0; c < CHANNEL_COUNT; c++)
+    {
+        ChannelPreset *chanPreset = &preset->channels[c];
+        Channel *chan = &channels[c];
+        loadChannelPreset(chanPreset, chan);
+    }
+}
+
+static void loadChannelPreset(ChannelPreset *chanPreset, Channel *chan)
+{
     for (u16 p = 0; p < FM_PARAMETER_COUNT; p++)
     {
-        channel_setParameterValue(&channels[0], p, preset->channelParameters[p]);
+        channel_setParameterValue(chan, p, chanPreset->channelParameters[p]);
     }
     for (u16 o = 0; o < OPERATOR_COUNT; o++)
     {
-        Operator *op = channel_operator(&channels[0], o);
+        Operator *op = channel_operator(chan, o);
         for (u16 p = 0; p < OPERATOR_PARAMETER_COUNT; p++)
         {
-            operator_setParameterValue(op, p, preset->operatorParameters[o][p]);
+            operator_setParameterValue(op, p,
+                                       chanPreset->operatorParameters[o][p]);
         }
     }
 }
@@ -89,7 +98,6 @@ static void setGlobalLFO(u8 enable, u8 freq)
 
 static void updateGlobalLFO(Channel *chan)
 {
-    setGlobalLFO(
-        globalParameters[PARAMETER_G_LFO_ON].value,
-        globalParameters[PARAMETER_G_LFO_FREQ].value);
+    setGlobalLFO(globalParameters[PARAMETER_G_LFO_ON].value,
+                 globalParameters[PARAMETER_G_LFO_FREQ].value);
 }

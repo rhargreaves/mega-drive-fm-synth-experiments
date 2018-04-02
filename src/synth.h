@@ -1,20 +1,22 @@
 #pragma once
-#include <genesis.h>
 #include <channel.h>
+#include <genesis.h>
 
 #define CHANNEL_COUNT 6
 #define GLOBAL_PARAMETER_COUNT 2
 
-typedef enum {
-    PARAMETER_G_LFO_ON,
-    PARAMETER_G_LFO_FREQ
-} GlobalParameters;
+typedef enum { PARAMETER_G_LFO_ON, PARAMETER_G_LFO_FREQ } GlobalParameters;
+
+typedef struct ChannelPreset
+{
+    u16 channelParameters[FM_PARAMETER_COUNT];
+    u16 operatorParameters[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT];
+} ChannelPreset;
 
 typedef struct Preset
 {
     u16 globalParameters[GLOBAL_PARAMETER_COUNT];
-    u16 channelParameters[FM_PARAMETER_COUNT];
-    u16 operatorParameters[OPERATOR_COUNT][OPERATOR_PARAMETER_COUNT];
+    ChannelPreset channels[CHANNEL_COUNT];
 } Preset;
 
 void synth_init(void);
