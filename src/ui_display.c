@@ -68,7 +68,7 @@ void display_init(void)
     VDP_setPaletteColor((PAL2 * 16) + 15, 0x00DE);
     VDP_setPaletteColor((PAL3 * 16) + 15, 0x00F0);
     VDP_setTextPalette(PAL2);
-    VDP_drawText("Yamaha 2612 Test", 11, 0);
+    VDP_drawText("Yamaha YM2612 Test", 10, 0);
 }
 
 void display_draw(Channel *chan, u8 selection)
