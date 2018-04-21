@@ -30,6 +30,7 @@ static void printStereo(u16 index, u16 x, u16 y);
 static void printAlgorithm(u16 index, u16 x, u16 y);
 static void printAms(u16 index, u16 x, u16 y);
 static void printFms(u16 index, u16 x, u16 y);
+static void printMultiple(u16 index, u16 x, u16 y);
 static void printParameter(u16 index, u16 heading_x, u16 value_x, u16 y, u8 selection);
 
 static FmParameterUi globalParameterUis[] = {
@@ -47,18 +48,18 @@ static FmParameterUi fmParameterUis[] = {
     {"Stereo", 1, NULL, printStereo}};
 
 static OperatorParameterUi opParameterUis[] = {
-    {"Detune", 1},
-    {"Multiple", 2},
-    {"Total Lvl", 3},
-    {"Rate Scl", 1},
-    {"Atck Rate", 2},
-    {"Ampl Mode", 1},
-    {"Decay 1", 2},
-    {"Decay 2", 2},
-    {"Sub Level", 2},
-    {"Rel Rate", 2},
-    {"Octave", 1},
-    {"Freq #", 4}};
+    {"Detune", 1, NULL},
+    {"Multiple", 2, printMultiple},
+    {"Total Lvl", 3, NULL},
+    {"Rate Scl", 1, NULL},
+    {"Atck Rate", 2, NULL},
+    {"Ampl Mode", 1, NULL},
+    {"Decay 1", 2, NULL},
+    {"Decay 2", 2, NULL},
+    {"Sub Level", 2, NULL},
+    {"Rel Rate", 2, NULL},
+    {"Octave", 1, NULL},
+    {"Freq #", 4, NULL}};
 
 static bool drawUi = false;
 
@@ -195,10 +196,20 @@ static void printOperator(Operator *op, u8 selection)
         {
             VDP_setTextPalette(PAL_SELECTION);
         }
-        printNumber(operator_parameterValue(op, index),
+        OperatorParameterUi *opUi = &opParameterUis[index];
+        if (opUi->printFunc != NULL)
+        {
+            opUi->printFunc(operator_parameterValue(op, index),
+                         OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN,
+                         row);
+        }
+        else
+        {
+            printNumber(operator_parameterValue(op, index),
                     opParameterUis[index].minSize,
                     OPERATOR_VALUE_WIDTH * op->opNumber + OPERATOR_VALUE_COLUMN,
                     row);
+        }
         VDP_setTextPalette(PAL0);
     }
 }
@@ -243,6 +254,20 @@ static void printFms(u16 index, u16 x, u16 y)
 {
     const char TEXT[][4] = {"0", "3.4", "6.7", "10", "14", "20", "40", "80"};
     printLookup(index, TEXT[index], x, y);
+}
+
+static void printMultiple(u16 index, u16 x, u16 y)
+{
+    char buffer[4];
+    if(index == 0)
+    {
+        strcpy(buffer, ".5");
+    }
+    else
+    {
+        sprintf(buffer, "%u ", index);
+    }
+    VDP_drawText(buffer, x, y);
 }
 
 static void printLookup(u16 index, const char *text, u16 x, u16 y)

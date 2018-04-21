@@ -14,6 +14,7 @@ typedef struct
 {
     const char name[10];
     const u16 minSize;
+    void (*printFunc)(u16 index, u16 x, u16 y);
 } OperatorParameterUi;
 
 void display_init(void);
