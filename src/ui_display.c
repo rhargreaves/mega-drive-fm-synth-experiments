@@ -38,7 +38,7 @@ static FmParameterUi globalParameterUis[] = {
 
 static FmParameterUi fmParameterUis[] = {
     {"Note", 2, NULL, printNote},
-    {"Freq Num", 4, NULL, NULL},
+    {"Freq #", 4, NULL, NULL},
     {"Octave", 1, NULL, NULL},
     {"Algorithm", 1, NULL, printAlgorithm},
     {"Feedback", 1, NULL, NULL},
@@ -53,12 +53,12 @@ static OperatorParameterUi opParameterUis[] = {
     {"Rate Scl", 1},
     {"Atck Rate", 2},
     {"Ampl Mode", 1},
-    {"1st Decay", 2},
-    {"2nd Decay", 2},
+    {"Decay 1", 2},
+    {"Decay 2", 2},
     {"Sub Level", 2},
     {"Rel Rate", 2},
     {"Octave", 1},
-    {"Freq Num", 4}};
+    {"Freq #", 4}};
 
 static bool drawUi = false;
 
