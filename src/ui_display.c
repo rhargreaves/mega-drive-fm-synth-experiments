@@ -240,7 +240,7 @@ static void printStereo(u16 index, u16 x, u16 y)
 
 static void printAlgorithm(u16 index, u16 x, u16 y)
 {
-    const char TEXT[][10] = {"1*2*3*4", "(1+2)*3*4", "(1+2*3)*4", "(1*2+3)*4", "1*2+3*4", "1*(2+3+4)", "1*2+3+4", "1+2+3+4"};
+    const char TEXT[][10] = {"1*2*3*4", "(1+2)*3*4", "(1+2*3)*4", "(1*2+3)*4", "1*3+2*4", "1*(2+3+4)", "1*2+3+4", "1+2+3+4"};
     printLookup(index, TEXT[index], x, y);
 }
 
