@@ -1,2 +1,2 @@
 #!/bin/sh
-docker run -w /app -v $(pwd):/app -it rhargreaves/gendev make
+docker run -w /app -v $(pwd):/app -it rhargreaves/gendev:dockerfix make
