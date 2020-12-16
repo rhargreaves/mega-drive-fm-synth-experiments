@@ -1,7 +1,7 @@
 #include <genesis.h>
-#include <ui.h>
-#include <synth.h>
 #include <presets.h>
+#include <synth.h>
+#include <ui.h>
 
 int main(void)
 {
@@ -12,6 +12,6 @@ int main(void)
     {
         VDP_showFPS(FALSE);
         ui_checkInput();
-        VDP_waitVSync();
+        SYS_doVBlankProcess();
     }
 }

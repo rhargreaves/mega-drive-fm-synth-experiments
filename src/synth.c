@@ -15,6 +15,7 @@ static void loadOperatorPreset(Operator *op, u16 operatorParameters[OPERATOR_PAR
 
 void synth_init(void)
 {
+    Z80_requestBus(TRUE);
     for (u8 i = 0; i < CHANNEL_COUNT; i++)
     {
         channel_init(&channels[i], i);

@@ -2,3 +2,5 @@
 .vscode/
 *.o
 project.code-workspace
+bin/
+out/

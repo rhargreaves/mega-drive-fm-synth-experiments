@@ -1,8 +1,9 @@
-GENDEV?=/opt/toolchains/gen/
-GCC_VER?=4.8.2
+GENDEV?=/opt/gendev
+GCC_VER?=6.3.0
 MAKE?=make
 LIB?=lib
-GENGCC_BIN=$(GENDEV)/m68k-elf/bin
+ASSEMBLY_OUT?=out
+GENGCC_BIN=$(GENDEV)/bin
 GENBIN=$(GENDEV)/bin
 CC = $(GENGCC_BIN)/m68k-elf-gcc
 AS = $(GENGCC_BIN)/m68k-elf-as
@@ -10,8 +11,10 @@ AR = $(GENGCC_BIN)/m68k-elf-ar
 LD = $(GENGCC_BIN)/m68k-elf-ld
 RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib
 OBJC = $(GENGCC_BIN)/m68k-elf-objcopy
+OBJDUMP = $(GENGCC_BIN)/m68k-elf-objdump
 BINTOS = $(GENBIN)/bintos
-RESCOMP= $(GENBIN)/rescomp
+JAVA= java
+RESCOMP= $(JAVA) -jar $(GENBIN)/rescomp.jar
 XGMTOOL= $(GENBIN)/xgmtool
 PCMTORAW = $(GENBIN)/pcmtoraw
 WAVTORAW = $(GENBIN)/wavtoraw
@@ -19,65 +22,44 @@ SIZEBND = $(GENBIN)/sizebnd
 ASMZ80 = $(GENBIN)/zasm
 RM = rm -f
 NM = nm
-NM2WCH = nm2wch
-MKISOFS = mkisofs
-OPTION = -std=c11 -fno-builtin
-INCS = -I. -I$(GENDEV)/m68k-elf/include -I$(GENDEV)/m68k-elf/m68k-elf/include -Isrc -Ires
-CCFLAGS = $(OPTION) -m68000 -Wall -O2 -c -fomit-frame-pointer
-HWCCFLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer
+INCS = -I. \
+	-I$(GENDEV)/sgdk/inc \
+	-I$(GENDEV)/m86k-elf/include \
+	-I$(GENDEV)/sgdk/res \
+	-Isrc \
+	-Isrc/mw \
+	-Ires
+CCFLAGS = -Wall \
+	-Wextra \
+	-std=c11 \
+	-fno-builtin \
+	-m68000 -O0 -c -fomit-frame-pointer -g
 Z80FLAGS = -vb2
 ASFLAGS = -m68000 --register-prefix-optional
-LIBS =  -L$(GENDEV)/m68k-elf/lib -L$(GENDEV)/m68k-elf/lib/gcc/m68k-elf/* -L$(GENDEV)/m68k-elf/m68k-elf/lib -lmd -lnosys
-LINKFLAGS = -T $(GENDEV)/ldscripts/sgdk.ld -nostdlib
-ARCHIVES = $(GENDEV)/m68k-elf/lib/libmd.a
+LIBS = -L$(GENDEV)/m68k-elf/lib \
+	-L$(GENDEV)/lib/gcc/m68k-elf/$(GCC_VER)/* \
+	-L$(GENDEV)/sgdk/lib -lmd -lnosys
 
-# Are we AMD64?
-#LBITS := $(shell getconf LONG_BIT)
-#ifeq ($(LBITS), 64)
-#ARCHIVES += $(GENDEV)/m68k-elf/lib64/gcc/m68k-elf/$(GCC_VER)/libgcc.a
-#else
-#ARCHIVES += $(GENDEV)/m68k-elf/lib/gcc/m68k-elf/$(GCC_VER)/libgcc.a
-#endif
-
-ARCHIVES += $(GENDEV)/m68k-elf/$(LIB)/gcc/m68k-elf/$(GCC_VER)/libgcc.a
+LINKFLAGS = -T $(GENDEV)/sgdk/md.ld \
+	-Map=out/output.map \
+	-nostdlib
+ARCHIVES = $(GENDEV)/sgdk/$(LIB)/libmd.a
+ARCHIVES += $(GENDEV)/$(LIB)/gcc/m68k-elf/$(GCC_VER)/libgcc.a
 
 RESOURCES=
 BOOT_RESOURCES=
 
 BOOTSS=$(wildcard boot/*.s)
 BOOTSS+=$(wildcard src/boot/*.s)
+NEWLIBSS=$(wildcard newlib/*.s)
 BOOT_RESOURCES+=$(BOOTSS:.s=.o)
-
-#BMPS=$(wildcard res/*.bmp)
-#VGMS=$(wildcard res/*.vgm)
-#RAWS=$(wildcard res/*.raw)
-#PCMS=$(wildcard res/*.pcm)
-#MVSS=$(wildcard res/*.mvs)
-#TFDS=$(wildcard res/*.tfd)
-#WAVS=$(wildcard res/*.wav)
+NEWLIB_RESOURCES+=$(NEWLIBSS:.s=.o)
 RESS=$(wildcard res/*.res)
-#WAVPCMS=$(wildcard res/*.wavpcm)
-#BMPS+=$(wildcard *.bmp)
-#VGMS+=$(wildcard *.vgm)
-#RAWS+=$(wildcard *.raw)
-#PCMS+=$(wildcard *.pcm)
-#MVSS+=$(wildcard *.mvs)
-#TFDS+=$(wildcard *.tfd)
-#WAVS+=$(wildcard *.wav)
 RESS+=$(wildcard *.res)
-#WAVPCMS+=$(wildcard *.wavpcm)
-
-#RESOURCES+=$(BMPS:.bmp=.o)
-#RESOURCES+=$(VGMS:.vgm=.o)
-#RESOURCES+=$(RAWS:.raw=.o)
-#RESOURCES+=$(PCMS:.pcm=.o)
-#RESOURCES+=$(MVSS:.mvs=.o)
-#RESOURCES+=$(TFDS:.tfd=.o)
-#RESOURCES+=$(WAVS:.wav=.o)
-#RESOURCES+=$(WAVPCMS:.wavpcm=.o)
 RESOURCES+=$(RESS:.res=.o)
 
 CS=$(wildcard src/*.c)
+CS+=$(wildcard src/*/*.c)
 SS=$(wildcard src/*.s)
 S80S=$(wildcard src/*.s80)
 CS+=$(wildcard *.c)
@@ -89,19 +71,21 @@ RESOURCES+=$(S80S:.s80=.o)
 
 OBJS = $(RESOURCES)
 
-all: bin/out.bin
+all: bin/out.bin bin/out.elf
 
 boot/sega.o: boot/rom_head.bin
-	$(AS) $(ASFLAGS) boot/sega.s -o $@
+	$(CC) -x assembler-with-cpp $(CCFLAGS) boot/sega.s -o $@
 
 bin/%.bin: %.elf
 	mkdir -p bin
 	$(OBJC) -O binary $< temp.bin
 	dd if=temp.bin of=$@ bs=8K conv=sync
+	$(OBJDUMP) -D $< --source > $(ASSEMBLY_OUT)/out.s
 	rm temp.bin
+	echo $(BUILD) > bin/version.txt
 
-%.elf: $(OBJS) $(BOOT_RESOURCES)
-	$(LD) -o $@ $(LINKFLAGS) $(BOOT_RESOURCES) $(ARCHIVES) $(OBJS) $(LIBS)
+%.elf: $(OBJS) $(BOOT_RESOURCES) $(NEWLIB_RESOURCES)
+	$(LD) -o $@ $(LINKFLAGS) $(BOOT_RESOURCES) $(NEWLIB_RESOURCES) $(ARCHIVES) $(OBJS) $(LIBS)
 
 %.o80: %.s80
 	$(ASMZ80) $(Z80FLAGS) -o $@ $<
@@ -110,10 +94,13 @@ bin/%.bin: %.elf
 	$(BINTOS) $<
 
 %.o: %.c
-	$(CC) $(CCFLAGS) $(INCS) -c $< -o $@
+	mkdir -p $(ASSEMBLY_OUT)
+	$(CC) $(CCFLAGS) $(INCS) -c \
+		-Wa,-aln=$(ASSEMBLY_OUT)/$(notdir $(@:.o=.s)) \
+		$< -o $@
 
-%.o: %.s
-	$(AS) $(ASFLAGS) $< -o $@
+%.o: %.s res/sprite.s
+	$(CC) -x assembler-with-cpp $(CCFLAGS) $< -o $@
 
 %.s: %.bmp
 	bintos -bmp $<
@@ -126,12 +113,6 @@ bin/%.bin: %.elf
 
 %.pcm: %.wavpcm
 	$(WAVTORAW) $< $@ 22050
-
-#%.tfc: %.tfd
-#	$(TFMCOM) $<
-
-#%.o80: %.s80
-#	$(ASMZ80) $(FLAGSZ80) $< $@ out.lst
 
 %.s: %.tfd
 	$(BINTOS) -align 32768 $<
@@ -164,6 +145,5 @@ boot/rom_head.bin: boot/rom_head.o
 	$(LD) $(LINKFLAGS) --oformat binary -o $@ $<
 
 clean:
-	$(RM) $(RESOURCES)
-	$(RM) *.o *.bin *.elf *.map *.iso
+	$(RM) $(RESOURCES) res/*.s
 	$(RM) boot/*.o boot/*.bin
