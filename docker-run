@@ -1,0 +1,22 @@
+#!/bin/bash -e
+IMAGE_NAME=mega-drive-fm-experiments
+docker build -t $IMAGE_NAME .
+if [ -t 1 ] ; then
+    TTY_PARAM=-t
+else
+    TTY_PARAM=
+fi
+docker run \
+    --cap-add=SYS_PTRACE \
+    --privileged \
+    -p 2345:2345 \
+    -e BUILD \
+    -e CMOCKA_MESSAGE_OUTPUT \
+    -e CMOCKA_XML_FILE \
+    --rm \
+    -v $(pwd):/app \
+    -w /app \
+    -i \
+    $TTY_PARAM \
+    $IMAGE_NAME \
+    "$@"

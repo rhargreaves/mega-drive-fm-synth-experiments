@@ -1,10 +1,13 @@
 #include <genesis.h>
-#include <ui.h>
-#include <synth.h>
 #include <presets.h>
+#include <synth.h>
+#include <ui.h>
 
 int main(void)
 {
+    Z80_init();
+    Z80_releaseBus();
+    YM2612_reset();
     synth_init();
     synth_preset(&PRESET_CASTLEVANIA);
     ui_init();
@@ -12,6 +15,6 @@ int main(void)
     {
         VDP_showFPS(FALSE);
         ui_checkInput();
-        VDP_waitVSync();
+        SYS_doVBlankProcess();
     }
 }
